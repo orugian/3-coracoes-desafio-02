@@ -173,12 +173,17 @@ O layout é uma configuração: na POC ele é substituído pelo layout oficial d
 * Fonte Jost (Google Fonts)
 * Identidade visual inspirada no Mercafé, loja oficial da 3corações
 
+## Fotos dos produtos
+
+As fotos ficam em `assets/produtos/`, com o **código SAP** como nome do arquivo (por exemplo `12031189.jpg`). A plataforma procura a foto nessa pasta ao abrir: para incluir ou trocar uma foto, basta enviar o arquivo com o nome certo, sem mexer no código. A lista do que já temos e do que falta está em [`assets/produtos/README.md`](assets/produtos/README.md).
+
 ## Estrutura do repositório
 
 ```
 index.html                 Plataforma completa (dados, regras e interface)
 vendor/xlsx.full.min.js    Leitor de planilhas (SheetJS)
 vendor/LICENSE-sheetjs.txt Licença do SheetJS
+assets/produtos/           Fotos dos produtos (nome do arquivo = código SAP)
 README.md                  Este documento
 pre-solucao/               Material do desafio (apresentação e planilhas fornecidas pela 3corações)
 ```
