@@ -20,13 +20,14 @@ Para publicar com um link, ative o GitHub Pages em **Settings → Pages → Bran
 
 O leitor de planilhas (SheetJS) e o motor 3D (Three.js) estão na pasta `vendor`, então a importação do SAP e a visão 3D funcionam mesmo sem internet. Só as fontes vêm do Google Fonts; sem internet, o navegador usa uma fonte parecida. Se o navegador não tiver WebGL, a plataforma mostra o desenho 2D do veículo.
 
-Pedidos, carrinho e regras ficam salvos no navegador, então a demonstração sobrevive a um recarregamento. Para voltar ao estado inicial, use **Restaurar dados da demonstração** (tela de acesso) ou **Restaurar demonstração** (menu do painel).
+Pedidos, carrinho e regras ficam salvos no navegador, então o estado sobrevive a um recarregamento. Para voltar aos dados de exemplo, use **Restaurar dados de exemplo** (tela de acesso) ou **Restaurar dados** (menu do painel).
 
 ---
 
 ## Roteiro sugerido de demonstração
 
-1. **Tela de entrada:** escolha **Área do cliente** (Martín, distribuidor da MINOIL S.A.).
+1. **Tela de acesso:** escolha o perfil **Distribuidor** (Martín, MINOIL S.A.).
+   * Opcional: clique em **Importar planilha**, depois em **Usar exemplo** e em **Substituir pedido**. O pedido do Excel vira carrinho, com código 3C, EAN e quantidade em unidades convertida para caixas.
 2. Digite quantidades no catálogo e veja os pallets caírem na carreta em 3D. Gire com o mouse, troque para contêiner 40' ou 20' e use **Ampliar** para ver o plano de carga em tela cheia. Use o aviso *"faltam 24 cx para fechar o 4º pallet"* e o botão **Aplicar** da sugestão.
 3. No Café Estrada Real, escolha **UN** e digite **1010**: aparece *"Não fecha caixa"* com as opções de arredondamento.
 4. **Revisar pedido → Confirmar** e depois **Ver no painel 3corações**.
@@ -63,6 +64,11 @@ O item extra pedido no desafio, *"importar o restante dos produtos e exportar o 
 * Regra de pallet misto vem do cadastro do cliente (definida pela 3corações)
 * Status da carga (completa, incompleta ou excesso), barras de posições, peso e cubagem
 * Sugestões: fechar pallet, completar o veículo, reduzir excesso
+* **Recomendação de veículo**: compara carreta, contêiner 40' e 20' com a ocupação de cada um e marca o mais bem aproveitado
+* **Divisão em embarques**: quando o pedido não cabe em um veículo, o sistema propõe a divisão (ex.: carreta 100% + contêiner 20' 20%)
+* **Importar pedido do Excel**: colar linhas ou enviar a planilha que o distribuidor já usa; reconhece código 3C, EAN ou DUN e quantidade em caixas, unidades ou quilos, com prévia antes de aplicar
+* **Repetir pedido** a partir de Meus pedidos
+* Rascunho salvo automaticamente
 * Revisão com a lista exata do que impede a confirmação, prazo mínimo de carregamento e proteção contra envio duplicado
 * Acompanhamento com jornada em 5 etapas e aviso quando a Exportação ajusta algum item
 * Indicadores do cliente: pedidos em andamento, ocupação média, comprado no ano, aprovados sem ajuste
@@ -134,7 +140,7 @@ Produtos do recorte: 10 materiais das marcas 3corações e Iguaçu (cafés, capp
 * **Peso máximo por pallet** não foi aplicado; o pallet mais pesado do recorte tem cerca de 895 kg.
 * **Stick de solúvel (12147801)**: o SAP traz o peso bruto da caixa em gramas trocadas (menor que o peso líquido). Mantivemos 1,2 kg por caixa, valor da Order Basis.
 * **Filtro de papel (12037417)**: lote mínimo de 2 pallets, linha da filial LONT com a descrição "RED DES".
-* **Cliente demo** (Distribuidora Río Claro, Argentina): fictício, com lista de preço AR simulada (lista US × 1,06) e o porta filtro bloqueado como exemplo de restrição por destino.
+* **Distribuidora Río Claro** (Argentina): cliente fictício, com lista de preço AR simulada (lista US × 1,06) e o porta filtro bloqueado como exemplo de restrição por destino.
 * **Carga estivada**: cálculo simplificado por cubagem total.
 
 ---
@@ -265,7 +271,7 @@ No protótipo, cada endpoint está no objeto `API` do `index.html`, com o mesmo 
 * Arquitetura serverless na AWS: front no Amplify, API Gateway com Lambda, banco gerenciado, Cognito para login e S3 para arquivos e fotos.
 * Logs e métricas por endpoint (tempo de resposta, erros de validação mais comuns), que também alimentam os indicadores da área.
 
-### Persistência na demonstração
+### Persistência no ambiente de homologação
 
 Sem servidor, o protótipo grava o estado no `localStorage` do navegador (pedidos, carrinho, regras, catálogo importado e histórico), com versão de esquema. Se os dados-base do catálogo mudarem, o estado salvo é descartado automaticamente.
 
@@ -276,8 +282,8 @@ Sem servidor, o protótipo grava o estado no `localStorage` do navegador (pedido
 * HTML, CSS e JavaScript, sem framework e sem servidor, em um único arquivo (`index.html`)
 * [SheetJS Community Edition 0.18.5](https://sheetjs.com) para leitura das planilhas (licença Apache 2.0, em `vendor/`)
 * [Three.js r128](https://threejs.org) para a visão 3D dos veículos e da carga (licença MIT, em `vendor/`)
-* Fonte Jost (Google Fonts)
-* Identidade visual inspirada no Mercafé, loja oficial da 3corações
+* Fonte Inter (Google Fonts)
+* Identidade visual corporativa: grafite com o vermelho da 3corações, menu lateral nas duas áreas e selo de ambiente de homologação
 
 ## Fotos dos produtos
 
