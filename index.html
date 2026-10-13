@@ -295,6 +295,35 @@ td.div{color:var(--err);font-weight:700;background:var(--err-soft)}
 .mo + .mo{border-top:1px solid var(--line)}
 .mo .r1{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:center}
 .prices td.best{font-weight:700}
+/* ---------- tela de acesso ---------- */
+body.is-entry .top,body.is-entry footer{display:none}
+body.is-entry main.wrap{max-width:none;padding:0}
+.login{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);min-height:100vh}
+.login-brand{background:radial-gradient(circle at 88% 12%,rgba(254,92,22,.22),transparent 42%),radial-gradient(circle at 0% 100%,rgba(254,92,22,.10),transparent 40%),var(--admin-bg);color:#FFFFFF;padding:48px 56px;display:flex;flex-direction:column;justify-content:space-between;gap:40px}
+.lb-top{display:flex;align-items:center;gap:12px}
+.lb-top b{font-size:20px;font-weight:600;letter-spacing:.01em}
+.lb-mid h1{font-size:46px;line-height:1.12;font-weight:600;letter-spacing:-.01em;max-width:15ch;color:#FFFFFF}
+.lb-mid h1 span{color:#FF7A3D}
+.lb-mid p{color:rgba(255,255,255,.72);max-width:44ch;font-size:16px;line-height:1.55;margin:18px 0 0}
+.lb-foot{font-size:13px;color:rgba(255,255,255,.55)}
+.login-form{background:var(--surface);display:flex;flex-direction:column;padding:32px 56px;gap:24px}
+.lf-top{display:flex;justify-content:flex-end}
+.lf-box{margin:auto 0;width:100%;max-width:420px;align-self:center;display:grid;gap:14px}
+.lf-box h2{font-size:32px;font-weight:600}
+.lf-box > p{margin:0 0 10px;color:var(--muted)}
+.acc{display:flex;align-items:center;gap:16px;width:100%;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:16px 18px;transition:border-color .15s,box-shadow .15s}
+.acc:hover,.acc:focus-visible{border-color:var(--red);box-shadow:0 0 0 3px var(--red-soft);outline:none}
+.acc .ic{width:44px;height:44px;border-radius:10px;display:grid;place-items:center;flex:none}
+.acc .ic svg{width:22px;height:22px}
+.acc .ic.cli{background:var(--red-soft);color:var(--accent-text)}
+.acc .ic.adm{background:var(--admin-bg);color:#FF7A3D}
+.acc b{display:block;font-size:16px;font-weight:600}
+.acc small{display:block;color:var(--muted);font-size:13px;margin-top:1px}
+.acc .go{margin-left:auto;color:var(--faint);flex:none}
+.acc:hover .go{color:var(--accent-text)}
+.lf-note{font-size:12.5px;color:var(--faint);margin:6px 0 0}
+.lf-foot{text-align:center;font-size:12px;color:var(--faint)}
+@media (max-width:860px){.login{grid-template-columns:minmax(0,1fr);min-height:auto}.login-brand{padding:28px 20px;gap:28px}.lb-mid h1{font-size:30px}.login-form{padding:20px 20px 36px;min-height:auto}.lf-box{margin:8px 0}}
 .useg button[aria-pressed="true"]{box-shadow:0 0 0 1px var(--line),0 1px 2px rgba(16,24,40,.12)}
 .prod.on .stepper{background:var(--surface);box-shadow:0 0 0 1px var(--sel-line)}
 .prod.on .useg{background:var(--surface);box-shadow:0 0 0 1px var(--sel-line)}
@@ -665,6 +694,7 @@ function sideHTML(){
 }
 function render(){
   document.body.classList.toggle("is-admin",S.area==="admin");
+  document.body.classList.toggle("is-entry",S.view==="entry");
   const side=document.getElementById("side"); side.hidden=S.area!=="admin"; side.innerHTML=S.area==="admin"?sideHTML():"";
   const top=document.getElementById("topbar");
   top.className="top"+(S.area==="admin"?" admin":"");
@@ -676,24 +706,24 @@ function render(){
 
 /* ---------- Entrada ---------- */
 function renderEntry(){
-  document.getElementById("v-entry").innerHTML=`<div class="entry">
-    <div class="entry-hero">${MARK}<h1>3C Conecta</h1><p>Plataforma de pedidos de exportação da 3corações. O distribuidor monta o pedido vendo pallets e ocupação do veículo, e a Exportação recebe tudo validado.</p></div>
-    <div class="doors">
-      <div class="door cli"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5L5.5 4h13L20 9.5"/><path d="M4 9.5h16v1a3 3 0 0 1-5.3 1.9A3 3 0 0 1 12 13.5a3 3 0 0 1-2.7-1.1A3 3 0 0 1 4 10.5z"/><path d="M5.5 13v7h13v-7M10 20v-4h4v4"/></svg></div>
-        <h2>Área do cliente</h2><p>Para distribuidores e importadores no Mercosul.</p>
-        <ul><li>Catálogo com o preço do cliente</li><li>Pallets e ocupação do veículo em tempo real</li><li>Confirmação do pedido e acompanhamento do status</li><li>Português, espanhol e inglês</li></ul>
-        <button class="btn" data-enter="client">Entrar como Martín · MINOIL S.A. ${SVG.arrow}</button></div>
-      <div class="door adm"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 13h3M8 16h6M15 13h1"/></svg></div>
-        <h2>Painel 3corações</h2><p>Para a equipe de Exportação e logística.</p>
-        <ul><li>Fila de pedidos já validados</li><li>Ajustes com trilha de auditoria</li><li>Aprovação e arquivo de importação para o SAP</li><li>Clientes, tabelas de preço, produtos e regras</li></ul>
-        <button class="btn dark" data-enter="admin">Entrar como Lucas · Exportação ${SVG.arrow}</button></div>
-    </div>
-    <div class="card card-pad" style="display:grid;gap:14px"><div class="sec-title" style="margin:0">Como funciona</div><div class="how">
-      <div><i>1</i><b>O distribuidor monta o pedido</b><span>Escolhe produtos em caixas, unidades ou quilos e vê na hora os pallets e a ocupação do veículo.</span></div>
-      <div><i>2</i><b>O sistema valida na hora</b><span>Lote mínimo, múltiplo de caixa, restrições do destino, peso, cubagem e posições de pallet.</span></div>
-      <div><i>3</i><b>A Exportação recebe pronto</b><span>Pedido validado na fila, ajustes com trilha de auditoria e arquivo para importar no SAP.</span></div>
-    </div></div>
-    <div class="label" style="text-align:center">Demonstração sem senha. Na versão real, cada área tem login próprio e perfis de acesso.</div>
+  const go='<svg class="go" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+  document.getElementById("v-entry").innerHTML=`<div class="login">
+    <section class="login-brand">
+      <div class="lb-top">${MARK}<b>3C Conecta</b></div>
+      <div class="lb-mid"><h1>Pedidos de exportação, <span>do catálogo ao caminhão.</span></h1><p>Pallets e ocupação do veículo em tempo real para o distribuidor. Pedido validado e pronto para o SAP para a Exportação.</p></div>
+      <div class="lb-foot">Hackathon Cafeína Week 2026 · FIAP</div>
+    </section>
+    <section class="login-form">
+      <div class="lf-top">${themeBtn()}</div>
+      <div class="lf-box">
+        <h2>Acessar</h2>
+        <p>Escolha a área para entrar.</p>
+        <button class="acc" data-enter="client"><span class="ic cli"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5L5.5 4h13L20 9.5"/><path d="M4 9.5h16v1a3 3 0 0 1-5.3 1.9A3 3 0 0 1 12 13.5a3 3 0 0 1-2.7-1.1A3 3 0 0 1 4 10.5z"/><path d="M5.5 13v7h13v-7M10 20v-4h4v4"/></svg></span><span><b>Área do cliente</b><small>Martín · MINOIL S.A.</small></span>${go}</button>
+        <button class="acc" data-enter="admin"><span class="ic adm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 13h3M8 16h6M15 13h1"/></svg></span><span><b>Painel 3corações</b><small>Lucas · Exportação</small></span>${go}</button>
+        <p class="lf-note">Demonstração sem senha. Na versão final, cada área tem login próprio.</p>
+      </div>
+      <div class="lf-foot">Protótipo acadêmico. Não é um sistema oficial da 3corações.</div>
+    </section>
   </div>`;
 }
 
