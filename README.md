@@ -28,13 +28,15 @@ Pedidos, carrinho e regras ficam salvos no navegador, então o estado sobrevive 
 
 1. **Tela de acesso:** escolha o perfil **Distribuidor** (Martín, MINOIL S.A.). A tela **Início** mostra o pedido sugerido pelo histórico, os alertas do rascunho (lote mínimo, carga incompleta) e insights de ocupação. Clique em **Completar carga** no alerta ou em **Usar pedido sugerido**.
    * Opcional: clique em **Importar planilha**, depois em **Usar exemplo** e em **Substituir pedido**. O pedido do Excel vira carrinho, com código 3C, EAN e quantidade em unidades convertida para caixas.
+   * Clique em **Dúvidas?** (canto inferior direito) e pergunte, por exemplo, *"Como completo a carga?"* ou *"Adicione 2 pallets de Cappuccino Baunilha"*. O assistente responde com os dados da conta e ajusta o rascunho.
 2. Digite quantidades no catálogo e veja os pallets caírem na carreta em 3D. Gire com o mouse, troque para contêiner 40' ou 20' e use **Ampliar** para ver o plano de carga em tela cheia. Use o aviso *"faltam 24 cx para fechar o 4º pallet"* e o botão **Aplicar** da sugestão.
 3. No Café Estrada Real, escolha **UN** e digite **1010**: aparece *"Não fecha caixa"* com as opções de arredondamento.
 4. **Revisar pedido → Confirmar** e depois **Ver no painel 3corações**.
 5. No painel, abra o pedido **3CC-2026-0001** (o pedido teste da Order Basis): a planilha marcava "OK", mas são **30 pallets para 28 posições**. No plano de carga 3D, os 2 pallets que sobram aparecem fora da carreta, em vermelho.
 6. Ajuste uma quantidade (fica registrado na trilha de auditoria), aprove e gere o **arquivo para o SAP**.
 7. Em **Clientes e preços**, ligue **pallet misto** para a MINOIL e volte ao portal: as sobras passam a dividir pallets e o pedido teste cai de 30 para 29 posições.
-8. Em **Produtos e regras**, arraste as planilhas Conferência de produtos, Materiais e Registros (estão em `pre-solucao/pedidos-sem-fronteiras/`) para mostrar a importação do SAP com os alertas de qualidade.
+8. Em **Parâmetros → Veículos**, mude a carreta de 28 para 30 posições: antes de salvar, a barra de impacto mostra que o pedido teste passa de excesso para carga completa. Salve e veja o histórico. Em **Regras do negócio**, troque o lote mínimo para "Só alerta"; em **Produtos**, ajuste lastro e camadas; em **Restrições por destino**, bloqueie um produto para um cliente.
+9. Em **Catálogo e dados**, arraste as planilhas Conferência de produtos, Materiais e Registros (estão em `pre-solucao/pedidos-sem-fronteiras/`) para mostrar a importação do SAP com os alertas de qualidade.
 
 ---
 
@@ -69,6 +71,7 @@ O item extra pedido no desafio, *"importar o restante dos produtos e exportar o 
 * **Recomendação de veículo**: compara carreta, contêiner 40' e 20' com a ocupação de cada um e marca o mais bem aproveitado
 * **Divisão em embarques**: quando o pedido não cabe em um veículo, o sistema propõe a divisão (ex.: carreta 100% + contêiner 20' 20%)
 * **Importar pedido do Excel**: colar linhas ou enviar a planilha que o distribuidor já usa; reconhece código 3C, EAN ou DUN e quantidade em caixas, unidades ou quilos, com prévia antes de aplicar. Lê o cabeçalho da planilha (código, caixas ou quantidade, unidade) e escolhe a aba certa: enviando a própria `ORDEN BASIS TESTE.xlsm`, o pedido teste entra sozinho (aba ORDEM, coluna CAIXAS)
+* **Assistente de dúvidas (chat)** em todas as telas do cliente, em PT, ES e EN: caixas por pallet, lote mínimo, preço, veículo mais adequado, como completar a carga, prazo mínimo, status dos pedidos, importação do Excel e condições da conta, sempre com os dados reais da conta. Também ajusta o rascunho por texto (*"adicione 2 pallets de Café Tradicional"*, *"remova o filtro"*) e oferece botões de ação (completar carga, trocar veículo, abrir o plano 3D, revisar pedido). Publicado no claude.ai, as perguntas digitadas são respondidas pelo Claude com o contexto da conta e ferramentas para consultar e ajustar o rascunho (o visitante autoriza no primeiro uso); no GitHub Pages ou sem autorização, um motor de respostas embutido responde na hora
 * **Repetir pedido** a partir de Meus pedidos
 * Rascunho salvo automaticamente
 * Revisão com a lista exata do que impede a confirmação, prazo mínimo de carregamento e proteção contra envio duplicado
@@ -77,7 +80,7 @@ O item extra pedido no desafio, *"importar o restante dos produtos e exportar o 
 * Português, espanhol e inglês, modo claro e escuro
 
 ### Painel 3corações (Exportação)
-* Faixa **Atenção agora**: pedidos bloqueados, aguardando há mais de 4 horas, cargas incompletas e qualidade de dados, cada um como atalho de filtro
+* Faixa **Atenção agora**: pedidos bloqueados, aguardando além do limite configurado (padrão 4 horas), cargas incompletas e qualidade de dados, cada um como atalho de filtro
 * **Aprovação automática** por cliente: pedido sem bloqueio e com carga completa entra aprovado, sem fila, com registro da regra na auditoria
 * Fila de pedidos validados com busca e filtro por status, jornada completa em 8 etapas e responsável por etapa
 * **Plano de carga 3D** de cada pedido, ao lado de posições, peso, cubagem e alertas
@@ -88,7 +91,14 @@ O item extra pedido no desafio, *"importar o restante dos produtos e exportar o 
 * Clientes e tabela de preços por lista, com a regra de **pallet misto** por cliente e histórico de alterações
 * **Importação do SAP**: lê Conferência de produtos, Materiais e Registros, mostra prévia (novos, alterados, alertas) e atualiza o catálogo após confirmação
 * **Ficha técnica completa dos produtos** (padrão Order Basis) com troca de foto
-* Base de dados com as divergências entre as planilhas, regras e premissas
+* **Catálogo e dados**: divergências entre as planilhas e resumo dos veículos e regras em vigor
+* **Parâmetros do negócio**, em cinco abas:
+  * **Regras do negócio**: carga completa a partir de X%, prazo mínimo de carregamento, alerta de pedido parado na fila, lote mínimo e pallet incompleto (bloqueia o envio ou só alerta), pallet misto e aprovação automática por cliente
+  * **Veículos**: posições de pallet, peso máximo, cubagem, nome em PT, ES e EN, disponível ou fora de uso, cadastro de veículos novos (truck, bitrem, contêiner high cube), que entram no seletor do cliente, na recomendação, na divisão em embarques e no plano 3D
+  * **Produtos**: lastro, camadas (caixas por pallet recalculadas na hora), lote mínimo, peso bruto por caixa e produto ativo ou fora de linha
+  * **Restrições por destino**: matriz produto × cliente para liberar ou bloquear
+  * **Histórico**: quem mudou o quê e quando
+  * Edição em rascunho com validação campo a campo, **barra de impacto** antes de salvar (quais pedidos em análise mudam de status) e **Restaurar padrão** por aba. Pedidos já aprovados guardam a capacidade do veículo da data de aprovação
 
 ---
 
@@ -122,9 +132,9 @@ Produtos do recorte: 10 materiais das marcas 3corações e Iguaçu (cafés, capp
 * **Valor** = caixas × preço da lista do cliente
 * **Posições de pallet**: sem pallet misto, cada pallet incompleto ocupa uma posição inteira; com pallet misto, as sobras de produtos diferentes dividem posições
 * **Recurso limitante** = o maior entre peso ÷ limite, cubagem ÷ capacidade e posições ÷ capacidade
-* **Status da carga**: acima de 100% é excesso; a partir de 90% é carga completa; abaixo de 90% é carga incompleta
+* **Status da carga**: acima de 100% é excesso; a partir de 90% é carga completa; abaixo de 90% é carga incompleta (o limite de 90% é ajustável em Parâmetros)
 * **Pedido em UN ou KG**: convertido para caixas (UN pelas unidades por caixa; KG pelo peso líquido da caixa). Se não fecha caixa inteira, o pedido fica bloqueado até o cliente escolher o arredondamento
-* **Bloqueios**: abaixo do lote mínimo, caixa quebrada, produto não liberado para o destino, produto sem preço ou excesso de carga impedem a confirmação
+* **Bloqueios**: abaixo do lote mínimo, caixa quebrada, produto não liberado para o destino, produto sem preço, produto fora de linha ou excesso de carga impedem a confirmação. Lote mínimo e pallet incompleto podem ser configurados para bloquear ou só alertar
 * **Carga estivada**: sem pallets, a ocupação considera peso e cubagem
 
 | Veículo | Cubagem | Peso | Posições de pallet |
@@ -132,6 +142,8 @@ Produtos do recorte: 10 materiais das marcas 3corações e Iguaçu (cafés, capp
 | Carreta | 72 m³ | 25.000 kg | 28 |
 | Contêiner 40' | 60,84 m³ | 25.000 kg | 20 |
 | Contêiner 20' | 29,7 m³ | 25.000 kg | 10 |
+
+Valores de fábrica. A Exportação ajusta capacidades e cadastra veículos novos em **Parâmetros**.
 
 ---
 
@@ -215,7 +227,12 @@ Transições fora dessa ordem são recusadas (HTTP 409). Só pedidos em análise
 | PATCH | `/api/v1/orders/:id/items/:material` | Ajuste de quantidade pela Exportação (versão +1) | 409 pedido fora de análise |
 | POST | `/api/v1/orders/:id/approve` | Aprova o pedido | 409 bloqueios ou status errado |
 | POST | `/api/v1/orders/:id/sap-export?layout=sap\|ob` | Gera o arquivo de importação do SAP ou o pedido no padrão Order Basis | 409 pedido não aprovado |
-| PUT | `/api/v1/clients/:id/rules` | Regras do cliente (pallet misto, restrições) | 400 regra desconhecida |
+| PUT | `/api/v1/clients/:id/rules` | Regras do cliente (pallet misto, aprovação automática) | 400 regra desconhecida |
+| GET | `/api/v1/settings` | Regras, veículos, paletização dos produtos e restrições em vigor | |
+| PATCH | `/api/v1/settings` | Lote de alterações `{caminho: valor}`, validado por inteiro antes de aplicar (tudo ou nada), com registro no histórico | 422 valor fora da faixa, nenhum veículo disponível |
+| POST | `/api/v1/settings/vehicles` | Cadastra veículo | 422 nome repetido ou capacidade inválida |
+| DELETE | `/api/v1/settings/vehicles/:id` | Exclui veículo cadastrado pela Exportação | 409 veículo padrão ou usado em pedidos |
+| POST | `/api/v1/settings/reset` | Volta uma aba (ou tudo) aos valores de fábrica | |
 | POST | `/api/v1/imports/sap` | Recebe as extrações Conferência, Materiais e Registros e devolve a prévia com alertas | 422 arquivo não reconhecido |
 | POST | `/api/v1/imports/sap/:id/apply` | Aplica a prévia ao catálogo | |
 
@@ -235,6 +252,18 @@ Idempotency-Key: d8k2f1x9
     { "material": "12031189", "boxes": 1680 },
     { "material": "12034109", "boxes": 84 }
   ]
+}
+```
+
+Exemplo de alteração de parâmetros (a tela mostra o impacto antes de enviar):
+
+```json
+PATCH /api/v1/settings
+{
+  "veh.carreta.pos": 30,
+  "rules.fullAt": 0.92,
+  "prod.12031189.lastro": 15,
+  "block.rioclaro.20908885": true
 }
 ```
 
@@ -262,22 +291,27 @@ No protótipo, cada endpoint está no objeto `API` do `index.html`, com o mesmo 
 | `precos` | material, lista, preço, vigência (de, até) |
 | `lote_minimo` | material, filial, pallets |
 | `restricoes_destino` | material, país ou cliente, motivo |
-| `veiculos` | tipo, cubagem, peso máximo, posições de pallet |
-| `pedidos` | número, cliente, veículo, modo, regra de pallet misto na data do envio, referência, data de carregamento, status, versão, chave de idempotência |
+| `veiculos` | tipo, nomes por idioma, cubagem, peso máximo, posições de pallet, disponível |
+| `parametros` | regra, valor, vigência, usuário que alterou (carga completa, prazo mínimo, alerta de fila, lote mínimo e pallet incompleto bloqueiam ou alertam) |
+| `pedidos` | número, cliente, veículo, capacidade do veículo na aprovação, modo, regra de pallet misto na data do envio, referência, data de carregamento, status, versão, chave de idempotência |
 | `itens_pedido` | pedido, material, caixas, preço aplicado |
 | `auditoria` | pedido, data e hora, usuário, ação, valor anterior, valor novo |
 | `importacoes` | arquivos, usuário, data, itens novos, alterados e alertas |
 
+### Assistente com IA
+
+O chat do distribuidor tem dois motores. No claude.ai, a página declara a capacidade de IA do artefato e envia ao Claude a pergunta, o histórico curto da conversa e um retrato da conta (cliente, regras, veículos, catálogo com preços da lista, rascunho e pedidos). O Claude pode chamar três ferramentas da página (`ajustar_item`, `completar_carga` e `trocar_veiculo`), que passam pelas mesmas validações do portal. Ele não envia pedidos: a confirmação continua com o cliente, no botão Revisar pedido. Se a IA não estiver disponível (GitHub Pages, visitante não autorizou, limite de uso), o motor de intenções embutido responde com os mesmos dados. Na POC, o mesmo desenho roda no servidor, com a chave da API guardada no backend.
+
 ### Segurança e operação
 
-* Login com perfis: **distribuidor** (só vê o próprio cadastro, preços e pedidos), **Exportação** (fila, ajustes, aprovação, arquivo SAP) e **administração** (regras e importação).
+* Login com perfis: **distribuidor** (só vê o próprio cadastro, preços e pedidos), **Exportação** (fila, ajustes, aprovação, arquivo SAP) e **administração** (parâmetros e importação).
 * Integração com o SAP em duas etapas: arquivo no layout oficial de importação na POC; BAPI ou IDoc de ordem de venda no piloto.
 * Arquitetura serverless na AWS: front no Amplify, API Gateway com Lambda, banco gerenciado, Cognito para login e S3 para arquivos e fotos.
 * Logs e métricas por endpoint (tempo de resposta, erros de validação mais comuns), que também alimentam os indicadores da área.
 
 ### Persistência no ambiente de homologação
 
-Sem servidor, o protótipo grava o estado no `localStorage` do navegador (pedidos, carrinho, regras, catálogo importado e histórico), com versão de esquema. Se os dados-base do catálogo mudarem, o estado salvo é descartado automaticamente.
+Sem servidor, o protótipo grava o estado no `localStorage` do navegador (pedidos, carrinho, regras, parâmetros, veículos cadastrados, catálogo importado e histórico), com versão de esquema. Se os dados-base do catálogo mudarem, o estado salvo é descartado automaticamente.
 
 ---
 
