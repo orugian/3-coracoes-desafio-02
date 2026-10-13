@@ -53,7 +53,8 @@ O item extra pedido no desafio, *"importar o restante dos produtos e exportar o 
 ## Funcionalidades
 
 ### Área do cliente (distribuidor)
-* Catálogo com preço da lista do cliente
+* Catálogo com fotos e preço da lista do cliente
+* **Ficha técnica** de cada produto com todos os campos da Order Basis: código 3C, produto, família, preço, unidades por embalagem, EAN, DUN, peso bruto, peso líquido, cubagem, C × L × A, NCM, linha e caixas por pallet
 * Pedido em **caixas, unidades ou quilos**, com conversão e aviso quando não fecha caixa
 * Montagem do pallet de cada produto (medidas da caixa, caixas por camada × camadas)
 * Painel de embarque: carreta, contêiner 40' e 20', carga paletizada ou estivada, pallet misto opcional
@@ -61,15 +62,16 @@ O item extra pedido no desafio, *"importar o restante dos produtos e exportar o 
 * Sugestões: fechar pallet, completar o veículo, reduzir excesso
 * Revisão, confirmação e acompanhamento com jornada em 5 etapas
 * Indicadores do cliente: pedidos em andamento, ocupação média, comprado no ano, aprovados sem ajuste
-* Português e espanhol, modo claro e escuro
+* Português, espanhol e inglês, modo claro e escuro
 
 ### Painel 3corações (Exportação)
 * Fila de pedidos validados, com jornada completa em 8 etapas e responsável por etapa
 * Ajuste de quantidades com **trilha de auditoria** (quem, o quê, quando)
-* Aprovação e geração do **arquivo de importação para o SAP** (copiar ou baixar CSV)
+* Aprovação e geração do **arquivo de importação para o SAP** e do **pedido completo no padrão Order Basis** (copiar ou baixar CSV)
 * Indicadores de operação (fila, tempo de aprovação, certos na primeira, ocupação) e de gestão (receita, volume, países e clientes ativos)
 * Clientes e tabela de preços por lista
 * **Importação do SAP**: lê Conferência de produtos, Materiais e Registros, mostra prévia (novos, alterados, alertas) e atualiza o catálogo após confirmação
+* **Ficha técnica completa dos produtos** (padrão Order Basis) com troca de foto
 * Base de dados com as divergências entre as planilhas, regras e premissas
 
 ---
@@ -81,7 +83,10 @@ Todos os dados vêm das planilhas fornecidas no desafio.
 | Dado | Fonte |
 |---|---|
 | Caixas por pallet | Materiais (lastro × altura) |
-| Unidades por caixa, peso líquido e bruto da caixa, volume, medidas, validade | Conferência de produtos (linha da unidade CX) |
+| Unidades por caixa, peso líquido e bruto da caixa, volume, medidas, validade, linha | Conferência de produtos (linha da unidade CX) |
+| EAN, DUN e NCM | Order Basis (aba ORDEM) |
+| Fotos de 5 produtos | Material oficial do desafio (as demais podem ser enviadas no painel) |
+| Nomes em inglês e espanhol | Order Basis (aba AUX) |
 | Preço por caixa | Registros (lista US, EXP-MINOIL, vigente) |
 | Preço dos 3 produtos sem preço no SAP | Order Basis (valor digitado) |
 | Lote mínimo em pallets | Order Basis, aba PALETIZAÇÃO, filial LONT |
@@ -195,7 +200,10 @@ Arquitetura proposta para a POC: serverless na AWS (front no Amplify, API Gatewa
 
 ## Equipe
 
-*Preencher com os nomes dos integrantes.*
+* Bruno Rosa
+* Cecília Fabre
+* Guilherme Orugian
+* Ruan Ruales
 
 ---
 
