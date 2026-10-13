@@ -18,21 +18,22 @@ Não precisa instalar nada.
 
 Para publicar com um link, ative o GitHub Pages em **Settings → Pages → Branch: main / root**.
 
-O leitor de planilhas (SheetJS) está na pasta `vendor`, então a importação do SAP funciona mesmo sem internet. Só as fontes vêm do Google Fonts; sem internet, o navegador usa uma fonte parecida.
+O leitor de planilhas (SheetJS) e o motor 3D (Three.js) estão na pasta `vendor`, então a importação do SAP e a visão 3D funcionam mesmo sem internet. Só as fontes vêm do Google Fonts; sem internet, o navegador usa uma fonte parecida. Se o navegador não tiver WebGL, a plataforma mostra o desenho 2D do veículo.
 
-Os dados ficam na memória do navegador durante a demonstração. Recarregar a página volta tudo ao estado inicial.
+Pedidos, carrinho e regras ficam salvos no navegador, então a demonstração sobrevive a um recarregamento. Para voltar ao estado inicial, use **Restaurar dados da demonstração** (tela de acesso) ou **Restaurar demonstração** (menu do painel).
 
 ---
 
 ## Roteiro sugerido de demonstração
 
 1. **Tela de entrada:** escolha **Área do cliente** (Martín, distribuidor da MINOIL S.A.).
-2. Digite quantidades no catálogo e veja a carreta encher. Use o aviso *"faltam 24 cx para fechar o 4º pallet"* e o botão **Aplicar** da sugestão.
+2. Digite quantidades no catálogo e veja os pallets caírem na carreta em 3D. Gire com o mouse, troque para contêiner 40' ou 20' e use **Ampliar** para ver o plano de carga em tela cheia. Use o aviso *"faltam 24 cx para fechar o 4º pallet"* e o botão **Aplicar** da sugestão.
 3. No Café Estrada Real, escolha **UN** e digite **1010**: aparece *"Não fecha caixa"* com as opções de arredondamento.
 4. **Revisar pedido → Confirmar** e depois **Ver no painel 3corações**.
-5. No painel, abra o pedido **3CC-2026-0001** (o pedido teste da Order Basis): a planilha marcava "OK", mas são **30 pallets para 28 posições**. O pedido não cabe.
+5. No painel, abra o pedido **3CC-2026-0001** (o pedido teste da Order Basis): a planilha marcava "OK", mas são **30 pallets para 28 posições**. No plano de carga 3D, os 2 pallets que sobram aparecem fora da carreta, em vermelho.
 6. Ajuste uma quantidade (fica registrado na trilha de auditoria), aprove e gere o **arquivo para o SAP**.
-7. Em **Produtos e regras**, arraste as planilhas Conferência de produtos, Materiais e Registros (estão em `pre-solucao/pedidos-sem-fronteiras/`) para mostrar a importação do SAP com os alertas de qualidade.
+7. Em **Clientes e preços**, ligue **pallet misto** para a MINOIL e volte ao portal: as sobras passam a dividir pallets e o pedido teste cai de 30 para 29 posições.
+8. Em **Produtos e regras**, arraste as planilhas Conferência de produtos, Materiais e Registros (estão em `pre-solucao/pedidos-sem-fronteiras/`) para mostrar a importação do SAP com os alertas de qualidade.
 
 ---
 
@@ -42,7 +43,7 @@ Os dados ficam na memória do navegador durante a demonstração. Recarregar a p
 |---|---|---|
 | 1. Monta | Pedido por e-mail, planilha diferente a cada envio | Portal com catálogo, preço da lista do cliente, busca, filtros, PT e ES |
 | 2. Valida | Conferência manual de quantidades, múltiplos e restrições | Validação a cada digitação: múltiplo de caixa, lote mínimo, restrição por destino. A confirmação fica travada enquanto houver erro |
-| 3. Calcula a carga | Cubagem e paletização à mão, erros de ocupação | Peso, cubagem, pallets e posições ao vivo, desenho do veículo, alerta de excesso e de carga incompleta, sugestões automáticas |
+| 3. Calcula a carga | Cubagem e paletização à mão, erros de ocupação | Peso, cubagem, pallets e posições ao vivo, veículo em 3D com os pallets do pedido (os que não cabem ficam do lado de fora), alerta de excesso e de carga incompleta, sugestões automáticas |
 | 4. Confirma | Distribuidor não sabe como ficará o pedido | Tela de revisão com resumo completo, confirmação e acompanhamento em "Meus pedidos" |
 | 5. Recebe pronto | Redigitação item a item, sem registro | Fila validada no painel, trilha de auditoria, arquivo de importação para o SAP |
 
@@ -57,19 +58,24 @@ O item extra pedido no desafio, *"importar o restante dos produtos e exportar o 
 * **Ficha técnica** de cada produto com todos os campos da Order Basis: código 3C, produto, família, preço, unidades por embalagem, EAN, DUN, peso bruto, peso líquido, cubagem, C × L × A, NCM, linha e caixas por pallet
 * Pedido em **caixas, unidades ou quilos**, com conversão e aviso quando não fecha caixa
 * Montagem do pallet de cada produto (medidas da caixa, caixas por camada × camadas)
-* Painel de embarque: carreta, contêiner 40' e 20', carga paletizada ou estivada, pallet misto opcional
+* Painel de embarque: carreta, contêiner 40' e 20', carga paletizada ou estivada
+* **Visão 3D da carga**: cada caixa e cada pallet do pedido dentro do veículo, com animação ao adicionar, vistas em perspectiva, lateral e de cima, e pallets excedentes do lado de fora em vermelho
+* Regra de pallet misto vem do cadastro do cliente (definida pela 3corações)
 * Status da carga (completa, incompleta ou excesso), barras de posições, peso e cubagem
 * Sugestões: fechar pallet, completar o veículo, reduzir excesso
-* Revisão, confirmação e acompanhamento com jornada em 5 etapas
+* Revisão com a lista exata do que impede a confirmação, prazo mínimo de carregamento e proteção contra envio duplicado
+* Acompanhamento com jornada em 5 etapas e aviso quando a Exportação ajusta algum item
 * Indicadores do cliente: pedidos em andamento, ocupação média, comprado no ano, aprovados sem ajuste
 * Português, espanhol e inglês, modo claro e escuro
 
 ### Painel 3corações (Exportação)
-* Fila de pedidos validados, com jornada completa em 8 etapas e responsável por etapa
+* Fila de pedidos validados com busca e filtro por status, jornada completa em 8 etapas e responsável por etapa
+* **Plano de carga 3D** de cada pedido, ao lado de posições, peso, cubagem e alertas
 * Ajuste de quantidades com **trilha de auditoria** (quem, o quê, quando)
 * Aprovação e geração do **arquivo de importação para o SAP** e do **pedido completo no padrão Order Basis** (copiar ou baixar CSV)
-* Indicadores de operação (fila, tempo de aprovação, certos na primeira, ocupação) e de gestão (receita, volume, países e clientes ativos)
-* Clientes e tabela de preços por lista
+* Indicadores de operação na fila (aguardando, tempo de aprovação, certos na primeira, ocupação)
+* Aba **Indicadores** para a gestão: receita, volume, países e clientes ativos, ocupação por pedido, volume por família e pedidos por etapa
+* Clientes e tabela de preços por lista, com a regra de **pallet misto** por cliente e histórico de alterações
 * **Importação do SAP**: lê Conferência de produtos, Materiais e Registros, mostra prévia (novos, alterados, alertas) e atualiza o catálogo após confirmação
 * **Ficha técnica completa dos produtos** (padrão Order Basis) com troca de foto
 * Base de dados com as divergências entre as planilhas, regras e premissas
@@ -166,10 +172,110 @@ O layout é uma configuração: na POC ele é substituído pelo layout oficial d
 
 ---
 
+## Arquitetura e contrato de API (visão de backend)
+
+O protótipo roda inteiro no navegador, mas o código já está separado como uma aplicação real: **motor de cálculo**, **camada de dados** no formato da API e **telas**. Na POC, a camada de dados vira um serviço; as telas não mudam.
+
+### Princípios
+
+* **O servidor é a fonte da verdade.** O navegador calcula para dar resposta imediata, mas o servidor recalcula preço, pallets, ocupação e bloqueios com o mesmo motor antes de gravar. Um pedido adulterado no navegador é recusado.
+* **Mesmo motor nos dois lados.** O cálculo (`calc`) é uma função pura, sem acesso à tela. Na POC, ela vira um pacote compartilhado entre o portal e a API.
+* **Regras em configuração, não no código.** Capacidade dos veículos, carga completa a partir de 90%, prazo mínimo de carregamento, lote mínimo por filial, restrição por destino e pallet misto por cliente são dados.
+* **Tudo auditável.** Cada mudança registra quem, o quê, quando e a versão do pedido.
+
+### Máquina de status do pedido
+
+```
+em análise ──aprovar──▶ aprovado ──gerar arquivo──▶ arquivo SAP gerado
+     │                                                  │
+     └─ ajustes da Exportação (versão +1, auditoria)    └─ pode gerar o arquivo de novo
+```
+
+Transições fora dessa ordem são recusadas (HTTP 409). Só pedidos em análise aceitam ajuste de quantidade. Aprovar exige zero bloqueios.
+
+### Endpoints da POC
+
+| Método | Rota | O que faz | Erros |
+|---|---|---|---|
+| GET | `/api/v1/catalog?client=:id` | Catálogo com preço da lista do cliente e restrições do destino | 403 cliente de outro usuário |
+| POST | `/api/v1/orders/quote` | Calcula pallets, posições, peso, cubagem e bloqueios sem gravar | 422 dados inválidos |
+| POST | `/api/v1/orders` | Cria o pedido. Cabeçalho `Idempotency-Key` evita pedido duplicado por duplo clique ou rede instável | 422 bloqueios, data antes do prazo mínimo |
+| GET | `/api/v1/orders?status=&q=` | Fila da Exportação com filtro e busca | |
+| GET | `/api/v1/orders/:id` | Pedido com itens, versão e auditoria | 404 |
+| PATCH | `/api/v1/orders/:id/items/:material` | Ajuste de quantidade pela Exportação (versão +1) | 409 pedido fora de análise |
+| POST | `/api/v1/orders/:id/approve` | Aprova o pedido | 409 bloqueios ou status errado |
+| POST | `/api/v1/orders/:id/sap-export?layout=sap\|ob` | Gera o arquivo de importação do SAP ou o pedido no padrão Order Basis | 409 pedido não aprovado |
+| PUT | `/api/v1/clients/:id/rules` | Regras do cliente (pallet misto, restrições) | 400 regra desconhecida |
+| POST | `/api/v1/imports/sap` | Recebe as extrações Conferência, Materiais e Registros e devolve a prévia com alertas | 422 arquivo não reconhecido |
+| POST | `/api/v1/imports/sap/:id/apply` | Aplica a prévia ao catálogo | |
+
+Exemplo de criação de pedido:
+
+```json
+POST /api/v1/orders
+Idempotency-Key: d8k2f1x9
+
+{
+  "client": "11131",
+  "vehicle": "carreta",
+  "mode": "pal",
+  "loadingDate": "2026-11-03",
+  "reference": "OC-2026-118",
+  "items": [
+    { "material": "12031189", "boxes": 1680 },
+    { "material": "12034109", "boxes": 84 }
+  ]
+}
+```
+
+Resposta de pedido com bloqueio (o portal mostra a mesma lista antes do envio):
+
+```json
+422 Unprocessable Entity
+{
+  "error": "Pedido com bloqueios",
+  "details": [
+    { "code": "BELOWMIN", "material": "12142501" },
+    { "code": "CAPACITY", "over": { "pos": 2, "kg": 0, "m3": 0 } }
+  ]
+}
+```
+
+No protótipo, cada endpoint está no objeto `API` do `index.html`, com o mesmo nome, as mesmas validações e os mesmos erros.
+
+### Modelo de dados
+
+| Tabela | Campos principais |
+|---|---|
+| `clientes` | código SAP, nome, destino, moeda, Incoterm, condição de pagamento, lista de preço, filial, aceita pallet misto |
+| `materiais` | código, descrição SAP, família, marca, unidades por caixa, pesos e medidas da caixa, lastro, altura, EAN, DUN, NCM, linha, validade |
+| `precos` | material, lista, preço, vigência (de, até) |
+| `lote_minimo` | material, filial, pallets |
+| `restricoes_destino` | material, país ou cliente, motivo |
+| `veiculos` | tipo, cubagem, peso máximo, posições de pallet |
+| `pedidos` | número, cliente, veículo, modo, regra de pallet misto na data do envio, referência, data de carregamento, status, versão, chave de idempotência |
+| `itens_pedido` | pedido, material, caixas, preço aplicado |
+| `auditoria` | pedido, data e hora, usuário, ação, valor anterior, valor novo |
+| `importacoes` | arquivos, usuário, data, itens novos, alterados e alertas |
+
+### Segurança e operação
+
+* Login com perfis: **distribuidor** (só vê o próprio cadastro, preços e pedidos), **Exportação** (fila, ajustes, aprovação, arquivo SAP) e **administração** (regras e importação).
+* Integração com o SAP em duas etapas: arquivo no layout oficial de importação na POC; BAPI ou IDoc de ordem de venda no piloto.
+* Arquitetura serverless na AWS: front no Amplify, API Gateway com Lambda, banco gerenciado, Cognito para login e S3 para arquivos e fotos.
+* Logs e métricas por endpoint (tempo de resposta, erros de validação mais comuns), que também alimentam os indicadores da área.
+
+### Persistência na demonstração
+
+Sem servidor, o protótipo grava o estado no `localStorage` do navegador (pedidos, carrinho, regras, catálogo importado e histórico), com versão de esquema. Se os dados-base do catálogo mudarem, o estado salvo é descartado automaticamente.
+
+---
+
 ## Tecnologia
 
 * HTML, CSS e JavaScript, sem framework e sem servidor, em um único arquivo (`index.html`)
 * [SheetJS Community Edition 0.18.5](https://sheetjs.com) para leitura das planilhas (licença Apache 2.0, em `vendor/`)
+* [Three.js r128](https://threejs.org) para a visão 3D dos veículos e da carga (licença MIT, em `vendor/`)
 * Fonte Jost (Google Fonts)
 * Identidade visual inspirada no Mercafé, loja oficial da 3corações
 
@@ -183,6 +289,8 @@ As fotos ficam em `assets/produtos/`, com o **código SAP** como nome do arquivo
 index.html                 Plataforma completa (dados, regras e interface)
 vendor/xlsx.full.min.js    Leitor de planilhas (SheetJS)
 vendor/LICENSE-sheetjs.txt Licença do SheetJS
+vendor/three.min.js       Motor 3D (Three.js r128)
+vendor/LICENSE-three.txt  Licença do Three.js
 assets/produtos/           Fotos dos produtos (nome do arquivo = código SAP)
 README.md                  Este documento
 pre-solucao/               Material do desafio (apresentação e planilhas fornecidas pela 3corações)
