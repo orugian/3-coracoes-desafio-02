@@ -17,7 +17,7 @@
     "db:migrate": "node scripts/pendente.ts S2 db:migrate",
     "db:seed": "node scripts/pendente.ts S3 db:seed",
     "extract": "node scripts/pendente.ts S3 extract",
-    "fixtures:piloto": "node scripts/pendente.ts S1 fixtures:piloto",
+    "fixtures:piloto": "node scripts/extrair_piloto.ts",
     "contracts:schema": "node scripts/pendente.ts S6 contracts:schema",
     "user:unlock": "node scripts/pendente.ts S4 user:unlock"
   },
