@@ -26,7 +26,7 @@ Pedidos, carrinho e regras ficam salvos no navegador, então o estado sobrevive 
 
 ## Roteiro sugerido de demonstração
 
-1. **Tela de acesso:** escolha o perfil **Distribuidor** (Martín, MINOIL S.A.).
+1. **Tela de acesso:** escolha o perfil **Distribuidor** (Martín, MINOIL S.A.). A tela **Início** mostra o pedido sugerido pelo histórico, os alertas do rascunho (lote mínimo, carga incompleta) e insights de ocupação. Clique em **Completar carga** no alerta ou em **Usar pedido sugerido**.
    * Opcional: clique em **Importar planilha**, depois em **Usar exemplo** e em **Substituir pedido**. O pedido do Excel vira carrinho, com código 3C, EAN e quantidade em unidades convertida para caixas.
 2. Digite quantidades no catálogo e veja os pallets caírem na carreta em 3D. Gire com o mouse, troque para contêiner 40' ou 20' e use **Ampliar** para ver o plano de carga em tela cheia. Use o aviso *"faltam 24 cx para fechar o 4º pallet"* e o botão **Aplicar** da sugestão.
 3. No Café Estrada Real, escolha **UN** e digite **1010**: aparece *"Não fecha caixa"* com as opções de arredondamento.
@@ -55,6 +55,8 @@ O item extra pedido no desafio, *"importar o restante dos produtos e exportar o 
 ## Funcionalidades
 
 ### Área do cliente (distribuidor)
+* **Início** com pedido sugerido a partir do histórico (pallets fechados, carreta cheia, respeitando peso, cubagem e lote mínimo), rascunho atual, último pedido, alertas acionáveis e insights
+* **Assistente de carga** no painel de embarque: completar carga mantendo o mix, fechar pallets, usar o veículo recomendado, reduzir excesso, com explicação do recurso que limita a carga e do ganho de frete por pallet
 * Catálogo com fotos e preço da lista do cliente
 * **Ficha técnica** de cada produto com todos os campos da Order Basis: código 3C, produto, família, preço, unidades por embalagem, EAN, DUN, peso bruto, peso líquido, cubagem, C × L × A, NCM, linha e caixas por pallet
 * Pedido em **caixas, unidades ou quilos**, com conversão e aviso quando não fecha caixa
@@ -75,12 +77,14 @@ O item extra pedido no desafio, *"importar o restante dos produtos e exportar o 
 * Português, espanhol e inglês, modo claro e escuro
 
 ### Painel 3corações (Exportação)
+* Faixa **Atenção agora**: pedidos bloqueados, aguardando há mais de 4 horas, cargas incompletas e qualidade de dados, cada um como atalho de filtro
+* **Aprovação automática** por cliente: pedido sem bloqueio e com carga completa entra aprovado, sem fila, com registro da regra na auditoria
 * Fila de pedidos validados com busca e filtro por status, jornada completa em 8 etapas e responsável por etapa
 * **Plano de carga 3D** de cada pedido, ao lado de posições, peso, cubagem e alertas
 * Ajuste de quantidades com **trilha de auditoria** (quem, o quê, quando)
 * Aprovação e geração do **arquivo de importação para o SAP** e do **pedido completo no padrão Order Basis** (copiar ou baixar CSV)
 * Indicadores de operação na fila (aguardando, tempo de aprovação, certos na primeira, ocupação)
-* Aba **Indicadores** para a gestão: receita, volume, países e clientes ativos, ocupação por pedido, volume por família e pedidos por etapa
+* Aba **Indicadores** com **insights automáticos** (divisão de embarques, veículo mais adequado, cargas incompletas, concentração por família, potencial de aprovação automática) e os indicadores de operação e gestão: receita, volume, países e clientes ativos, ocupação por pedido, volume por família e pedidos por etapa
 * Clientes e tabela de preços por lista, com a regra de **pallet misto** por cliente e histórico de alterações
 * **Importação do SAP**: lê Conferência de produtos, Materiais e Registros, mostra prévia (novos, alterados, alertas) e atualiza o catálogo após confirmação
 * **Ficha técnica completa dos produtos** (padrão Order Basis) com troca de foto
@@ -282,8 +286,8 @@ Sem servidor, o protótipo grava o estado no `localStorage` do navegador (pedido
 * HTML, CSS e JavaScript, sem framework e sem servidor, em um único arquivo (`index.html`)
 * [SheetJS Community Edition 0.18.5](https://sheetjs.com) para leitura das planilhas (licença Apache 2.0, em `vendor/`)
 * [Three.js r128](https://threejs.org) para a visão 3D dos veículos e da carga (licença MIT, em `vendor/`)
-* Fonte Inter (Google Fonts)
-* Identidade visual corporativa: grafite com o vermelho da 3corações, menu lateral nas duas áreas e selo de ambiente de homologação
+* Fonte Jost (Google Fonts)
+* Identidade visual inspirada no Mercafé, loja oficial da 3corações, com selo de ambiente de homologação
 
 ## Fotos dos produtos
 

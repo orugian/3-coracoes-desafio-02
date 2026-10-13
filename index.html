@@ -8,37 +8,37 @@
 <style>body{margin:0}img{max-width:100%}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
 /* Layout: cabeçalho branco leve; catálogo em lista única à esquerda, painel de embarque fixo à direita. Vermelho 3corações só como acento. */
 :root{
-  --bg:#F3F4F6; --surface:#FFFFFF; --surface-2:#F3F4F6; --surface-3:#E4E6EA; --ink:#111318; --muted:#555B66; --faint:#868C96; --line:#E3E5E9;
-  --gold:#D2202F; --gold-ink:#FFFFFF; --gold-soft:#FDECEE; --coffee:#16181D;
-  --accent-text:#B3141F; --sel:#F8F9FB; --sel-line:#D9DCE1;
-  --red:#D2202F; --red-hover:#B51A27; --red-soft:#FDEEEF; --on-red:#FFFFFF;
-  --ok:#16794A; --ok-soft:#E6F4EC; --warn:#9A5B00; --warn-soft:#FFF3DC; --err:#C42020; --err-soft:#FDECEC;
-  --f-cafe:#6F4528; --f-capp:#B4875F; --f-sol:#D4952F; --f-filtro:#5F8A64; --f-porta:#4F6E9C;
-  --shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.04);
-  --font:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --bg:#ECE7E1; --surface:#FFFFFF; --surface-2:#F5F1EC; --surface-3:#E4DDD5; --ink:#211C18; --muted:#615851; --faint:#857A71; --line:#E3DCD4;
+  --gold:#FE5C16; --gold-ink:#FFFFFF; --gold-soft:#FFEDE3; --coffee:#2A2D33;
+  --accent-text:#C2410C; --sel:#FFF6F0; --sel-line:#FFD9C2;
+  --red:#FE5C16; --red-hover:#E24D0C; --red-soft:#FFF0E8; --on-red:#FFFFFF;
+  --ok:#1F7A45; --ok-soft:#E5F3EA; --warn:#A35F00; --warn-soft:#FFF4DE; --err:#D0261B; --err-soft:#FDECEA;
+  --f-cafe:#6B3A1A; --f-capp:#C08A5B; --f-sol:#E39A2D; --f-filtro:#738A55; --f-porta:#57709A;
+  --shadow:0 1px 2px rgba(45,30,20,.06),0 6px 18px rgba(45,30,20,.07);
+  --font:"Jost","Century Gothic",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
-  --r:8px; --r-sm:6px;
+  --r:10px; --r-sm:6px;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0E1013; --surface:#161A1F; --surface-2:#1D2228; --surface-3:#2A3038; --ink:#ECEFF3; --muted:#A3AAB5; --faint:#6E7681; --line:#242A31;
-  --gold:#F0434F; --gold-ink:#FFFFFF; --gold-soft:#3A1A1E; --coffee:#0A0B0D;
-  --accent-text:#FF7B84; --sel:#1B1F25; --sel-line:#323941;
-  --red:#E5323F; --red-hover:#F0525D; --red-soft:#33191C; --on-red:#FFFFFF;
-  --ok:#4CC38A; --ok-soft:#13291E; --warn:#F0B24A; --warn-soft:#2E230F; --err:#FF6B6B; --err-soft:#371618;
-  --f-cafe:#B07A55; --f-capp:#D3A57C; --f-sol:#EDB04F; --f-filtro:#8FB892; --f-porta:#86A3CF;
-  --shadow:0 1px 2px rgba(0,0,0,.35); color-scheme:dark}}
+  --bg:#111315; --surface:#1A1D21; --surface-2:#23272C; --surface-3:#2F343A; --ink:#F1F3F5; --muted:#A7AEB7; --faint:#6D747D; --line:#2A2E34;
+  --gold:#FF7A3D; --gold-ink:#FFFFFF; --gold-soft:#3D2014; --coffee:#0B0C0E;
+  --accent-text:#FF8A57; --sel:#2A2320; --sel-line:#4A3328;
+  --red:#FF7A3D; --red-hover:#FF9361; --red-soft:#33231C; --on-red:#FFFFFF;
+  --ok:#5BC488; --ok-soft:#16301F; --warn:#F0AE4A; --warn-soft:#33260F; --err:#FF6B61; --err-soft:#3A1715;
+  --f-cafe:#B07752; --f-capp:#D8A57A; --f-sol:#F0A84A; --f-filtro:#9DB27A; --f-porta:#86A0C8;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25); color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0E1013; --surface:#161A1F; --surface-2:#1D2228; --surface-3:#2A3038; --ink:#ECEFF3; --muted:#A3AAB5; --faint:#6E7681; --line:#242A31;
-  --gold:#F0434F; --gold-ink:#FFFFFF; --gold-soft:#3A1A1E; --coffee:#0A0B0D;
-  --accent-text:#FF7B84; --sel:#1B1F25; --sel-line:#323941;
-  --red:#E5323F; --red-hover:#F0525D; --red-soft:#33191C; --on-red:#FFFFFF;
-  --ok:#4CC38A; --ok-soft:#13291E; --warn:#F0B24A; --warn-soft:#2E230F; --err:#FF6B6B; --err-soft:#371618;
-  --f-cafe:#B07A55; --f-capp:#D3A57C; --f-sol:#EDB04F; --f-filtro:#8FB892; --f-porta:#86A3CF;
-  --shadow:0 1px 2px rgba(0,0,0,.35); color-scheme:dark}
+  --bg:#111315; --surface:#1A1D21; --surface-2:#23272C; --surface-3:#2F343A; --ink:#F1F3F5; --muted:#A7AEB7; --faint:#6D747D; --line:#2A2E34;
+  --gold:#FF7A3D; --gold-ink:#FFFFFF; --gold-soft:#3D2014; --coffee:#0B0C0E;
+  --accent-text:#FF8A57; --sel:#2A2320; --sel-line:#4A3328;
+  --red:#FF7A3D; --red-hover:#FF9361; --red-soft:#33231C; --on-red:#FFFFFF;
+  --ok:#5BC488; --ok-soft:#16301F; --warn:#F0AE4A; --warn-soft:#33260F; --err:#FF6B61; --err-soft:#3A1715;
+  --f-cafe:#B07752; --f-capp:#D8A57A; --f-sol:#F0A84A; --f-filtro:#9DB27A; --f-porta:#86A0C8;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25); color-scheme:dark}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{background:var(--bg);color:var(--ink);overflow-x:clip}
@@ -260,9 +260,9 @@ td.div{color:var(--err);font-weight:700;background:var(--err-soft)}
 .rules div{display:flex;gap:10px}
 .rules div::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--red);margin-top:8px;flex:none}
 /* ---------- áreas ---------- */
-:root{--admin-bg:#15171B;--admin-fg:#FFFFFF;--admin-muted:rgba(255,255,255,.62);--admin-seg:rgba(255,255,255,.10)}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--admin-bg:#0A0B0D}}
-:root[data-theme="dark"]{--admin-bg:#0A0B0D}
+:root{--admin-bg:#25282D;--admin-fg:#FFFFFF;--admin-muted:rgba(255,255,255,.62);--admin-seg:rgba(255,255,255,.10)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--admin-bg:#0B0C0E}}
+:root[data-theme="dark"]{--admin-bg:#0B0C0E}
 .top.admin{background:var(--admin-bg);color:var(--admin-fg);border-bottom-color:transparent;backdrop-filter:none}
 .top.admin .seg{background:var(--admin-seg)}
 .top.admin .seg button{color:var(--admin-muted)}
@@ -549,97 +549,105 @@ body.is-admin footer::before{margin-inline:-36px}
 .funnel b{font-size:26px;font-weight:600;letter-spacing:-.02em}
 @media (max-width:640px){.bars .row{grid-template-columns:minmax(0,1fr) 80px}.bars .track{grid-column:1/-1;grid-row:2}}
 
-/* ============ v20 · visual corporativo ============ */
-body{letter-spacing:-.006em;font-feature-settings:"cv11","ss01"}
-h1,h2,h3{letter-spacing:-.02em}
-.card{border-radius:8px}
-.hero{align-items:flex-end}
-.hero h1{font-size:26px;line-height:1.2;font-weight:600}
-.hero p{font-size:14px;margin-top:4px}
-.eyebrow{font-size:12.5px;font-weight:500;color:var(--muted);text-transform:none;letter-spacing:0;margin-bottom:6px}
-.btn{border-radius:6px;padding:11px 18px;font-size:14px;letter-spacing:0}
-.btn.sm{padding:8px 14px;font-size:13px}
-.btn-soft{border:1px solid var(--line);background:var(--surface);border-radius:6px;display:inline-flex;align-items:center;gap:8px;color:var(--ink)}
-.btn-soft:hover{background:var(--surface-2)}
+/* ============ v21 · estruturas novas no visual original ============ */
+.btn-soft{display:inline-flex;align-items:center;gap:8px}
 .btn-soft svg{width:16px;height:16px;flex:none}
-.seg{border-radius:7px}.seg button{border-radius:5px}
-.pill{border:1px solid var(--line);border-radius:6px;background:var(--surface);padding:5px 10px;font-size:12.5px}
-.pill:hover{background:var(--surface-2)}
-.pill[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
-.chip{border-radius:4px;font-size:11.5px;padding:2px 8px}
-.kpi b{font-size:24px;font-weight:600}
-table.data th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);font-weight:600}
-.prod h3{font-size:14.5px}
-.tile{border-radius:6px}
-.value{font-size:30px;font-weight:600}
-.mark{border-radius:7px}
-.alert{border-radius:6px}
-.v3d{border-radius:6px}
-/* menu lateral nas duas áreas */
-.side{width:248px}
-.side .brand b{font-size:16px}
-.side .env{align-self:flex-start;margin:-8px 6px 10px 50px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#F7B6BC;background:rgba(210,32,47,.2);padding:2px 7px;border-radius:4px}
-.side .sub-brand{margin:-10px 6px 4px 50px}
-.side nav button{font-weight:500;color:rgba(255,255,255,.66)}
-.side nav button[aria-pressed="true"]{background:rgba(255,255,255,.08);color:#fff;box-shadow:inset 3px 0 0 var(--red)}
-.side .navh{font-size:10.5px;letter-spacing:.08em;margin:18px 12px 6px;color:rgba(255,255,255,.42)}
-.side .seg{background:rgba(255,255,255,.08);margin:2px 8px 0}
-.side .seg button{color:rgba(255,255,255,.62);flex:1}
-.side .seg button[aria-pressed="true"]{background:rgba(255,255,255,.16);color:#fff;box-shadow:none}
-.side .me{background:rgba(255,255,255,.06)}
-.side .me .av{background:var(--red)}
-@media (min-width:1100px){body.has-side .top{display:none}body.has-side main.wrap{margin-left:248px;margin-right:0;max-width:none;padding-inline:36px}body.has-side .panel{top:24px}}
-footer{display:none}
-.top-in.cl .acct .av{background:var(--red);color:#fff}
-/* cabeçalho de página */
+.btn-soft:disabled{opacity:.5}
 .ph-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .saved{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted)}
 .saved svg{width:14px;height:14px;color:var(--ok)}
-.acct-line{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-size:13px;color:var(--muted);margin-top:6px}
+.acct-line{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-size:13px;color:var(--muted);margin-top:8px}
 .acct-line select{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:4px 8px;font-weight:600;color:var(--ink);font-size:13px;cursor:pointer}
-/* seletor de veículo com recomendação */
 .vehs{display:grid;gap:6px}
-.veh{display:grid;grid-template-columns:minmax(0,1fr) 84px 42px;gap:10px;align-items:center;border:1px solid var(--line);background:var(--surface);border-radius:7px;padding:9px 12px;text-align:left;font-size:13px}
+.veh{display:grid;grid-template-columns:minmax(0,1fr) 84px 42px;gap:10px;align-items:center;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:9px 12px;text-align:left;font-size:13px}
 .veh:hover{border-color:var(--faint)}
-.veh.on{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.veh.on{border-color:var(--red);box-shadow:0 0 0 1px var(--red);background:var(--sel)}
 .veh .vn{display:flex;flex-wrap:wrap;align-items:center;gap:2px 8px;font-weight:600;min-width:0}
 .veh .vn small{font-weight:500;color:var(--faint);font-size:11.5px;width:100%}
-.veh .rec{font-size:10.5px;font-weight:700;color:var(--ok);background:var(--ok-soft);padding:1px 6px;border-radius:4px;white-space:nowrap}
+.veh .rec{font-size:10.5px;font-weight:700;color:var(--ok);background:var(--ok-soft);padding:1px 7px;border-radius:999px;white-space:nowrap}
 .veh .vbar{height:6px;border-radius:999px;background:var(--surface-3);overflow:hidden}
 .veh .vbar i{display:block;height:100%;border-radius:999px}
-.veh .vp{text-align:right;font-weight:600;font-variant-numeric:tabular-nums}
-.split{display:grid;gap:8px;background:var(--surface-2);border:1px dashed var(--surface-3);border-radius:8px;padding:12px;font-size:12.5px;color:var(--muted)}
+.veh .vp{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.split{display:grid;gap:8px;background:var(--surface-2);border-radius:8px;padding:12px;font-size:12.5px;color:var(--muted)}
 .split b{font-size:13px;color:var(--ink)}
 .split .legs{display:flex;flex-wrap:wrap;gap:6px}
-.split .leg{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:4px 9px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
-/* importação de pedido */
+.split .leg{background:var(--surface);border-radius:999px;padding:4px 10px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
 .imp-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:16px}
 @media (max-width:760px){.imp-grid{grid-template-columns:minmax(0,1fr)}}
-.imp-grid textarea{width:100%;min-height:170px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2);padding:12px;font-family:var(--mono);font-size:12px;line-height:1.6;resize:vertical;color:var(--ink);outline:0}
-.imp-grid textarea:focus{border-color:var(--ink)}
+.imp-grid textarea{width:100%;min-height:170px;border:0;border-radius:8px;background:var(--surface-2);padding:12px;font-family:var(--mono);font-size:12px;line-height:1.6;resize:vertical;color:var(--ink);outline:0}
+.imp-grid textarea:focus{box-shadow:0 0 0 2px var(--red)}
 .imp-grid .drop{min-height:170px;align-content:center}
 .st-ok{color:var(--ok);font-weight:600}.st-warn{color:var(--warn);font-weight:600}.st-err{color:var(--err);font-weight:600}
-/* acesso */
-.login-brand{background:radial-gradient(circle at 85% 6%,rgba(210,32,47,.22),transparent 42%),linear-gradient(180deg,#17191E,#0F1114)}
-.lb-mid h1 span{color:#FF5A66}
-.lb-proof{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
-.lb-proof span{font-size:12.5px;color:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:5px 11px}
-.lf-box h2{font-size:28px;font-weight:600}
-.env-badge{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--muted);background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:4px 11px;justify-self:start}
+.env-badge{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--muted);background:var(--surface-2);border-radius:999px;padding:4px 11px;justify-self:start}
 .env-badge::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--warn)}
-.acc{border-radius:8px}
-.acc .ic.adm{background:#16181D;color:#FF5A66}
+.lb-proof{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.lb-proof span{font-size:12.5px;color:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:5px 11px}
 .login-brand{padding:40px 56px}
 .login-brand.has3d .lb-mid h1{font-size:40px}
 .lb-3d{flex:1 1 0;min-height:180px}
-.cols{grid-template-columns:minmax(0,1fr) 372px}
-@media (max-width:1040px){.cols{grid-template-columns:minmax(0,1fr)}}
-.side .me small{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.side .me > div{min-width:0}
 .exp{grid-template-columns:300px minmax(0,1fr)}
 @media (max-width:920px){.exp{grid-template-columns:minmax(0,1fr)}}
 .exp table.data td:first-child{min-width:180px}
-@media (max-width:860px){.tabs button{padding:7px 10px;font-size:13px}.top-in.cl .lang button{padding:4px 8px}.top-in.cl .tabs{flex:1 1 auto}}
+.side .me > div{min-width:0}
+.side .me small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:860px){.tabs button{padding:7px 10px;font-size:13px}.top-in.cl .lang button{padding:4px 8px}}
+/* Início do distribuidor */
+.quick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:start}
+@media (max-width:900px){.quick{grid-template-columns:minmax(0,1fr)}}
+.qcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:20px;display:grid;gap:10px;align-content:start}
+.qcard.hl{border-color:var(--sel-line);background:linear-gradient(180deg,var(--sel),var(--surface) 75%)}
+.qcard .qi{width:38px;height:38px;border-radius:10px;background:var(--red-soft);color:var(--accent-text);display:grid;place-items:center}
+.qcard .qi svg{width:19px;height:19px}
+.qcard h3{font-size:16px}
+.qcard p{margin:0;font-size:13px;color:var(--muted);line-height:1.5}
+.qcard .btn,.qcard .btn-soft{justify-self:start;width:auto}
+.mini3{display:flex;flex-wrap:wrap;gap:6px}
+.mini3 span{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;background:var(--surface-2);border-radius:999px;padding:3px 9px}
+.home-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:1040px){.home-grid{grid-template-columns:minmax(0,1fr)}}
+.feed{display:grid}
+.fi{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);font-size:13px}
+.fi:last-child{border-bottom:0}
+.fi .dotI{width:30px;height:30px;border-radius:8px;display:grid;place-items:center}
+.fi .dotI svg{width:16px;height:16px}
+.fi.err .dotI{background:var(--err-soft);color:var(--err)}
+.fi.warn .dotI{background:var(--warn-soft);color:var(--warn)}
+.fi.ok .dotI{background:var(--ok-soft);color:var(--ok)}
+.fi.info .dotI{background:var(--surface-2);color:var(--muted)}
+.fi b{display:block;font-weight:600;line-height:1.35}
+.fi span.s{color:var(--muted);display:block;line-height:1.4}
+.fi .btn-soft{padding:6px 11px;font-size:12.5px;white-space:nowrap}
+/* Assistente de carga */
+.assist{display:grid;gap:10px;background:var(--surface-2);border-radius:8px;padding:12px}
+.assist-h{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700}
+.assist-h svg{width:16px;height:16px;color:var(--accent-text)}
+.acts{display:flex;flex-wrap:wrap;gap:6px}
+.act{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:12.5px;font-weight:600;color:var(--ink)}
+.act:hover{border-color:var(--red);color:var(--accent-text)}
+.act.primary{background:var(--red);border-color:var(--red);color:#fff}
+.act.primary:hover{background:var(--red-hover);color:#fff}
+.insights{display:grid;gap:6px;font-size:12.5px;color:var(--muted);line-height:1.45}
+.insights div{display:flex;gap:8px;align-items:flex-start}
+.insights div::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--red);margin-top:6px;flex:none}
+/* Atenção agora (Exportação) */
+.attn{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:1180px){.attn{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.att{border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:14px 16px;text-align:left;display:grid;gap:3px;box-shadow:var(--shadow);border-left:4px solid var(--surface-3)}
+.att:hover{border-color:var(--faint)}
+.att[aria-pressed="true"]{box-shadow:0 0 0 2px var(--ink)}
+.att .lbl{font-size:12.5px;font-weight:600}
+.att b{font-size:24px;font-weight:600;letter-spacing:-.02em;line-height:1.15}
+.att span.s{font-size:12px;color:var(--muted)}
+.att.err{border-left-color:var(--err)}.att.err b{color:var(--err)}
+.att.warn{border-left-color:var(--warn)}
+.att.info{border-left-color:var(--f-porta)}
+.att.ok{border-left-color:var(--ok)}
+.sec-h{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700}
+@media (min-width:1041px){.panel{max-height:calc(100vh - 104px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}}
+.p-cta{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 20px;background:var(--surface);border-bottom:1px solid var(--line);border-radius:var(--r) var(--r) 0 0}
+.p-cta b{display:block;font-size:17px;font-weight:700;letter-spacing:-.01em}
+@media (max-width:1040px){.p-cta{position:static}}
+.sec-h svg{width:16px;height:16px;color:var(--accent-text)}
 </style>
 </head>
 <body>
@@ -649,6 +657,7 @@ footer{display:none}
 
 <main class="wrap">
   <section id="v-entry" class="view"></section>
+  <section id="v-home" class="view" hidden></section>
   <section id="v-dist" class="view" hidden></section>
   <section id="v-myorders" class="view" hidden></section>
   <section id="v-exp" class="view" hidden></section>
@@ -657,7 +666,7 @@ footer{display:none}
   <section id="v-kpi" class="view" hidden></section>
 </main>
 <div id="overlay" class="overlay" hidden></div>
-<footer></footer>
+<footer><div><span><b>3C Conecta</b> · Plataforma de pedidos de exportação</span><span>Ambiente de homologação · dados de exemplo</span></div></footer>
 
 <script src="vendor/three.min.js"></script>
 <script>window.THREE||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>')</script>
@@ -720,8 +729,8 @@ const VEH = {
 const RULES = {fullAt:0.90, leadDays:7};
 
 const CLIENTS = {
-  minoil:{name:"MINOIL S.A.",code:"11131",dest:"Mercosul",cur:"USD",inc:"FCA",pay:"Standby irrevogável 60 dias",payCode:"2304",list:"US",factor:1,blocked:[],filial:"CD Londrina (2612)",contact:"Martín",mixed:false},
-  rioclaro:{name:"Distribuidora Río Claro S.R.L.",code:"11999",dest:"Argentina",cur:"USD",inc:"FCA",pay:"Antecipado 30 dias",payCode:"0030",list:"AR",factor:1.06,blocked:["20908885"],filial:"CD Londrina (2612)",contact:"Sofía",lang:"es",mixed:false}
+  minoil:{name:"MINOIL S.A.",code:"11131",dest:"Mercosul",cur:"USD",inc:"FCA",pay:"Standby irrevogável 60 dias",payCode:"2304",list:"US",factor:1,blocked:[],filial:"CD Londrina (2612)",contact:"Martín",mixed:false,autoApprove:false},
+  rioclaro:{name:"Distribuidora Río Claro S.R.L.",code:"11999",dest:"Argentina",cur:"USD",inc:"FCA",pay:"Antecipado 30 dias",payCode:"0030",list:"AR",factor:1.06,blocked:["20908885"],filial:"CD Londrina (2612)",contact:"Sofía",lang:"es",mixed:false,autoApprove:false}
 };
 
 /* ============ TEXTOS PT / ES ============ */
@@ -738,7 +747,7 @@ const T = {
   errPos:n=>`Faltam ${n} posições de pallet no veículo`,errKg:n=>`Peso bruto excede em ${n} kg`,errM3:n=>`Cubagem excede em ${n} m³`,
   rvTitle:"Revise e confirme",rvSub:"Depois de confirmado, o pedido vai direto para a equipe de Exportação, já validado.",ref:"Sua referência (opcional)",date:"Data desejada de carregamento",client:"Cliente",vehicle:"Veículo",inc:"Incoterm",pay:"Pagamento",
   product:"Produto",boxes:"Caixas",unitPrice:"Preço/cx",total:"Total",confirm:"Confirmar pedido",back:"Voltar",cannot:"Corrija os bloqueios antes de confirmar",
-  okTitle:n=>`Pedido ${n} enviado`,okSub:"A equipe de Exportação já recebeu o pedido validado. Você acompanha o status por aqui.",tl:["Enviado","Em análise","Aprovado","Em preparação","Embarcado"],newOrder:"Novo pedido",seeExp:"Ver no painel 3corações",seeMine:"Ver meus pedidos",navNew:"Novo pedido",navOrders:"Meus pedidos",logout:"Sair",areaName:"Área do cliente",myTitle:"Meus pedidos",mySub:"Acompanhe cada pedido desde o envio até o embarque.",noOrders:"Você ainda não enviou pedidos pelo portal.",loading:"Carregamento",ordered:"Enviado em",noPrice:"Sem preço para sua lista",s1:"Monte o pedido",s2:"Revise e confirme",s3:"Acompanhe",tApplied:"Sugestão aplicada",tAdj:n=>`Quantidade ajustada para ${n} cx`,uCX:"cx",uUN:"un",uKG:"kg",eq:n=>`= ${n} cx`,perBox2:(un,kg)=>`1 cx = ${un} un · ${kg} kg`,boxMult:n=>`Não fecha caixa (${n} cx)`,box:"Caixa",perLayer:"cx por camada",layers:"camadas",seeShip:"Ver embarque",unitHint:"Peça em caixas, unidades ou quilos",kOpen:"Pedidos em andamento",kOcc:"Ocupação média dos embarques",kBought:"Comprado no ano",kFirst:"Aprovados sem ajuste",kNone:"sem pedidos aprovados ainda",journey:"Jornada do pedido",mixedOn:"Aceita pallet misto",mixedOff:"Sem pallet misto",mixedRule:"regra definida pela 3corações para o seu cadastro",v3dHint:"Arraste para girar",v3dExpand:"Ampliar",v3dTitle:"Plano de carga",v3dOut:n=>`${n} pallet${n>1?"s":""} fora do veículo`,vPersp:"Perspectiva",vSide:"Lateral",vTop:"De cima",view2d:"Ver em 2D",close:"Fechar",emptyT:"Nenhum pedido ainda",emptyS:"Monte o primeiro pedido no catálogo. Você vê os pallets e a ocupação do veículo enquanto escolhe os produtos.",blockT:"Para confirmar, resolva:",dateMin:d=>`Escolha uma data a partir de ${d}`,adjusted:n=>`A Exportação ajustou ${n} item${n>1?"s":""}`,sending:"Enviando…",noRes:"Nenhum produto encontrado.",account:"Conta",saved:"Rascunho salvo automaticamente",impBtn:"Importar planilha",impTitle:"Importar pedido",impSub:"Cole as linhas do Excel ou envie a planilha que você já usa. Reconhecemos o código 3C, o EAN ou o DUN e a quantidade em caixas, unidades ou quilos.",impPaste:"Colar do Excel",impFile:"Ou envie o arquivo",impDrop:"Arraste a planilha aqui",impDropSub:"ou clique para escolher · .xlsx, .xls ou .csv",impSample:"Usar exemplo",impFound:n=>`${n} itens reconhecidos`,impAdj:n=>`${n} arredondados para caixa fechada`,impMiss:n=>`${n} não encontrados`,impBlk:n=>`${n} indisponíveis para o seu destino`,impAdd:"Somar ao pedido",impReplace:"Substituir pedido",impNone:"Nenhuma linha reconhecida. Use uma coluna com o código 3C, EAN ou DUN e outra com a quantidade.",impRow:"Linha",impQty:"Na planilha",impStatus:"Situação",impOk:"OK",impRounded:n=>`arredondado para ${n} cx`,impNotFound:"não encontrado",impBlocked:"indisponível",impReadErr:"Não foi possível ler o arquivo.",tImported:n=>`${n} itens importados para o pedido`,recommended:"Recomendado",splitT:"Não cabe em um único veículo",splitS:n=>`Sugestão: dividir em ${n} embarques`,repeat:"Repetir pedido",tRepeat:"Pedido copiado para um novo rascunho",prefs:"Preferências",ordersNav:"Pedidos",subPortal:"Portal do distribuidor",capShort:(p,t2)=>`${p} pallets · ${t2} t`,palletsOf:n=>`${n} pallets`},
+  okTitle:n=>`Pedido ${n} enviado`,okSub:"A equipe de Exportação já recebeu o pedido validado. Você acompanha o status por aqui.",tl:["Enviado","Em análise","Aprovado","Em preparação","Embarcado"],newOrder:"Novo pedido",seeExp:"Ver no painel 3corações",seeMine:"Ver meus pedidos",navNew:"Novo pedido",navOrders:"Meus pedidos",logout:"Sair",areaName:"Área do cliente",myTitle:"Meus pedidos",mySub:"Acompanhe cada pedido desde o envio até o embarque.",noOrders:"Você ainda não enviou pedidos pelo portal.",loading:"Carregamento",ordered:"Enviado em",noPrice:"Sem preço para sua lista",s1:"Monte o pedido",s2:"Revise e confirme",s3:"Acompanhe",tApplied:"Sugestão aplicada",tAdj:n=>`Quantidade ajustada para ${n} cx`,uCX:"cx",uUN:"un",uKG:"kg",eq:n=>`= ${n} cx`,perBox2:(un,kg)=>`1 cx = ${un} un · ${kg} kg`,boxMult:n=>`Não fecha caixa (${n} cx)`,box:"Caixa",perLayer:"cx por camada",layers:"camadas",seeShip:"Ver embarque",unitHint:"Peça em caixas, unidades ou quilos",kOpen:"Pedidos em andamento",kOcc:"Ocupação média dos embarques",kBought:"Comprado no ano",kFirst:"Aprovados sem ajuste",kNone:"sem pedidos aprovados ainda",journey:"Jornada do pedido",mixedOn:"Aceita pallet misto",mixedOff:"Sem pallet misto",mixedRule:"regra definida pela 3corações para o seu cadastro",v3dHint:"Arraste para girar",v3dExpand:"Ampliar",v3dTitle:"Plano de carga",v3dOut:n=>`${n} pallet${n>1?"s":""} fora do veículo`,vPersp:"Perspectiva",vSide:"Lateral",vTop:"De cima",view2d:"Ver em 2D",close:"Fechar",emptyT:"Nenhum pedido ainda",emptyS:"Monte o primeiro pedido no catálogo. Você vê os pallets e a ocupação do veículo enquanto escolhe os produtos.",blockT:"Para confirmar, resolva:",dateMin:d=>`Escolha uma data a partir de ${d}`,adjusted:n=>`A Exportação ajustou ${n} item${n>1?"s":""}`,sending:"Enviando…",noRes:"Nenhum produto encontrado.",navHome:"Início",sugT:"Pedido sugerido",sugS:(n,v,p,val)=>`Montado a partir do seu histórico: ${n} pallets, ${v} com ${p}% de ocupação, ${val}.`,sugUse:"Usar pedido sugerido",draftT:"Rascunho atual",draftEmpty:"Nenhum item no rascunho ainda.",draftS:(n,v,p,s)=>`${n} pallets · ${v} ${p}% · ${s}`,cont:"Continuar pedido",lastT:"Último pedido",lastNone:"Você ainda não enviou pedidos pelo portal.",alertsT:"Alertas",allGood:"Tudo certo por aqui.",insT:"Insights",recentT:"Pedidos recentes",seeAll:"Ver todos",aDraftT:"Bloqueio no rascunho",aPartT:"Carga incompleta no rascunho",aPartS:(p,f)=>`O rascunho ocupa ${p}% do veículo. Cabem mais ${f} pallets.`,aAdjT:id=>`Pedido ${id} ajustado`,aOkT:id=>`Pedido ${id} aprovado`,aRevT:id=>`Pedido ${id} em análise`,aRevS:w=>`Enviado em ${w}. A Exportação já recebeu validado.`,aBlkT:"Produto indisponível para o destino",aBlkS:(n,d)=>`${n} não está liberado para ${d}.`,aNpT:"Produtos sem preço",aNpS:n=>`${n} produtos não têm preço na sua lista.`,resolve:"Resolver",view:"Ver",iOcc:(a,m)=>`Seus embarques ocupam em média ${a}% do veículo. A meta de carga completa é ${m}%.`,iFreight:p=>`Com o veículo completo, o frete por pallet cai até ${p}%.`,iBest:(v,p)=>`O veículo mais bem aproveitado para este pedido é ${v} (${p}%).`,iBind:(r,p)=>`Recurso que limita a carga: ${r} (${p}% usado).`,iTop:(n,q)=>`Seu produto mais pedido é ${n}, com ${q} pallets no histórico.`,iLead:n=>`O carregamento precisa de pelo menos ${n} dias a partir do pedido.`,iFree:n=>`Cabem mais ${n} pallets neste veículo.`,iFull:"Carga completa: o frete está bem diluído.",resPos:"posições de pallet",resKg:"peso",resM3:"cubagem",assistT:"Assistente de carga",aRound:"Fechar pallets",aFill:"Completar carga",aVeh:(v,p)=>`Usar ${v} (${p}%)`,aReduce:n=>`Reduzir ${n}`,tFilled:n=>`${n} pallets adicionados mantendo o seu mix`,okAuto:"Aprovado automaticamente: sem bloqueios e com carga completa.",tSug:"Pedido sugerido carregado no rascunho",account:"Conta",saved:"Rascunho salvo automaticamente",impBtn:"Importar planilha",impTitle:"Importar pedido",impSub:"Cole as linhas do Excel ou envie a planilha que você já usa. Reconhecemos o código 3C, o EAN ou o DUN e a quantidade em caixas, unidades ou quilos.",impPaste:"Colar do Excel",impFile:"Ou envie o arquivo",impDrop:"Arraste a planilha aqui",impDropSub:"ou clique para escolher · .xlsx, .xls ou .csv",impSample:"Usar exemplo",impFound:n=>`${n} itens reconhecidos`,impAdj:n=>`${n} arredondados para caixa fechada`,impMiss:n=>`${n} não encontrados`,impBlk:n=>`${n} indisponíveis para o seu destino`,impAdd:"Somar ao pedido",impReplace:"Substituir pedido",impNone:"Nenhuma linha reconhecida. Use uma coluna com o código 3C, EAN ou DUN e outra com a quantidade.",impRow:"Linha",impQty:"Na planilha",impStatus:"Situação",impOk:"OK",impRounded:n=>`arredondado para ${n} cx`,impNotFound:"não encontrado",impBlocked:"indisponível",impReadErr:"Não foi possível ler o arquivo.",tImported:n=>`${n} itens importados para o pedido`,recommended:"Recomendado",splitT:"Não cabe em um único veículo",splitS:n=>`Sugestão: dividir em ${n} embarques`,repeat:"Repetir pedido",tRepeat:"Pedido copiado para um novo rascunho",prefs:"Preferências",ordersNav:"Pedidos",subPortal:"Portal do distribuidor",capShort:(p,t2)=>`${p} pallets · ${t2} t`,palletsOf:n=>`${n} pallets`},
  es:{fCode:"Código 3C",fProduct:"Producto (SAP)",fFamily:"Familia",fPrice:"Precio / caja",fUnits:"Nº unidades/embalaje",fEan:"EAN (código de barra del producto)",fDun:"DUN (código de barra de la caja master)",fGross:"Peso bruto (caja)",fNet:"Peso neto (caja)",fCube:"Cubicación (caja)",fDims:"Medida del embalaje",fNcm:"NCM",fLine:"Línea",fBoxPal:"Cajas / pallet",ficha:"Ficha técnica",fichaHide:"Cerrar ficha",illus:"Imagen ilustrativa",prods:"productos",portal:"Portal del distribuidor",hello:n=>`Hola, ${n}`,heroSub:"Arma tu pedido y ve al instante cuántos pallets forma y cuánto del vehículo ocupa.",
   code:"Cód.",catalog:"Catálogo de exportación",items:n=>`${n} productos`,search:"Buscar producto o código",all:"Todos",
   perBox:"por caja",boxPal:"cajas/pallet",minLot:"lote mín.",pallets:"pallets",
@@ -751,7 +760,7 @@ const T = {
   errPos:n=>`Faltan ${n} posiciones de pallet en el vehículo`,errKg:n=>`El peso bruto excede en ${n} kg`,errM3:n=>`La cubicación excede en ${n} m³`,
   rvTitle:"Revisa y confirma",rvSub:"Una vez confirmado, el pedido va directo al equipo de Exportación, ya validado.",ref:"Tu referencia (opcional)",date:"Fecha deseada de carga",client:"Cliente",vehicle:"Vehículo",inc:"Incoterm",pay:"Pago",
   product:"Producto",boxes:"Cajas",unitPrice:"Precio/caja",total:"Total",confirm:"Confirmar pedido",back:"Volver",cannot:"Corrige los bloqueos antes de confirmar",
-  okTitle:n=>`Pedido ${n} enviado`,okSub:"El equipo de Exportación ya recibió el pedido validado. Sigues el estado por aquí.",tl:["Enviado","En análisis","Aprobado","En preparación","Despachado"],newOrder:"Nuevo pedido",seeExp:"Ver en el panel 3corações",seeMine:"Ver mis pedidos",navNew:"Nuevo pedido",navOrders:"Mis pedidos",logout:"Salir",areaName:"Área del cliente",myTitle:"Mis pedidos",mySub:"Sigue cada pedido desde el envío hasta el despacho.",noOrders:"Todavía no enviaste pedidos por el portal.",loading:"Carga",ordered:"Enviado el",noPrice:"Sin precio para tu lista",s1:"Arma el pedido",s2:"Revisa y confirma",s3:"Sigue el estado",tApplied:"Sugerencia aplicada",tAdj:n=>`Cantidad ajustada a ${n} cajas`,uCX:"caja",uUN:"un",uKG:"kg",eq:n=>`= ${n} cajas`,perBox2:(un,kg)=>`1 caja = ${un} un · ${kg} kg`,boxMult:n=>`No cierra caja (${n} cajas)`,box:"Caja",perLayer:"cajas por capa",layers:"capas",seeShip:"Ver despacho",unitHint:"Pide en cajas, unidades o kilos",kOpen:"Pedidos en curso",kOcc:"Ocupación media de los despachos",kBought:"Comprado en el año",kFirst:"Aprobados sin ajuste",kNone:"todavía sin pedidos aprobados",journey:"Recorrido del pedido",mixedOn:"Acepta pallet mixto",mixedOff:"Sin pallet mixto",mixedRule:"regla definida por 3corações para tu cuenta",v3dHint:"Arrastra para girar",v3dExpand:"Ampliar",v3dTitle:"Plan de carga",v3dOut:n=>`${n} pallet${n>1?"s":""} fuera del vehículo`,vPersp:"Perspectiva",vSide:"Lateral",vTop:"Desde arriba",view2d:"Ver en 2D",close:"Cerrar",emptyT:"Todavía no hay pedidos",emptyS:"Arma el primer pedido en el catálogo. Ves los pallets y la ocupación del vehículo mientras eliges los productos.",blockT:"Para confirmar, resuelve:",dateMin:d=>`Elige una fecha a partir del ${d}`,adjusted:n=>`Exportación ajustó ${n} ítem${n>1?"s":""}`,sending:"Enviando…",noRes:"Ningún producto encontrado.",account:"Cuenta",saved:"Borrador guardado automáticamente",impBtn:"Importar planilla",impTitle:"Importar pedido",impSub:"Pega las líneas de Excel o sube la planilla que ya usas. Reconocemos el código 3C, el EAN o el DUN y la cantidad en cajas, unidades o kilos.",impPaste:"Pegar desde Excel",impFile:"O sube el archivo",impDrop:"Arrastra la planilla aquí",impDropSub:"o haz clic para elegir · .xlsx, .xls o .csv",impSample:"Usar ejemplo",impFound:n=>`${n} ítems reconocidos`,impAdj:n=>`${n} redondeados a caja cerrada`,impMiss:n=>`${n} no encontrados`,impBlk:n=>`${n} no disponibles para tu destino`,impAdd:"Sumar al pedido",impReplace:"Reemplazar pedido",impNone:"Ninguna línea reconocida. Usa una columna con el código 3C, EAN o DUN y otra con la cantidad.",impRow:"Fila",impQty:"En la planilla",impStatus:"Estado",impOk:"OK",impRounded:n=>`redondeado a ${n} cajas`,impNotFound:"no encontrado",impBlocked:"no disponible",impReadErr:"No se pudo leer el archivo.",tImported:n=>`${n} ítems importados al pedido`,recommended:"Recomendado",splitT:"No cabe en un solo vehículo",splitS:n=>`Sugerencia: dividir en ${n} despachos`,repeat:"Repetir pedido",tRepeat:"Pedido copiado a un nuevo borrador",prefs:"Preferencias",ordersNav:"Pedidos",subPortal:"Portal del distribuidor",capShort:(p,t2)=>`${p} pallets · ${t2} t`,palletsOf:n=>`${n} pallets`},
+  okTitle:n=>`Pedido ${n} enviado`,okSub:"El equipo de Exportación ya recibió el pedido validado. Sigues el estado por aquí.",tl:["Enviado","En análisis","Aprobado","En preparación","Despachado"],newOrder:"Nuevo pedido",seeExp:"Ver en el panel 3corações",seeMine:"Ver mis pedidos",navNew:"Nuevo pedido",navOrders:"Mis pedidos",logout:"Salir",areaName:"Área del cliente",myTitle:"Mis pedidos",mySub:"Sigue cada pedido desde el envío hasta el despacho.",noOrders:"Todavía no enviaste pedidos por el portal.",loading:"Carga",ordered:"Enviado el",noPrice:"Sin precio para tu lista",s1:"Arma el pedido",s2:"Revisa y confirma",s3:"Sigue el estado",tApplied:"Sugerencia aplicada",tAdj:n=>`Cantidad ajustada a ${n} cajas`,uCX:"caja",uUN:"un",uKG:"kg",eq:n=>`= ${n} cajas`,perBox2:(un,kg)=>`1 caja = ${un} un · ${kg} kg`,boxMult:n=>`No cierra caja (${n} cajas)`,box:"Caja",perLayer:"cajas por capa",layers:"capas",seeShip:"Ver despacho",unitHint:"Pide en cajas, unidades o kilos",kOpen:"Pedidos en curso",kOcc:"Ocupación media de los despachos",kBought:"Comprado en el año",kFirst:"Aprobados sin ajuste",kNone:"todavía sin pedidos aprobados",journey:"Recorrido del pedido",mixedOn:"Acepta pallet mixto",mixedOff:"Sin pallet mixto",mixedRule:"regla definida por 3corações para tu cuenta",v3dHint:"Arrastra para girar",v3dExpand:"Ampliar",v3dTitle:"Plan de carga",v3dOut:n=>`${n} pallet${n>1?"s":""} fuera del vehículo`,vPersp:"Perspectiva",vSide:"Lateral",vTop:"Desde arriba",view2d:"Ver en 2D",close:"Cerrar",emptyT:"Todavía no hay pedidos",emptyS:"Arma el primer pedido en el catálogo. Ves los pallets y la ocupación del vehículo mientras eliges los productos.",blockT:"Para confirmar, resuelve:",dateMin:d=>`Elige una fecha a partir del ${d}`,adjusted:n=>`Exportación ajustó ${n} ítem${n>1?"s":""}`,sending:"Enviando…",noRes:"Ningún producto encontrado.",navHome:"Inicio",sugT:"Pedido sugerido",sugS:(n,v,p,val)=>`Armado a partir de tu historial: ${n} pallets, ${v} con ${p}% de ocupación, ${val}.`,sugUse:"Usar pedido sugerido",draftT:"Borrador actual",draftEmpty:"Todavía no hay ítems en el borrador.",draftS:(n,v,p,s)=>`${n} pallets · ${v} ${p}% · ${s}`,cont:"Continuar pedido",lastT:"Último pedido",lastNone:"Todavía no enviaste pedidos por el portal.",alertsT:"Alertas",allGood:"Todo en orden.",insT:"Insights",recentT:"Pedidos recientes",seeAll:"Ver todos",aDraftT:"Bloqueo en el borrador",aPartT:"Carga incompleta en el borrador",aPartS:(p,f)=>`El borrador ocupa ${p}% del vehículo. Caben ${f} pallets más.`,aAdjT:id=>`Pedido ${id} ajustado`,aOkT:id=>`Pedido ${id} aprobado`,aRevT:id=>`Pedido ${id} en análisis`,aRevS:w=>`Enviado el ${w}. Exportación ya lo recibió validado.`,aBlkT:"Producto no disponible para el destino",aBlkS:(n,d)=>`${n} no está habilitado para ${d}.`,aNpT:"Productos sin precio",aNpS:n=>`${n} productos no tienen precio en tu lista.`,resolve:"Resolver",view:"Ver",iOcc:(a,m)=>`Tus despachos ocupan en promedio ${a}% del vehículo. La meta de carga completa es ${m}%.`,iFreight:p=>`Con el vehículo completo, el flete por pallet baja hasta ${p}%.`,iBest:(v,p)=>`El vehículo mejor aprovechado para este pedido es ${v} (${p}%).`,iBind:(r,p)=>`Recurso que limita la carga: ${r} (${p}% usado).`,iTop:(n,q)=>`Tu producto más pedido es ${n}, con ${q} pallets en el historial.`,iLead:n=>`La carga necesita al menos ${n} días desde el pedido.`,iFree:n=>`Caben ${n} pallets más en este vehículo.`,iFull:"Carga completa: el flete está bien diluido.",resPos:"posiciones de pallet",resKg:"peso",resM3:"cubicación",assistT:"Asistente de carga",aRound:"Cerrar pallets",aFill:"Completar carga",aVeh:(v,p)=>`Usar ${v} (${p}%)`,aReduce:n=>`Reducir ${n}`,tFilled:n=>`${n} pallets agregados manteniendo tu mix`,okAuto:"Aprobado automáticamente: sin bloqueos y con carga completa.",tSug:"Pedido sugerido cargado en el borrador",account:"Cuenta",saved:"Borrador guardado automáticamente",impBtn:"Importar planilla",impTitle:"Importar pedido",impSub:"Pega las líneas de Excel o sube la planilla que ya usas. Reconocemos el código 3C, el EAN o el DUN y la cantidad en cajas, unidades o kilos.",impPaste:"Pegar desde Excel",impFile:"O sube el archivo",impDrop:"Arrastra la planilla aquí",impDropSub:"o haz clic para elegir · .xlsx, .xls o .csv",impSample:"Usar ejemplo",impFound:n=>`${n} ítems reconocidos`,impAdj:n=>`${n} redondeados a caja cerrada`,impMiss:n=>`${n} no encontrados`,impBlk:n=>`${n} no disponibles para tu destino`,impAdd:"Sumar al pedido",impReplace:"Reemplazar pedido",impNone:"Ninguna línea reconocida. Usa una columna con el código 3C, EAN o DUN y otra con la cantidad.",impRow:"Fila",impQty:"En la planilla",impStatus:"Estado",impOk:"OK",impRounded:n=>`redondeado a ${n} cajas`,impNotFound:"no encontrado",impBlocked:"no disponible",impReadErr:"No se pudo leer el archivo.",tImported:n=>`${n} ítems importados al pedido`,recommended:"Recomendado",splitT:"No cabe en un solo vehículo",splitS:n=>`Sugerencia: dividir en ${n} despachos`,repeat:"Repetir pedido",tRepeat:"Pedido copiado a un nuevo borrador",prefs:"Preferencias",ordersNav:"Pedidos",subPortal:"Portal del distribuidor",capShort:(p,t2)=>`${p} pallets · ${t2} t`,palletsOf:n=>`${n} pallets`},
  en:{fCode:"3C code",fProduct:"Product (SAP)",fFamily:"Family",fPrice:"Price / case",fUnits:"Units per case",fEan:"EAN (product bar code)",fDun:"DUN (master box bar code)",fGross:"Gross weight (case)",fNet:"Net weight (case)",fCube:"Cubage (case)",fDims:"Packaging measurement",fNcm:"NCM",fLine:"Line",fBoxPal:"Cases / pallet",ficha:"Technical sheet",fichaHide:"Close sheet",illus:"Illustrative image",prods:"products",
   portal:"Distributor portal",hello:n=>`Hello, ${n}`,heroSub:"Build your order and see instantly how many pallets it forms and how much of the vehicle it fills.",
   code:"Code",catalog:"Export catalog",items:n=>`${n} products`,search:"Search product or code",all:"All",
@@ -765,13 +774,13 @@ const T = {
   errPos:n=>`${n} pallet positions missing in the vehicle`,errKg:n=>`Gross weight exceeds by ${n} kg`,errM3:n=>`Cubage exceeds by ${n} m³`,
   rvTitle:"Review and confirm",rvSub:"Once confirmed, the order goes straight to the Export team, already validated.",ref:"Your reference (optional)",date:"Desired loading date",client:"Customer",vehicle:"Vehicle",inc:"Incoterm",pay:"Payment",
   product:"Product",boxes:"Cases",unitPrice:"Price/case",total:"Total",confirm:"Confirm order",back:"Back",cannot:"Fix the blocking issues before confirming",
-  okTitle:n=>`Order ${n} sent`,okSub:"The Export team has already received your validated order. Track its status here.",tl:["Sent","Under review","Approved","In preparation","Shipped"],newOrder:"New order",seeExp:"See it in the 3corações panel",seeMine:"See my orders",navNew:"New order",navOrders:"My orders",logout:"Sign out",areaName:"Customer area",myTitle:"My orders",mySub:"Follow each order from submission to shipment.",noOrders:"You have not sent any orders through the portal yet.",loading:"Loading",ordered:"Sent on",noPrice:"No price for your list",s1:"Build the order",s2:"Review and confirm",s3:"Track",tApplied:"Suggestion applied",tAdj:n=>`Quantity set to ${n} cases`,uCX:"cs",uUN:"un",uKG:"kg",eq:n=>`= ${n} cases`,perBox2:(un,kg)=>`1 case = ${un} un · ${kg} kg`,boxMult:n=>`Does not close a case (${n} cases)`,box:"Case",perLayer:"cases per layer",layers:"layers",seeShip:"See shipment",unitHint:"Order in cases, units or kilos",kOpen:"Orders in progress",kOcc:"Average shipment occupancy",kBought:"Bought this year",kFirst:"Approved without changes",kNone:"no approved orders yet",journey:"Order journey",mixedOn:"Mixed pallets accepted",mixedOff:"No mixed pallets",mixedRule:"rule set by 3corações for your account",v3dHint:"Drag to rotate",v3dExpand:"Expand",v3dTitle:"Load plan",v3dOut:n=>`${n} pallet${n>1?"s":""} outside the vehicle`,vPersp:"Perspective",vSide:"Side",vTop:"Top",view2d:"Show in 2D",close:"Close",emptyT:"No orders yet",emptyS:"Build your first order from the catalog. You see pallets and vehicle occupancy while you pick products.",blockT:"To confirm, fix:",dateMin:d=>`Choose a date from ${d}`,adjusted:n=>`Export adjusted ${n} item${n>1?"s":""}`,sending:"Sending…",noRes:"No products found.",account:"Account",saved:"Draft saved automatically",impBtn:"Import spreadsheet",impTitle:"Import order",impSub:"Paste rows from Excel or upload the spreadsheet you already use. We recognize the 3C code, EAN or DUN and the quantity in cases, units or kilos.",impPaste:"Paste from Excel",impFile:"Or upload the file",impDrop:"Drop the spreadsheet here",impDropSub:"or click to choose · .xlsx, .xls or .csv",impSample:"Use sample",impFound:n=>`${n} items recognized`,impAdj:n=>`${n} rounded to full cases`,impMiss:n=>`${n} not found`,impBlk:n=>`${n} unavailable for your destination`,impAdd:"Add to order",impReplace:"Replace order",impNone:"No rows recognized. Use one column with the 3C code, EAN or DUN and another with the quantity.",impRow:"Row",impQty:"In the file",impStatus:"Status",impOk:"OK",impRounded:n=>`rounded to ${n} cases`,impNotFound:"not found",impBlocked:"unavailable",impReadErr:"The file could not be read.",tImported:n=>`${n} items imported into the order`,recommended:"Recommended",splitT:"Does not fit a single vehicle",splitS:n=>`Suggestion: split into ${n} shipments`,repeat:"Repeat order",tRepeat:"Order copied to a new draft",prefs:"Preferences",ordersNav:"Orders",subPortal:"Distributor portal",capShort:(p,t2)=>`${p} pallets · ${t2} t`,palletsOf:n=>`${n} pallets`}
+  okTitle:n=>`Order ${n} sent`,okSub:"The Export team has already received your validated order. Track its status here.",tl:["Sent","Under review","Approved","In preparation","Shipped"],newOrder:"New order",seeExp:"See it in the 3corações panel",seeMine:"See my orders",navNew:"New order",navOrders:"My orders",logout:"Sign out",areaName:"Customer area",myTitle:"My orders",mySub:"Follow each order from submission to shipment.",noOrders:"You have not sent any orders through the portal yet.",loading:"Loading",ordered:"Sent on",noPrice:"No price for your list",s1:"Build the order",s2:"Review and confirm",s3:"Track",tApplied:"Suggestion applied",tAdj:n=>`Quantity set to ${n} cases`,uCX:"cs",uUN:"un",uKG:"kg",eq:n=>`= ${n} cases`,perBox2:(un,kg)=>`1 case = ${un} un · ${kg} kg`,boxMult:n=>`Does not close a case (${n} cases)`,box:"Case",perLayer:"cases per layer",layers:"layers",seeShip:"See shipment",unitHint:"Order in cases, units or kilos",kOpen:"Orders in progress",kOcc:"Average shipment occupancy",kBought:"Bought this year",kFirst:"Approved without changes",kNone:"no approved orders yet",journey:"Order journey",mixedOn:"Mixed pallets accepted",mixedOff:"No mixed pallets",mixedRule:"rule set by 3corações for your account",v3dHint:"Drag to rotate",v3dExpand:"Expand",v3dTitle:"Load plan",v3dOut:n=>`${n} pallet${n>1?"s":""} outside the vehicle`,vPersp:"Perspective",vSide:"Side",vTop:"Top",view2d:"Show in 2D",close:"Close",emptyT:"No orders yet",emptyS:"Build your first order from the catalog. You see pallets and vehicle occupancy while you pick products.",blockT:"To confirm, fix:",dateMin:d=>`Choose a date from ${d}`,adjusted:n=>`Export adjusted ${n} item${n>1?"s":""}`,sending:"Sending…",noRes:"No products found.",navHome:"Home",sugT:"Suggested order",sugS:(n,v,p,val)=>`Built from your history: ${n} pallets, ${v} at ${p}% occupancy, ${val}.`,sugUse:"Use suggested order",draftT:"Current draft",draftEmpty:"No items in the draft yet.",draftS:(n,v,p,s)=>`${n} pallets · ${v} ${p}% · ${s}`,cont:"Continue order",lastT:"Last order",lastNone:"You have not sent any orders through the portal yet.",alertsT:"Alerts",allGood:"All good here.",insT:"Insights",recentT:"Recent orders",seeAll:"See all",aDraftT:"Blocking issue in the draft",aPartT:"Partial load in the draft",aPartS:(p,f)=>`The draft fills ${p}% of the vehicle. ${f} more pallets fit.`,aAdjT:id=>`Order ${id} adjusted`,aOkT:id=>`Order ${id} approved`,aRevT:id=>`Order ${id} under review`,aRevS:w=>`Sent on ${w}. Export already received it validated.`,aBlkT:"Product unavailable for the destination",aBlkS:(n,d)=>`${n} is not approved for ${d}.`,aNpT:"Products without price",aNpS:n=>`${n} products have no price in your list.`,resolve:"Fix",view:"View",iOcc:(a,m)=>`Your shipments fill ${a}% of the vehicle on average. The full load target is ${m}%.`,iFreight:p=>`With a full vehicle, freight per pallet drops by up to ${p}%.`,iBest:(v,p)=>`The best-used vehicle for this order is ${v} (${p}%).`,iBind:(r,p)=>`Limiting resource: ${r} (${p}% used).`,iTop:(n,q)=>`Your most ordered product is ${n}, with ${q} pallets in your history.`,iLead:n=>`Loading needs at least ${n} days from the order.`,iFree:n=>`${n} more pallets fit in this vehicle.`,iFull:"Full load: freight is well diluted.",resPos:"pallet positions",resKg:"weight",resM3:"cubage",assistT:"Load assistant",aRound:"Close pallets",aFill:"Fill the load",aVeh:(v,p)=>`Use ${v} (${p}%)`,aReduce:n=>`Reduce ${n}`,tFilled:n=>`${n} pallets added keeping your mix`,okAuto:"Approved automatically: no blocking issues and a full load.",tSug:"Suggested order loaded into the draft",account:"Account",saved:"Draft saved automatically",impBtn:"Import spreadsheet",impTitle:"Import order",impSub:"Paste rows from Excel or upload the spreadsheet you already use. We recognize the 3C code, EAN or DUN and the quantity in cases, units or kilos.",impPaste:"Paste from Excel",impFile:"Or upload the file",impDrop:"Drop the spreadsheet here",impDropSub:"or click to choose · .xlsx, .xls or .csv",impSample:"Use sample",impFound:n=>`${n} items recognized`,impAdj:n=>`${n} rounded to full cases`,impMiss:n=>`${n} not found`,impBlk:n=>`${n} unavailable for your destination`,impAdd:"Add to order",impReplace:"Replace order",impNone:"No rows recognized. Use one column with the 3C code, EAN or DUN and another with the quantity.",impRow:"Row",impQty:"In the file",impStatus:"Status",impOk:"OK",impRounded:n=>`rounded to ${n} cases`,impNotFound:"not found",impBlocked:"unavailable",impReadErr:"The file could not be read.",tImported:n=>`${n} items imported into the order`,recommended:"Recommended",splitT:"Does not fit a single vehicle",splitS:n=>`Suggestion: split into ${n} shipments`,repeat:"Repeat order",tRepeat:"Order copied to a new draft",prefs:"Preferences",ordersNav:"Orders",subPortal:"Distributor portal",capShort:(p,t2)=>`${p} pallets · ${t2} t`,palletsOf:n=>`${n} pallets`}
 };
 
 /* ============ ESTADO ============ */
 const S = {
   theme:null, area:null, view:"entry", lang:"pt", client:"minoil", veh:"carreta", mode:"pal", fam:"ALL", q:"", unit:{}, open:{}, csvKind:"sap", view3d:"3d", qf:"all", qs:"", big:"dist", resetArm:false,
-  qty:{"12031189":2352,"12034103":300,"12142146":600,"12142501":1400},
+  qty:{"12031189":1680,"12034109":84,"12142501":560},
   orders:[], sel:null, csvFor:null
 };
 const t = k => T[S.lang][k];
@@ -844,9 +853,9 @@ function calc(qty,o){
 }
 
 /* ============ RENDER ============ */
-const VIEWS=["entry","dist","myorders","exp","clients","base","kpi"];
+const VIEWS=["entry","home","dist","myorders","exp","clients","base","kpi"];
 const LOGOUT='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"/></svg>';
-const MARK='<div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M12 2.8l8 4.4v9.6l-8 4.4-8-4.4V7.2z"/><path d="M4 7.2l8 4.5 8-4.5M12 11.7v9.5"/></svg></div>';
+const MARK='<div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="6" r="2.6"/><circle cx="18" cy="18" r="2.6"/><path d="M8.4 10.8l7.2-3.6M8.4 13.2l7.2 3.6"/></svg></div>';
 const SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/></svg>';
 const MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>';
 function isDark(){return S.theme?S.theme==="dark":!!(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)}
@@ -859,7 +868,7 @@ function headerHTML(){
   if(S.area==="client"){
     const mine=S.orders.filter(o=>o.client===S.client&&o.origin!=="Order Basis").length, c=CLIENTS[S.client];
     return `<div class="top-in cl">${brand(`<span class="area client">${t("areaName")}</span>`)}
-      <nav class="tabs" aria-label="Menu"><button data-view="dist" aria-pressed="${S.view==="dist"}">${t("navNew")}</button><button data-view="myorders" aria-pressed="${S.view==="myorders"}">${t("navOrders")}${mine?`<span class="count">${mine}</span>`:""}</button></nav>
+      <nav class="tabs" aria-label="Menu"><button data-view="home" aria-pressed="${S.view==="home"}">${t("navHome")}</button><button data-view="dist" aria-pressed="${S.view==="dist"}">${t("navNew")}</button><button data-view="myorders" aria-pressed="${S.view==="myorders"}">${t("navOrders")}${mine?`<span class="count">${mine}</span>`:""}</button></nav>
       <div class="seg sm lang" role="group" aria-label="Idioma"><button data-lang="pt" aria-pressed="${S.lang==="pt"}">PT</button><button data-lang="es" aria-pressed="${S.lang==="es"}">ES</button><button data-lang="en" aria-pressed="${S.lang==="en"}">EN</button></div>
       ${themeBtn()}
       <div class="acct"><div class="av">${c.contact[0]}</div><div><b>${c.contact}</b><small>${esc(c.name)}</small></div><button data-logout aria-label="${t("logout")}" title="${t("logout")}">${LOGOUT}</button></div>
@@ -907,15 +916,15 @@ function sideHTML(){
 }
 function render(){
   document.body.classList.toggle("is-admin",S.area==="admin");
-  document.body.classList.toggle("has-side",!!S.area);
+  document.body.classList.toggle("has-side",S.area==="admin");
   document.body.classList.toggle("is-entry",S.view==="entry");
-  const side=document.getElementById("side"); side.hidden=!S.area; side.innerHTML=S.area?sideHTML():"";
+  const side=document.getElementById("side"); side.hidden=S.area!=="admin"; side.innerHTML=S.area==="admin"?sideHTML():"";
   const top=document.getElementById("topbar");
   top.className="top"+(S.area==="admin"?" admin":"");
   top.innerHTML=headerHTML();
   document.documentElement.lang=S.area==="client"&&S.lang!=="pt"?S.lang:"pt-BR";
   VIEWS.forEach(v=>document.getElementById("v-"+v).hidden=S.view!==v);
-  ({entry:renderEntry,dist:renderDist,myorders:renderMyOrders,exp:renderExp,clients:renderClients,base:renderBase,kpi:renderKpi})[S.view]();
+  ({entry:renderEntry,home:renderHome,dist:renderDist,myorders:renderMyOrders,exp:renderExp,clients:renderClients,base:renderBase,kpi:renderKpi})[S.view]();
   mount3D(); save();
 }
 
@@ -1001,8 +1010,8 @@ function renderClients(){
   document.getElementById("v-clients").innerHTML=`
   <div class="hero"><div><div class="eyebrow">Exportação · Cadastro</div><h1>Clientes e preços</h1><p>Cada distribuidor tem sua lista de preço, Incoterm, condição de pagamento, restrições por destino e regra de pallet misto. Na versão real, o cadastro vem do SAP (relatório ZSDR059A, citado na Order Basis) e a tabela de preços da extração Registros.</p></div></div>
   <div class="card card-pad" style="display:grid;gap:12px"><h3 style="font-size:18px">Distribuidores</h3><div class="tbl-wrap"><table class="data">
-    <thead><tr><th>Cliente</th><th>Código</th><th>Destino</th><th>Idioma</th><th>Lista</th><th>Incoterm</th><th>Pagamento</th><th>Restrições</th><th>Pallet misto</th><th class="r">Pedidos</th></tr></thead>
-    <tbody>${cls.map(([k,c])=>`<tr><td><b>${esc(c.name)}</b><div class="label">Contato: ${c.contact}</div></td><td class="num">${c.code}</td><td>${c.dest}</td><td>Espanhol</td><td><span class="chip neutral">${c.list}</span></td><td>${c.inc}</td><td>${c.pay}</td><td>${c.blocked.length?c.blocked.map(b=>`<span class="note err">${BY[b].pt}</span>`).join(""):'<span class="label">Nenhuma</span>'}</td><td><label class="switch"><input type="checkbox" data-mixclient="${k}" ${c.mixed?"checked":""} aria-label="Pallet misto para ${esc(c.name)}"> ${c.mixed?"Aceita":"Não aceita"}</label></td><td class="r num">${S.orders.filter(o=>o.client===k).length}</td></tr>`).join("")}</tbody></table></div><div class="label">A regra de pallet misto vale para os próximos pedidos do cliente e aparece para ele no portal. Pedidos já enviados mantêm a regra da data do envio.</div>${RLOG.length?`<div><div class="sec-title">Histórico de regras</div><div class="audit">${RLOG.slice(0,6).map(a=>`<div><time>${a.at}</time><span><b>${esc(a.who)}</b> · ${esc(a.what)}</span></div>`).join("")}</div></div>`:""}</div>
+    <thead><tr><th>Cliente</th><th>Código</th><th>Destino</th><th>Idioma</th><th>Lista</th><th>Incoterm</th><th>Pagamento</th><th>Restrições</th><th>Pallet misto</th><th>Aprovação automática</th><th class="r">Pedidos</th></tr></thead>
+    <tbody>${cls.map(([k,c])=>`<tr><td><b>${esc(c.name)}</b><div class="label">Contato: ${c.contact}</div></td><td class="num">${c.code}</td><td>${c.dest}</td><td>Espanhol</td><td><span class="chip neutral">${c.list}</span></td><td>${c.inc}</td><td>${c.pay}</td><td>${c.blocked.length?c.blocked.map(b=>`<span class="note err">${BY[b].pt}</span>`).join(""):'<span class="label">Nenhuma</span>'}</td><td><label class="switch"><input type="checkbox" data-mixclient="${k}" ${c.mixed?"checked":""} aria-label="Pallet misto para ${esc(c.name)}"> ${c.mixed?"Aceita":"Não aceita"}</label></td><td><label class="switch"><input type="checkbox" data-autoclient="${k}" ${c.autoApprove?"checked":""} aria-label="Aprovação automática para ${esc(c.name)}"> ${c.autoApprove?"Ativa":"Desligada"}</label></td><td class="r num">${S.orders.filter(o=>o.client===k).length}</td></tr>`).join("")}</tbody></table></div><div class="label">A regra de pallet misto vale para os próximos pedidos do cliente e aparece para ele no portal. Com a aprovação automática ativa, pedido sem bloqueio e com carga completa entra aprovado, sem passar pela fila, e a auditoria registra a regra.</div>${RLOG.length?`<div><div class="sec-title">Histórico de regras</div><div class="audit">${RLOG.slice(0,6).map(a=>`<div><time>${a.at}</time><span><b>${esc(a.who)}</b> · ${esc(a.what)}</span></div>`).join("")}</div></div>`:""}</div>
   <div class="card card-pad" style="display:grid;gap:12px"><div class="p-head"><h3 style="font-size:18px">Tabela de preços por cliente</h3><span class="label">USD por caixa · CD Londrina (2612)</span></div><div class="tbl-wrap"><table class="data prices">
     <thead><tr><th>Produto</th>${cls.map(([k,c])=>`<th class="r">${esc(c.name.split(" ")[0])} · lista ${c.list}</th>`).join("")}<th class="r">Fonte</th></tr></thead>
     <tbody>${P.map(p=>`<tr><td><div style="display:flex;gap:10px;align-items:center"><span class="dot" style="background:${famColor(p.fam)}"></span><div>${esc(p.pt)}<div class="code">${p.code}</div></div></div></td>${cls.map(([k,c])=>`<td class="r num">${c.blocked.includes(p.code)?'<span class="label">bloqueado</span>':(p.price==null&&!(p.prices&&p.prices[c.list]!=null))?'<span class="label">—</span>':money(priceFor(p,k),"pt-BR")}</td>`).join("")}<td class="r">${p.priceSrc==="missing"?'<span class="note err">sem preço</span>':p.priceSrc==="manual"?'<span class="note warn">manual</span>':'<span class="note ok">SAP</span>'}</td></tr>`).join("")}</tbody></table></div>
@@ -1011,6 +1020,8 @@ function renderClients(){
 
 /* ---------- Indicadores (gestão) ---------- */
 function renderKpi(){
+  const fila=S.orders.filter(o=>o.status==="analise").length, apr=S.orders.filter(o=>o.approvedMs&&o.createdMs), fp=firstPass(S.orders);
+  const rsK=S.orders.map(o=>({o,r:calc(o.qty,o)})), occ=rsK.length?rsK.reduce((a,x)=>a+x.r.maxU,0)/rsK.length:0, nEx=rsK.filter(x=>x.r.status==="excess").length, nPart=rsK.filter(x=>x.r.status==="partial").length;
   const rs=S.orders.map(o=>({o,r:calc(o.qty,o)}));
   const val=rs.reduce((a,x)=>a+x.r.tot.value,0), kgNet=rs.reduce((a,x)=>a+x.r.tot.net,0), pal=rs.reduce((a,x)=>a+x.r.tot.pallets,0);
   const used=[...new Set(S.orders.map(o=>o.client))], dests=new Set(used.map(c=>CLIENTS[c].dest)).size;
@@ -1018,12 +1029,19 @@ function renderKpi(){
   const maxF=Math.max(1,...Object.values(fams));
   document.getElementById("v-kpi").innerHTML=`
   <div class="hero"><div><div class="eyebrow">Gestão · Internacionalização</div><h1>Indicadores</h1><p>Os indicadores que a área de Internacionalização acompanha, calculados direto da base de pedidos, sem planilha paralela.</p></div></div>
-  <div class="kpis">
+  ${adminInsightsHTML(rs)}
+  <div class="kgroup"><span class="label">Operação da Exportação</span><div class="kpis mini">
+    <div class="kpi"><span class="label">Aguardando aprovação</span><b class="num">${fila}</b><small>de ${S.orders.length} pedidos na carteira</small></div>
+    <div class="kpi"><span class="label">Tempo médio de aprovação</span><b class="num">${apr.length?fmtDur(apr.reduce((a,o)=>a+(o.approvedMs-o.createdMs),0)/apr.length):"—"}</b><small>${apr.length} pedido${apr.length!==1?"s":""} aprovado${apr.length!==1?"s":""} no período</small></div>
+    <div class="kpi"><span class="label">Certos na primeira</span><b class="num">${fp==null?"—":fmtPT(fp*100,0)+"%"}</b><small>aprovados sem ajuste da Exportação</small></div>
+    <div class="kpi"><span class="label">Ocupação média dos veículos</span><b class="num">${fmtPT(occ*100,0)}%</b><small>${nEx} com excesso · ${nPart} com carga incompleta</small></div>
+  </div></div>
+  <div class="kgroup"><span class="label">Gestão da área de Internacionalização</span><div class="kpis">
     <div class="kpi"><span class="label">Receita em carteira</span><b class="num">${money(val,"pt-BR")}</b><small>volume de vendas e receita</small></div>
     <div class="kpi"><span class="label">Volume exportado</span><b class="num">${fmtPT(kgNet/1000,1)} t</b><small>${fmtPT(pal,1)} pallets</small></div>
     <div class="kpi"><span class="label">Países e clientes ativos</span><b class="num">${dests} · ${used.length}</b><small>destinos · clientes</small></div>
     <div class="kpi soon"><span class="label">Embarcados na data pedida</span><b>Em integração</b><small>nível de serviço · requer a data real de embarque da logística</small></div>
-  </div>
+  </div></div>
   <div class="grid2">
     <div class="card card-pad" style="display:grid;gap:16px;align-content:start"><h3 style="font-size:18px">Ocupação por pedido</h3>
       <div class="bars">${rs.map(({o,r})=>{const pct=r.maxU*100,c=r.status==="excess"?"var(--err)":r.status==="full"?"var(--ok)":"var(--warn)";return `<div class="row"><span><b class="num">${o.id}</b><span class="label" style="display:block">${esc(CLIENTS[o.client].name)}</span></span><div class="track"><span style="width:${Math.min(pct,100)}%;background:${c}"></span></div><span class="num" style="text-align:right;${r.status==="excess"?"color:var(--err);font-weight:700":""}">${fmtPT(pct,0)}%</span></div>`}).join("")||'<span class="label">Sem pedidos.</span>'}</div>
@@ -1169,6 +1187,7 @@ function panelHTML(r){
   const sug=suggestions(r);
   const fams=Object.entries(r.fams).map(([f,x])=>`<div><span><span class="dot" style="background:${famColor(f)}"></span>&nbsp; ${FAM[f][S.lang]}</span><span class="num">${fmt(x.kg,0)} kg</span><span class="num">${money(x.val)}</span></div>`).join("");
   return `
+  <div class="p-cta"><div><span class="label">${t("value")}</span><b class="num">${money(tot.value)}</b></div><button class="btn sm" id="reviewBtn" ${r.lines.length?"":"disabled"}>${t("review")} ${SVG.arrow}</button></div>
   <div class="p-sec">
     <div class="p-head"><h2>${t("shipment")}</h2><span class="label">${CLIENTS[S.client].inc} · ${CLIENTS[S.client].filial}</span></div>
     ${vehPicker()}
@@ -1183,12 +1202,12 @@ function panelHTML(r){
       ${meter(t("weight"),tot.gross,v.kg,"kg",r.u.kg,r.bind==="kg"&&r.lines.length)}
       ${meter(t("volume"),tot.m3,v.m3,"m³",r.u.m3,r.bind==="m3"&&r.lines.length,1)}
     </div>
-    ${splitHTML(r)}
-    ${(errs.length||lineErrs.length||sug.length)?`<div class="alerts">
+    ${(errs.length||lineErrs.length)?`<div class="alerts">
       ${errs.map(e=>`<div class="alert err">${SVG.x}<span>${e}</span></div>`).join("")}
       ${lineErrs.map(e=>`<div class="alert err">${SVG.x}<span>${esc(e)}</span></div>`).join("")}
-      ${sug.map(s=>`<div class="alert tip">${SVG.bulb}<span>${esc(s.txt)}</span><button data-act="${s.act}">${t("apply")}</button></div>`).join("")}
     </div>`:""}
+    ${assistHTML(r,sug)}
+    ${splitHTML(r)}
   </div>
   <div class="p-sec">
     <div><span class="label">${t("value")}</span><div class="value num">${money(tot.value)}</div></div>
@@ -1199,7 +1218,6 @@ function panelHTML(r){
       <div class="stat"><span class="label">${t("volume")}</span><b class="num">${fmt(tot.m3,2)} m³</b></div>
     </div>
     ${fams?`<div class="fam"><span class="label">${t("fams")}</span>${fams}</div>`:""}
-    <button class="btn" id="reviewBtn" ${r.lines.length?"":"disabled"}>${t("review")} ${SVG.arrow}</button>
   </div>`;
 }
 
@@ -1247,8 +1265,8 @@ function confirmOrder(btn){
   btn.disabled=true; btn.textContent=t("sending");
   let o; try{o=API.createOrder(draft(),{draftId:ov.dataset.draft,ref,date})}catch(e){btn.disabled=false;btn.textContent=t("confirm");fail(e.status===422?t("cannot"):e.message);return}
   S.sel=o.id;
-  ov.innerHTML=`<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="okT"><div class="success">${SVG.check}</div><div><h2 id="okT" style="font-size:26px">${t("okTitle")(o.id)}</h2><div class="muted" style="margin-top:4px">${t("okSub")}</div></div>
-  <div class="timeline">${t("tl").map((x,i)=>`<div class="${i<1?"done":""}">${x}</div>`).join("")}</div>
+  ov.innerHTML=`<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="okT"><div class="success">${SVG.check}</div><div><h2 id="okT" style="font-size:26px">${t("okTitle")(o.id)}</h2><div class="muted" style="margin-top:4px">${o.auto?t("okAuto"):t("okSub")}</div></div>
+  <div class="timeline">${t("tl").map((x,i)=>`<div class="${i<=(o.auto?2:0)?"done":""}">${x}</div>`).join("")}</div>
   <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end"><button class="btn-soft" data-goexp>${t("seeExp")}</button><button class="btn-soft" data-gomine>${t("seeMine")}</button><button class="btn sm" data-neworder>${t("newOrder")}</button></div></div>`;
   render();
 }
@@ -1266,23 +1284,18 @@ function renderExp(){
   const fp=firstPass(S.orders);
   const nEx=rs.filter(x=>x.r.status==="excess").length, nPart=rs.filter(x=>x.r.status==="partial").length;
   const q=S.qs.trim().toLowerCase();
-  const list=rs.filter(({o})=>(S.qf==="all"||o.status===S.qf)&&(!q||[o.id,CLIENTS[o.client].name,o.ref||""].some(s=>String(s).toLowerCase().includes(q))));
+  const list=rs.filter(({o,r})=>qfMatch(o,r)&&(!q||[o.id,CLIENTS[o.client].name,o.ref||""].some(s=>String(s).toLowerCase().includes(q))));
   const cnt=k=>k==="all"?S.orders.length:S.orders.filter(o=>o.status===k).length;
   const cur=rs.find(x=>x.o.id===S.sel);
   el.innerHTML=`
   <div class="hero"><div><div class="eyebrow">Exportação · Pedidos</div><h1>Pedidos recebidos</h1><p>Todo pedido chega validado pelo mesmo motor de cálculo. A Exportação revisa, aprova e gera o arquivo para o SAP, sem redigitar.</p></div></div>
-  <div class="kpis mini">
-    <div class="kpi"><span class="label">Aguardando aprovação</span><b class="num">${fila}</b><small>de ${S.orders.length} pedidos na carteira</small></div>
-    <div class="kpi"><span class="label">Tempo médio de aprovação</span><b class="num">${apr.length?fmtDur(apr.reduce((a,o)=>a+(o.approvedMs-o.createdMs),0)/apr.length):"—"}</b><small>${apr.length} pedido${apr.length!==1?"s":""} aprovado${apr.length!==1?"s":""} no período</small></div>
-    <div class="kpi"><span class="label">Certos na primeira</span><b class="num">${fp==null?"—":fmtPT(fp*100,0)+"%"}</b><small>aprovados sem ajuste da Exportação</small></div>
-    <div class="kpi"><span class="label">Ocupação média dos veículos</span><b class="num">${fmtPT(occ*100,0)}%</b><small>${nEx} com excesso · ${nPart} com carga incompleta</small></div>
-  </div>
+  ${attnHTML(rs)}
   <div class="exp">
     <div class="card olist">
       <div class="qbar"><label class="search">${SVG.search}<input id="oSearch" value="${esc(S.qs)}" placeholder="Buscar pedido, cliente ou referência" aria-label="Buscar pedidos" autocomplete="off"></label>
-        <div class="qtabs" role="group" aria-label="Filtrar por status">${QF.map(([k,l])=>`<button data-qf="${k}" aria-pressed="${S.qf===k}">${l}<span class="n">${cnt(k)}</span></button>`).join("")}</div></div>
+        <div class="qtabs" role="group" aria-label="Filtrar por status">${QF.map(([k,l])=>`<button data-qf="${k}" aria-pressed="${S.qf===k}">${l}<span class="n">${cnt(k)}</span></button>`).join("")}${QFX[S.qf]?`<button data-qf="all" aria-pressed="true">${QFX[S.qf]} ✕</button>`:""}</div></div>
       ${list.length?list.map(({o,r})=>`<button class="orow" data-sel="${o.id}" aria-pressed="${o.id===S.sel}">
-        <div class="r1"><span class="id num">${o.id}</span><span class="chip ${ST[o.status][1]}">${ST[o.status][0]}</span></div>
+        <div class="r1"><span class="id num">${o.id}</span><span class="chip ${ST[o.status][1]}">${ST[o.status][0]}${o.auto?" · auto":""}</span></div>
         <div>${esc(CLIENTS[o.client].name)}</div>
         <div class="r3"><span>${o.origin} · ${o.created}</span><span class="num" style="${r.status==="excess"?"color:var(--err);font-weight:700":""}">${VEH[o.veh].pt} ${fmtPT(r.maxU*100,0)}%</span></div></button>`).join(""):`<div class="card-pad label">Nenhum pedido neste filtro.</div>`}
     </div>
@@ -1489,6 +1502,143 @@ function importHTML(){
 
 
 
+
+/* ============ INÍCIO DO DISTRIBUIDOR: PEDIDO SUGERIDO, ALERTAS E INSIGHTS ============ */
+const ICO={
+  spark:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.7 4.7 1.8-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2 2.2.8-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>',
+  draft:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>',
+  repeat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12"/><path d="M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/></svg>',
+  bell:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>'
+};
+function hasPrice(p,cl){return !(p.price==null&&!(p.prices&&p.prices[cl.list]!=null))}
+/* Pedido sugerido: mix do histórico do cliente, em pallets fechados, enchendo a carreta dentro de peso, cubagem e lote mínimo */
+function suggestedOrder(){
+  const cl=CLIENTS[S.client], hist=S.orders.filter(o=>o.client===S.client), w={};
+  hist.forEach(o=>Object.entries(o.qty).forEach(([c,q])=>{const p=BY[c];if(p)w[c]=(w[c]||0)+q/p.cxPal}));
+  let items=Object.entries(w).filter(([c])=>BY[c]&&!cl.blocked.includes(c)&&hasPrice(BY[c],cl));
+  if(!items.length)items=[["12031189",10],["12034103",4],["12142501",5],["12037417",3]].filter(([c])=>BY[c]&&!cl.blocked.includes(c)&&hasPrice(BY[c],cl));
+  const veh="carreta", cap=VEH[veh].pos, tot=items.reduce((a,[,v])=>a+v,0)||1, o={client:S.client,veh,mode:"pal",mixed:!!cl.mixed};
+  const al=items.map(([c,v])=>{const x=v/tot*cap;return {c,n:Math.floor(x),rem:x-Math.floor(x)}});
+  let left=cap-al.reduce((a,x)=>a+x.n,0); [...al].sort((a,b)=>b.rem-a.rem).forEach(x=>{if(left>0){x.n++;left--}});
+  al.forEach(x=>{if(x.n>0&&x.n<BY[x.c].loteMin)x.n=0});
+  const mk=()=>{const q={};al.forEach(x=>{if(x.n>0)q[x.c]=x.n*BY[x.c].cxPal});return q};
+  let q=mk(), r=calc(q,o), g=0;
+  while(r.maxU>1+EPS&&g++<80){const big=[...al].sort((a,b)=>b.n-a.n)[0];big.n--;q=mk();r=calc(q,o)}
+  /* posições liberadas pelo lote mínimo voltam para os itens do mix, enquanto couber */
+  const live=al.filter(x=>x.n>0).sort((a,b)=>b.n-a.n);
+  for(let k=0;k<40&&live.length;k++){let moved=false;for(const x of live){x.n++;const q2=mk(),r2=calc(q2,o);if(r2.maxU<=1+EPS){q=q2;r=r2;moved=true}else x.n--}if(!moved)break}
+  return {qty:q,veh,r};
+}
+/* Completar carga: fecha pallets e acrescenta pallets cheios no mix atual enquanto couber */
+function fillLoad(){
+  const cl=CLIENTS[S.client], base=draft(), r=calc(S.qty,base); if(!r.lines.length||r.mode!=="pal")return 0;
+  const q={...S.qty};
+  r.lines.forEach(l=>{if(l.frac>EPS)q[l.p.code]=Math.ceil(l.pallets-EPS)*l.p.cxPal});
+  if(calc(q,base).maxU>1+EPS)Object.assign(q,S.qty);
+  const cands=r.lines.filter(l=>!cl.blocked.includes(l.p.code)&&hasPrice(l.p,cl)).sort((a,b)=>b.pallets-a.pallets).map(l=>l.p);
+  let added=0;
+  for(let g=0;g<80;g++){let moved=false;for(const p of cands){const t2={...q,[p.code]:(q[p.code]||0)+p.cxPal};if(calc(t2,base).maxU<=1+EPS){q[p.code]=t2[p.code];added++;moved=true}}if(!moved)break}
+  S.qty=q; return added;
+}
+function clientAlerts(){
+  const cl=CLIENTS[S.client], d=draft(), r=calc(d.qty,d), out=[];
+  if(r.lines.length){
+    blockersOf(r).forEach(b=>out.push({lv:"err",t:t("aDraftT"),s:b,btn:[t("resolve"),'data-view="dist"']}));
+    if(r.status==="partial"&&r.mode==="pal"){const free=r.v.pos-r.tot.positions;if(free>0)out.push({lv:"warn",t:t("aPartT"),s:t("aPartS")(fmt(r.maxU*100,0),free),btn:[t("aFill"),'data-homeact="fill"']})}
+  }
+  S.orders.filter(o=>o.client===S.client&&o.origin!=="Order Basis").forEach(o=>{
+    const ed=o.audit.filter(a=>a.kind==="edit").length;
+    if(ed)out.push({lv:"warn",t:t("aAdjT")(o.id),s:t("adjusted")(ed),btn:[t("view"),'data-view="myorders"']});
+    if(o.status!=="analise")out.push({lv:"ok",t:t("aOkT")(o.id),s:o.auto?t("okAuto"):(o.approved||""),btn:[t("view"),'data-view="myorders"']});
+    else out.push({lv:"info",t:t("aRevT")(o.id),s:t("aRevS")(o.created),btn:[t("view"),'data-view="myorders"']});
+  });
+  cl.blocked.forEach(c=>{const p=BY[c];if(p)out.push({lv:"info",t:t("aBlkT"),s:t("aBlkS")(p[S.lang]||p.pt,cl.dest)})});
+  const np=P.filter(p=>!hasPrice(p,cl)).length; if(np)out.push({lv:"info",t:t("aNpT"),s:t("aNpS")(np)});
+  return out.slice(0,7);
+}
+function clientInsights(){
+  const d=draft(), r=calc(d.qty,d), out=[], mine=S.orders.filter(o=>o.client===S.client);
+  if(r.lines.length){
+    const b=bestVehicle(d); if(b&&b!==S.veh){const rr=calc(d.qty,{...d,veh:b});out.push(t("iBest")(VEH[b][S.lang],fmt(rr.maxU*100,0)))}
+    if(r.mode==="pal"&&r.status==="partial"){const cut=(1-r.tot.positions/r.v.pos)*100;if(cut>=5)out.push(t("iFreight")(fmt(cut,0)))}
+    out.push(t("iBind")({pos:t("resPos"),kg:t("resKg"),m3:t("resM3")}[r.bind],fmt(r.u[r.bind]*100,0)));
+  }
+  const portal=mine.filter(o=>o.origin!=="Order Basis");
+  if(portal.length){const avg=portal.reduce((a,o)=>a+Math.min(calc(o.qty,o).maxU,1),0)/portal.length;out.push(t("iOcc")(fmt(avg*100,0),fmt(RULES.fullAt*100,0)))}
+  const w={}; mine.forEach(o=>Object.entries(o.qty).forEach(([c,q])=>{const p=BY[c];if(p)w[c]=(w[c]||0)+q/p.cxPal}));
+  const top=Object.entries(w).sort((a,b)=>b[1]-a[1])[0]; if(top&&BY[top[0]])out.push(t("iTop")(BY[top[0]][S.lang]||BY[top[0]].pt,fmt(top[1],0)));
+  out.push(t("iLead")(RULES.leadDays));
+  return out;
+}
+function renderHome(){
+  const cl=CLIENTS[S.client], d=draft(), r=calc(d.qty,d), sg=suggestedOrder();
+  const mine=S.orders.filter(o=>o.client===S.client&&o.origin!=="Order Basis"), last=mine[0], al=clientAlerts(), ins=clientInsights();
+  const step={analise:1,aprovado:2,sap:3};
+  const ic=lv=>lv==="ok"?SVG.ok:lv==="info"?SVG.info:SVG.x;
+  const fi=a=>`<div class="fi ${a.lv}"><span class="dotI">${ic(a.lv)}</span><div><b>${esc(a.t)}</b><span class="s">${esc(a.s)}</span></div>${a.btn?`<button class="btn-soft" ${a.btn[1]}>${a.btn[0]}</button>`:"<span></span>"}</div>`;
+  document.getElementById("v-home").innerHTML=`
+  <div class="hero"><div><div class="eyebrow">${t("subPortal")}</div><h1>${t("hello")(cl.contact)}</h1>
+    <div class="acct-line"><span>${t("account")}</span><select id="clientSel" aria-label="${t("account")}">${Object.entries(CLIENTS).map(([k,c])=>`<option value="${k}" ${k===S.client?"selected":""}>${esc(c.name)}</option>`).join("")}</select><span class="num">${t("code")} ${cl.code} · ${cl.dest} · ${cl.cur} · ${cl.inc}</span></div></div>
+    <div class="ph-actions"><button class="btn-soft" data-import>${UPLOAD} ${t("impBtn")}</button><button class="btn sm" data-view="dist">${t("navNew")} ${SVG.arrow}</button></div></div>
+  <div class="quick">
+    <div class="qcard hl"><div class="qi">${ICO.spark}</div><h3>${t("sugT")}</h3><p>${t("sugS")(fmt(sg.r.tot.pallets,0),VEH[sg.veh][S.lang],fmt(sg.r.maxU*100,0),money(sg.r.tot.value))}</p>
+      <div class="mini3">${sg.r.lines.map(l=>`<span><span class="dot" style="background:${famColor(l.p.fam)}"></span>${esc(l.p[S.lang]||l.p.pt)} · ${fmt(l.pallets,0)}</span>`).join("")}</div>
+      <button class="btn sm" data-usesug>${t("sugUse")}</button></div>
+    <div class="qcard"><div class="qi">${ICO.draft}</div><h3>${t("draftT")}</h3><p>${r.lines.length?t("draftS")(fmt(r.tot.pallets),r.v[S.lang],fmt(r.maxU*100,0),t("st_"+r.status)):t("draftEmpty")}</p><button class="btn-soft" data-view="dist">${t("cont")}</button></div>
+    <div class="qcard"><div class="qi">${ICO.repeat}</div><h3>${t("lastT")}</h3><p>${last?`${last.id} · ${fmt(calc(last.qty,last).tot.pallets)} ${t("pallets")} · ${t("tl")[step[last.status]]}`:t("lastNone")}</p><button class="btn-soft" ${last?`data-repeat="${last.id}"`:"disabled"}>${t("repeat")}</button></div>
+  </div>
+  <div class="home-grid">
+    <div class="card card-pad" style="display:grid;gap:4px;align-content:start"><div class="p-head"><div class="sec-h">${ICO.bell}${t("alertsT")}</div><span class="label">${al.length}</span></div>
+      <div class="feed">${al.length?al.map(fi).join(""):fi({lv:"ok",t:t("allGood"),s:""})}</div></div>
+    <div class="card card-pad" style="display:grid;gap:12px;align-content:start"><div class="sec-h">${ICO.spark}${t("insT")}</div><div class="insights" style="font-size:13px;gap:10px">${ins.map(x=>`<div>${esc(x)}</div>`).join("")}</div></div>
+  </div>
+  ${mine.length?`<div class="card"><div class="card-pad p-head" style="padding-bottom:4px"><h2 style="font-size:18px">${t("recentT")}</h2><button class="link" data-view="myorders">${t("seeAll")}</button></div>${mine.slice(0,3).map(o=>{const rr=calc(o.qty,o),k=step[o.status];return `<div class="mo" style="padding:14px 20px"><div class="r1"><div><b class="num">${o.id}</b> <span class="label">· ${t("ordered")} ${o.created} · ${VEH[o.veh][S.lang]} ${fmt(rr.maxU*100,0)}% · ${money(rr.tot.value)}</span></div><span class="chip ${k>=2?"ok":"warn"}">${t("tl")[k]}</span></div></div>`}).join("")}</div>`:""}`;
+}
+/* Assistente de carga no painel de embarque: ações de um clique e explicações curtas */
+function assistHTML(r,sug){
+  if(!r.lines.length)return "";
+  const d=draft(), acts=[], ins=[];
+  if(r.mode==="pal"&&r.status==="partial"&&r.tot.positions<r.v.pos)acts.push([t("aFill"),"fill",1]);
+  if(r.mode==="pal"&&r.status!=="excess"&&r.lines.some(l=>l.frac>EPS))acts.push([t("aRound"),"round"]);
+  const b=bestVehicle(d); if(b&&b!==S.veh){const rr=calc(d.qty,{...d,veh:b});acts.push([t("aVeh")(VEH[b][S.lang],fmt(rr.maxU*100,0)),"veh:"+b])}
+  (sug||[]).filter(s=>s.act.startsWith("cut")).forEach(s=>{const p=BY[s.act.split(":")[1]];if(p)acts.push([t("aReduce")(p[S.lang]||p.pt),s.act])});
+  ins.push(t("iBind")({pos:t("resPos"),kg:t("resKg"),m3:t("resM3")}[r.bind],fmt(r.u[r.bind]*100,0)));
+  if(r.mode==="pal"&&r.status==="partial"){const free=r.v.pos-r.tot.positions;if(free>0)ins.push(t("iFree")(free));const cut=(1-r.tot.positions/r.v.pos)*100;if(cut>=5)ins.push(t("iFreight")(fmt(cut,0)))}
+  if(r.status==="full")ins.push(t("iFull"));
+  return `<div class="assist"><div class="assist-h">${ICO.spark}${t("assistT")}</div>${acts.length?`<div class="acts">${acts.map(([l,a,p])=>`<button class="act ${p?"primary":""}" data-act="${a}">${esc(l)}</button>`).join("")}</div>`:""}<div class="insights">${ins.map(x=>`<div>${esc(x)}</div>`).join("")}</div></div>`;
+}
+
+/* ============ EXPORTAÇÃO: ATENÇÃO AGORA E INSIGHTS AUTOMÁTICOS ============ */
+const QFX={blk:"Bloqueados",late:"Aguardando há mais de 4 h",partial:"Cargas incompletas"};
+const LATE_MS=4*3600*1000;
+function qfMatch(o,r){
+  if(S.qf==="all")return true; if(S.qf==="blk")return o.status==="analise"&&r.blocking;
+  if(S.qf==="late")return o.status==="analise"&&Date.now()-(o.createdMs||0)>LATE_MS; if(S.qf==="partial")return r.status==="partial";
+  return o.status===S.qf;
+}
+function dataIssues(){let n=0;const d=(a,b,tol)=>Math.abs(a-b)>(tol||0.011);P.forEach(p=>{if(!p.ob)return;if(d(p.ob.cxPal,p.cxPal))n++;if(d(p.ob.palz,p.cxPal))n++;if(p.priceSrc==="manual"||d(p.ob.price,p.price))n++;if(d(p.ob.lote,p.loteMin))n++;if(d(p.ob.grossCx,p.gross,0.05))n++});return {div:n,noPrice:P.filter(p=>p.priceSrc!=="sap").length}}
+function attnHTML(rs){
+  const blk=rs.filter(({o,r})=>o.status==="analise"&&r.blocking).length, late=rs.filter(({o})=>o.status==="analise"&&Date.now()-(o.createdMs||0)>LATE_MS).length;
+  const part=rs.filter(({r})=>r.status==="partial"), free=part.reduce((a,{r})=>a+Math.max(0,r.v.pos-r.tot.positions),0), di=dataIssues();
+  return `<div style="display:grid;gap:10px"><div class="sec-h">${ICO.bell}Atenção agora</div><div class="attn">
+    <button class="att ${blk?"err":"ok"}" data-qf="blk" aria-pressed="${S.qf==="blk"}"><span class="lbl">Bloqueados</span><b class="num">${blk}</b><span class="s">${blk?"pedidos que precisam de ajuste antes de aprovar":"nenhum pedido travado"}</span></button>
+    <button class="att ${late?"warn":"ok"}" data-qf="late" aria-pressed="${S.qf==="late"}"><span class="lbl">Aguardando há mais de 4 h</span><b class="num">${late}</b><span class="s">${late?"fora do prazo de resposta ao cliente":"fila dentro do prazo"}</span></button>
+    <button class="att info" data-qf="partial" aria-pressed="${S.qf==="partial"}"><span class="lbl">Cargas incompletas</span><b class="num">${part.length}</b><span class="s">${free} posições livres para completar</span></button>
+    <button class="att ${di.div?"warn":"ok"}" data-view="base"><span class="lbl">Qualidade de dados</span><b class="num">${di.div}</b><span class="s">divergências SAP × Order Basis · ${di.noPrice} sem preço no SAP</span></button>
+  </div></div>`;
+}
+function adminInsightsHTML(rs){
+  const out=[];
+  rs.filter(({r})=>r.status==="excess").forEach(({o,r})=>{const legs=splitPlan(r);if(legs&&legs.length>1)out.push(`${o.id} não cabe em um veículo: o sistema sugere ${legs.length} embarques (${legs.map(g=>VEH[g.veh].pt+" "+fmtPT(g.pct,0)+"%").join(" + ")}).`)});
+  rs.forEach(({o,r})=>{if(r.status==="excess")return;const b=bestVehicle(o);if(b&&b!==o.veh){const rr=calc(o.qty,{...o,veh:b});out.push(`${o.id} teria melhor aproveitamento em ${VEH[b].pt} (${fmtPT(rr.maxU*100,0)}% contra ${fmtPT(r.maxU*100,0)}%).`)}});
+  const part=rs.filter(({r})=>r.status==="partial"); if(part.length){const free=part.reduce((a,{r})=>a+Math.max(0,r.v.pos-r.tot.positions),0);out.push(`${part.length} carga${part.length>1?"s":""} incompleta${part.length>1?"s":""} com ${free} posições livres. Completar dilui o frete por pallet.`)}
+  const fam={};let tot=0;rs.forEach(({r})=>Object.entries(r.fams).forEach(([f,x])=>{fam[f]=(fam[f]||0)+x.kg;tot+=x.kg}));
+  const top=Object.entries(fam).sort((a,b)=>b[1]-a[1])[0]; if(top&&tot)out.push(`${FAM[top[0]]?FAM[top[0]].pt:top[0]} representam ${fmtPT(top[1]/tot*100,0)}% do volume em carteira.`);
+  const ok=rs.filter(({r})=>!r.blocking&&r.maxU>=RULES.fullAt).length, autoOn=Object.values(CLIENTS).filter(c=>c.autoApprove).length;
+  out.push(autoOn?`Aprovação automática ativa para ${autoOn} cliente${autoOn>1?"s":""}.`:`${ok} pedido${ok!==1?"s":""} da carteira atende${ok!==1?"m":""} a regra de aprovação automática (sem bloqueio e carga completa). Ative em Clientes e preços.`);
+  return `<div class="card card-pad" style="display:grid;gap:12px"><div class="sec-h">${ICO.spark}Insights automáticos</div><div class="insights" style="font-size:13.5px;gap:10px">${out.map(x=>`<div>${esc(x)}</div>`).join("")}</div></div>`;
+}
+
 /* ============ RECOMENDAÇÃO DE VEÍCULO E DIVISÃO EM EMBARQUES ============ */
 function bestVehicle(d){let best=null,bu=-1;Object.keys(VEH).forEach(k=>{const rr=calc(d.qty,{...d,veh:k});if(rr.lines.length&&rr.maxU<=1+EPS&&rr.maxU>bu){bu=rr.maxU;best=k}});return best}
 function vehPicker(){
@@ -1651,7 +1801,7 @@ function v3Tick(now){
 }
 function v3Clear(g){if(!g)return;V3.scene.remove(g);g.traverse(o=>{if(o.isInstancedMesh&&o.dispose)o.dispose();if(o.geometry&&o.geometry!==V3.geo&&o.geometry!==V3.cyl)o.geometry.dispose()})}
 function v3Tractor(g){
-  const cab=v3Std("cab",0xD2202F,{roughness:.42,metalness:.12}), glass=v3Std("cabglass",0x1d232a,{roughness:.2,metalness:.5}), frame=v3Std("frame",0x2c3035,{roughness:.6,metalness:.3}), chrome=v3Std("chrome",0xc3c8ce,{metalness:.7,roughness:.25});
+  const cab=v3Std("cab",0xFE5C16,{roughness:.42,metalness:.12}), glass=v3Std("cabglass",0x1d232a,{roughness:.2,metalness:.5}), frame=v3Std("frame",0x2c3035,{roughness:.6,metalness:.3}), chrome=v3Std("chrome",0xc3c8ce,{metalness:.7,roughness:.25});
   v3Box(g,frame,5.9,0.26,0.92,-0.45,0.95,0);
   v3Box(g,cab,2.3,2.6,2.46,-2.15,2.45,0);
   const roof=v3Box(g,cab,1.5,0.5,2.3,-1.75,3.95,0); roof.rotation.z=0.16;
@@ -1677,7 +1827,7 @@ function v3Vehicle(key,dark){
   if(s.kind==="trailer"){
     for(let i=0;i<=6;i++){const x=i*L/6;v3Box(g,frame,0.07,H,0.05,x,F+H/2,W/2+0.03,false);v3Box(g,frame,0.07,H,0.05,x,F+H/2,-W/2-0.03,false)}
     v3Box(g,frame,L,0.1,0.07,L/2,F+H,W/2+0.03,false); v3Box(g,frame,L,0.1,0.07,L/2,F+H,-W/2-0.03,false);
-    const brand=v3Std("brand",0xD2202F,{roughness:.5});
+    const brand=v3Std("brand",0xFE5C16,{roughness:.5});
     v3Box(g,brand,L,0.16,0.05,L/2,F+0.08,W/2+0.05,false); v3Box(g,brand,L,0.16,0.05,L/2,F+0.08,-W/2-0.05,false);
   } else {
     const ct=v3Std("ctn"+dark,dark?0x444a52:0x30343a,{roughness:.55,metalness:.35});
@@ -1686,7 +1836,7 @@ function v3Vehicle(key,dark){
     for(const x of [0,L])for(const y of [F,F+H])v3Box(g,ct,0.14,0.14,W,x,y,0);
     const rib=v3Std("rib"+dark,dark?0x3a4047:0x3b4047,{roughness:.6,metalness:.3});
     for(let x=0.6;x<L-0.3;x+=0.6)v3Box(g,rib,0.035,H-0.1,0.02,x,F+H/2,-W/2-0.01,false);
-    const brand=v3Std("brand",0xD2202F,{roughness:.5});
+    const brand=v3Std("brand",0xFE5C16,{roughness:.5});
     v3Box(g,brand,0.06,H*0.55,W*0.42,L+0.04,F+H/2,0,false);
   }
   s.axles.forEach(a=>{const x=L-a;v3Wheel(g,x,W/2-0.32);v3Wheel(g,x,-W/2+0.32);v3Box(g,frame,0.14,0.14,W-0.5,x,0.5,0,false)});
@@ -1817,6 +1967,7 @@ const API={
     const qty={};r.lines.forEach(l=>qty[l.p.code]=l.cx);
     const o={id:nextId(),draftId:meta.draftId,v:1,client:d.client,veh:d.veh,mode:d.mode,mixed:!!d.mixed,qty,ref:String(meta.ref||"").trim().slice(0,30),date:meta.date||"",status:"analise",created:nowStamp(),createdMs:Date.now(),origin:"Portal",audit:[]};
     o.audit.push({...stamp(),who:actorClient(),what:`Pedido criado no portal com ${r.lines.length} itens e validado automaticamente (${T.pt["st_"+r.status].toLowerCase()}, ${fmtPT(r.maxU*100,0)}%)`});
+    if(CLIENTS[d.client].autoApprove&&!r.blocking&&r.maxU>=RULES.fullAt){o.status="aprovado";o.auto=true;o.approved=nowStamp();o.approvedMs=Date.now();o.v=2;o.audit.push({...stamp(),who:"Regra de aprovação automática",what:`Aprovado automaticamente: sem bloqueios e carga completa (${fmtPT(r.maxU*100,0)}%)`})}
     S.orders.unshift(o); save(); return o;
   },
   /* PATCH /api/v1/orders/:id/items/:material */
@@ -1842,8 +1993,8 @@ const API={
   },
   /* PUT /api/v1/clients/:id/rules */
   setClientRule(k,field,val){
-    if(!CLIENTS[k])throw new ApiError(404,"Cliente não encontrado"); if(field!=="mixed")throw new ApiError(400,"Regra desconhecida");
-    CLIENTS[k].mixed=!!val; RLOG.unshift({...stamp(),who:ACTOR_EXP,what:`${CLIENTS[k].name}: pallet misto ${val?"liberado":"não aceito"}`}); save(); return CLIENTS[k];
+    if(!CLIENTS[k])throw new ApiError(404,"Cliente não encontrado"); if(!["mixed","autoApprove"].includes(field))throw new ApiError(400,"Regra desconhecida");
+    CLIENTS[k][field]=!!val; RLOG.unshift({...stamp(),who:ACTOR_EXP,what:field==="mixed"?`${CLIENTS[k].name}: pallet misto ${val?"liberado":"não aceito"}`:`${CLIENTS[k].name}: aprovação automática ${val?"ativada":"desligada"}`}); save(); return CLIENTS[k];
   }
 };
 
@@ -1853,7 +2004,7 @@ const API={
 const STORE_KEY="3cc-v3";
 const BASE_SIG=P.map(p=>p.code+":"+p.cxPal+":"+p.price+":"+p.gross).join("|");
 let saveTimer=0;
-function save(){clearTimeout(saveTimer);saveTimer=setTimeout(()=>{try{localStorage.setItem(STORE_KEY,JSON.stringify({v:2,base:BASE_SIG,orders:S.orders,qty:S.qty,unit:S.unit,veh:S.veh,mode:S.mode,lang:S.lang,client:S.client,view3d:S.view3d,rules:Object.fromEntries(Object.entries(CLIENTS).map(([k,c])=>[k,{mixed:!!c.mixed}])),fam:FAM,catalog:P,implog:IMP.log,rlog:RLOG.slice(0,50)}))}catch(_){}},200)}
+function save(){clearTimeout(saveTimer);saveTimer=setTimeout(()=>{try{localStorage.setItem(STORE_KEY,JSON.stringify({v:2,base:BASE_SIG,orders:S.orders,qty:S.qty,unit:S.unit,veh:S.veh,mode:S.mode,lang:S.lang,client:S.client,view3d:S.view3d,rules:Object.fromEntries(Object.entries(CLIENTS).map(([k,c])=>[k,{mixed:!!c.mixed,autoApprove:!!c.autoApprove}])),fam:FAM,catalog:P,implog:IMP.log,rlog:RLOG.slice(0,50)}))}catch(_){}},200)}
 function load(){
   try{
     const raw=localStorage.getItem(STORE_KEY); if(!raw)return false;
@@ -1861,7 +2012,7 @@ function load(){
     if(Array.isArray(d.orders)&&d.orders.every(o=>o&&o.id&&o.qty&&FLOW[o.status]))S.orders=d.orders;
     if(d.qty&&typeof d.qty==="object")S.qty=d.qty; if(d.unit&&typeof d.unit==="object")S.unit=d.unit;
     if(VEH[d.veh])S.veh=d.veh; if(d.mode==="pal"||d.mode==="est")S.mode=d.mode; if(T[d.lang])S.lang=d.lang; if(CLIENTS[d.client])S.client=d.client; if(d.view3d==="2d"||d.view3d==="3d")S.view3d=d.view3d;
-    if(d.rules)Object.entries(d.rules).forEach(([k,x])=>{if(CLIENTS[k])CLIENTS[k].mixed=!!(x&&x.mixed)});
+    if(d.rules)Object.entries(d.rules).forEach(([k,x])=>{if(CLIENTS[k]){CLIENTS[k].mixed=!!(x&&x.mixed);CLIENTS[k].autoApprove=!!(x&&x.autoApprove)}});
     if(d.fam)Object.entries(d.fam).forEach(([k,x])=>{if(!FAM[k]&&x&&x.pt)FAM[k]=x});
     if(Array.isArray(d.catalog)&&d.catalog.length&&d.catalog.every(p=>p&&p.code&&p.lastro&&p.alt)){P.length=0;d.catalog.forEach(p=>P.push(p));Object.keys(BY).forEach(k=>delete BY[k]);P.forEach(p=>BY[p.code]=p)}
     if(Array.isArray(d.implog))IMP.log=d.implog; if(Array.isArray(d.rlog))RLOG.push(...d.rlog);
@@ -1873,7 +2024,9 @@ function resetDemo(){try{localStorage.removeItem(STORE_KEY)}catch(_){}location.r
 /* ============ SEED ============ */
 S.orders.push({id:"3CC-2026-0001",client:"minoil",veh:"carreta",mode:"pal",mixed:false,qty:{"12031189":3528,"12034103":300,"12037417":250,"12144012":300},ref:"PEDIDO TESTE",date:"",status:"analise",created:"09/10 17:53",createdMs:new Date(2026,9,9,17,53).getTime(),origin:"Order Basis",
   audit:[{at:"09/10 17:53",who:"Lucas (Exportação)",what:"Pedido importado da planilha Order Basis para comparação. A planilha indicava embarque OK."},{at:"09/10 17:54",who:"Motor de validação",what:"30 pallets para 28 posições na carreta: excesso de 2 posições."}]});
-S.orders.push({id:"3CC-2026-0002",client:"rioclaro",veh:"c40",mode:"pal",mixed:false,qty:{"12031291":1176,"12034109":140,"12142501":1400,"12147801":540},ref:"OC-4471",date:"2026-11-03",status:"aprovado",created:"12/10 10:21",createdMs:new Date(2026,9,12,10,21).getTime(),approved:"12/10 14:05",approvedMs:new Date(2026,9,12,14,5).getTime(),origin:"Portal",
+S.orders.push({id:"3CC-2026-0002",client:"minoil",veh:"carreta",mode:"pal",mixed:false,v:4,qty:{"12031189":2688,"12034103":405,"12142146":600,"12037417":182},ref:"OC-2026-097",date:"2026-10-24",status:"sap",created:"11/10 09:12",createdMs:new Date(2026,9,11,9,12).getTime(),approved:"11/10 11:40",approvedMs:new Date(2026,9,11,11,40).getTime(),sapAt:"11/10 11:52",origin:"Portal",
+  audit:[{at:"11/10 09:12",who:"Martín (MINOIL S.A.)",what:"Pedido criado no portal com 4 itens e validado automaticamente (carga incompleta, 96%)"},{at:"11/10 11:31",who:"Lucas (Exportação)",kind:"edit",code:"12034103",old:324,nv:405,what:"Alterou 12034103 (Cappuccino Clássico sachê 20 g) de 324 para 405 cx para completar a carreta"},{at:"11/10 11:40",who:"Lucas (Exportação)",what:"Pedido aprovado após 1 ajuste"},{at:"11/10 11:52",who:"Lucas (Exportação)",what:"Arquivo de importação para o SAP gerado"}]});
+S.orders.push({id:"3CC-2026-0003",client:"rioclaro",veh:"c40",mode:"pal",mixed:false,qty:{"12031291":1176,"12034109":140,"12142501":1400,"12147801":540},ref:"OC-4471",date:"2026-11-03",status:"aprovado",created:"12/10 10:21",createdMs:new Date(2026,9,12,10,21).getTime(),approved:"12/10 14:05",approvedMs:new Date(2026,9,12,14,5).getTime(),origin:"Portal",
   audit:[{at:"12/10 10:21",who:"Sofía (Distribuidora Río Claro S.R.L.)",what:"Pedido criado no portal e validado automaticamente."},{at:"12/10 14:05",who:"Lucas (Exportação)",what:"Pedido aprovado sem alterações."}]});
 S.sel="3CC-2026-0001";
 load();
@@ -1882,6 +2035,8 @@ load();
 function setQty(code,v){const n=Math.max(0,Math.round((v||0)*1e6)/1e6);if(n<EPS)delete S.qty[code];else S.qty[code]=n}
 function act(a){
   const [k,code,n]=a.split(":");
+  if(k==="fill"){const n=fillLoad();render();toast(t("tFilled")(n));return}
+  if(k==="veh"&&VEH[code])S.veh=code;
   if(k==="round"){for(const p of P){const q=S.qty[p.code];if(q&&q%p.cxPal)S.qty[p.code]=Math.ceil(q/p.cxPal)*p.cxPal}}
   if(k==="add")setQty(code,(S.qty[code]||0)+Number(n)*BY[code].cxPal);
   if(k==="cut"){const p=BY[code];setQty(code,Math.max(0,Math.ceil(S.qty[code]/p.cxPal-EPS)-Number(n))*p.cxPal)}
@@ -1896,13 +2051,15 @@ document.addEventListener("click",e=>{
   if(b.hasAttribute("data-reset")){if(!S.resetArm){S.resetArm=true;render();setTimeout(()=>{if(S.resetArm){S.resetArm=false;render()}},4000);return}resetDemo();return}
   if(b.dataset.view3d){S.view3d=b.dataset.view3d;render();return}
   if(b.hasAttribute("data-import")){openImport();return}
+  if(b.hasAttribute("data-usesug")){const sg=suggestedOrder();S.qty={...sg.qty};S.veh=sg.veh;S.mode="pal";S.unit={};S.view="dist";render();window.scrollTo(0,0);toast(t("tSug"));return}
+  if(b.dataset.homeact==="fill"){S.view="dist";const n=fillLoad();render();window.scrollTo(0,0);toast(t("tFilled")(n));return}
   if(b.hasAttribute("data-impsample")){IMPO.text=IMP_SAMPLE;const ta=document.getElementById("impText");if(ta)ta.value=IMP_SAMPLE;impFromText();return}
   if(b.dataset.impapply){applyOrderImport(b.dataset.impapply);return}
   if(b.dataset.repeat){const o=S.orders.find(x=>x.id===b.dataset.repeat);if(o){S.qty={...o.qty};S.veh=o.veh;S.mode=o.mode;S.unit={};S.view="dist";render();window.scrollTo(0,0);toast(t("tRepeat"))}return}
   if(b.dataset.v3big){open3D(b.dataset.v3big);return}
   if(b.dataset.v3p){v3Preset(b.dataset.v3p);return}
   if(b.dataset.qf){S.qf=b.dataset.qf;render();return}
-  if(b.dataset.enter){S.resetArm=false;S.area=b.dataset.enter;S.view=S.area==="client"?"dist":"exp";render();window.scrollTo(0,0);return}
+  if(b.dataset.enter){S.resetArm=false;S.area=b.dataset.enter;S.view=S.area==="client"?"home":"exp";render();window.scrollTo(0,0);return}
   if(b.hasAttribute("data-logout")){S.area=null;S.view="entry";render();window.scrollTo(0,0);return}
   if(b.dataset.view){S.view=b.dataset.view;render();window.scrollTo(0,0);return}
   if(b.dataset.lang){S.lang=b.dataset.lang;render();return}
@@ -1949,6 +2106,7 @@ document.addEventListener("change",e=>{
   if(e.target.id==="impFile"){const f=e.target.files&&e.target.files[0];if(f)readOrderFile(f);return}
   if(e.target.dataset.photo){const c=e.target.dataset.photo,f=e.target.files&&e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{IMG[c]=rd.result;delete IMGNOTE[c];render();toast("Foto atualizada: "+BY[c].pt)};rd.readAsDataURL(f);return}
   if(e.target.id==="clientSel"){S.client=e.target.value;S.lang=CLIENTS[S.client].lang||S.lang;render();return}
+  if(e.target.dataset.autoclient){const k=e.target.dataset.autoclient;try{API.setClientRule(k,"autoApprove",e.target.checked);toast(`${CLIENTS[k].name}: aprovação automática ${e.target.checked?"ativada":"desligada"}`)}catch(err){toast(err.message,"err")}render();return}
   if(e.target.dataset.mixclient){const k=e.target.dataset.mixclient;try{API.setClientRule(k,"mixed",e.target.checked);toast(`${CLIENTS[k].name}: pallet misto ${e.target.checked?"liberado":"não aceito"}`)}catch(err){toast(err.message,"err")}render();return}
   if(e.target.dataset.q){const c=e.target.dataset.q;const p=BY[c];setQty(c,parseNum(e.target.value)/UF[unitOf(c)](p));render();return}
   if(e.target.dataset.edit){const code=e.target.dataset.edit;const nv=parseInt(String(e.target.value).replace(/\D/g,""),10)||0;let changed=false;try{const o=API.get(S.sel);changed=(o.qty[code]||0)!==nv;API.updateItem(S.sel,code,nv)}catch(err){toast(err.message,"err");changed=false}render();if(changed)toast("Alteração registrada na auditoria");return}
