@@ -1,0 +1,1198 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="3C Conecta: plataforma de pedidos de exportação. Protótipo do Hackathon Cafeína Week 2026 (FIAP), desafio Pedido sem Fronteiras da 3corações.">
+<title>3C Conecta</title>
+<style>body{margin:0}img{max-width:100%}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: cabeçalho branco leve; catálogo em lista única à esquerda, painel de embarque fixo à direita. Vermelho 3corações só como acento. */
+:root{
+  --bg:#F3F4F6; --surface:#FFFFFF; --surface-2:#F1F2F4; --surface-3:#E3E5E8; --ink:#1F2328; --muted:#5F6670; --faint:#9AA1AB; --line:#E6E8EB;
+  --gold:#FE5C16; --gold-ink:#FFFFFF; --gold-soft:#FFEDE3; --coffee:#2A2D33;
+  --red:#FE5C16; --red-hover:#E24D0C; --red-soft:#FFF0E8; --on-red:#FFFFFF;
+  --ok:#1F7A45; --ok-soft:#E5F3EA; --warn:#A35F00; --warn-soft:#FFF4DE; --err:#D0261B; --err-soft:#FDECEA;
+  --f-cafe:#6B3A1A; --f-capp:#C08A5B; --f-sol:#E39A2D; --f-filtro:#738A55; --f-porta:#57709A;
+  --shadow:0 1px 2px rgba(16,24,40,.06),0 4px 14px rgba(16,24,40,.05);
+  --font:"Jost","Century Gothic",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --r:10px; --r-sm:6px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111315; --surface:#1A1D21; --surface-2:#23272C; --surface-3:#2F343A; --ink:#F1F3F5; --muted:#A7AEB7; --faint:#6D747D; --line:#2A2E34;
+  --gold:#FF7A3D; --gold-ink:#FFFFFF; --gold-soft:#3D2014; --coffee:#0B0C0E;
+  --red:#FF7A3D; --red-hover:#FF9361; --red-soft:#33231C; --on-red:#FFFFFF;
+  --ok:#5BC488; --ok-soft:#16301F; --warn:#F0AE4A; --warn-soft:#33260F; --err:#FF6B61; --err-soft:#3A1715;
+  --f-cafe:#B07752; --f-capp:#D8A57A; --f-sol:#F0A84A; --f-filtro:#9DB27A; --f-porta:#86A0C8;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111315; --surface:#1A1D21; --surface-2:#23272C; --surface-3:#2F343A; --ink:#F1F3F5; --muted:#A7AEB7; --faint:#6D747D; --line:#2A2E34;
+  --gold:#FF7A3D; --gold-ink:#FFFFFF; --gold-soft:#3D2014; --coffee:#0B0C0E;
+  --red:#FF7A3D; --red-hover:#FF9361; --red-soft:#33231C; --on-red:#FFFFFF;
+  --ok:#5BC488; --ok-soft:#16301F; --warn:#F0AE4A; --warn-soft:#33260F; --err:#FF6B61; --err-soft:#3A1715;
+  --f-cafe:#B07752; --f-capp:#D8A57A; --f-sol:#F0A84A; --f-filtro:#9DB27A; --f-porta:#86A0C8;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25); color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{background:var(--bg);color:var(--ink);overflow-x:clip}
+body{font-family:var(--font);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed}
+:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.01em;font-weight:600}
+.num{font-variant-numeric:tabular-nums}
+.code{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:0}
+.label{font-size:12px;color:var(--muted);font-weight:500}
+.muted{color:var(--muted)}
+
+/* ---------- header ---------- */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);box-shadow:0 1px 0 var(--line)}
+.top-in{max-width:1320px;margin:0 auto;padding:12px 16px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto}
+.mark{width:34px;height:34px;border-radius:6px;background:var(--red);display:grid;place-items:center;flex:none}
+.mark svg{width:19px;height:19px}
+.brand > div{display:flex;align-items:center;flex-wrap:nowrap;white-space:nowrap}
+@media (max-width:640px){.out span,.out{font-size:0;gap:0}.out svg{width:18px;height:18px}}
+.brand b{font-size:18px;font-weight:600;letter-spacing:.01em}
+.proto{font-size:10.5px;font-weight:600;color:var(--muted);background:var(--surface-2);border-radius:999px;padding:2px 8px;margin-left:6px;vertical-align:2px}
+.seg{display:flex;background:var(--surface-2);border-radius:8px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;padding:7px 14px;border-radius:6px;font-size:13px;font-weight:600;color:var(--muted);white-space:nowrap}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(40,20,15,.12)}
+.seg.sm button{padding:5px 10px;font-size:12px}
+.seg.full{width:100%}.seg.full button{flex:1;padding:7px 6px}
+
+.wrap{max-width:1320px;margin:0 auto;padding-inline:16px;padding-block:28px 48px}
+.view{display:grid;gap:24px}
+
+/* ---------- hero ---------- */
+.hero{display:flex;flex-wrap:wrap;gap:16px 24px;align-items:flex-end;justify-content:space-between}
+.hero h1{font-size:30px;line-height:1.15}
+.hero p{margin:6px 0 0;color:var(--muted);max-width:56ch}
+.eyebrow{font-size:12.5px;font-weight:600;color:var(--red);margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em}
+.client{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px 10px 10px;box-shadow:var(--shadow);min-width:0;max-width:100%}
+.avatar{width:40px;height:40px;border-radius:8px;background:var(--red-soft);color:var(--red);display:grid;place-items:center;font-weight:800;flex:none}
+.client select{border:0;background:transparent;font-weight:700;font-size:14px;padding:0;max-width:100%;cursor:pointer}
+.client .sub{font-size:12px;color:var(--muted)}
+
+/* ---------- layout ---------- */
+.cols{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:24px;align-items:start}
+@media (max-width:1040px){.cols{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);border:1px solid var(--line);min-width:0}
+.card-pad{padding:20px}
+
+/* ---------- catálogo ---------- */
+.cat-top{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:20px 20px 12px}
+.cat-top h2{font-size:18px}
+.search{display:flex;align-items:center;gap:8px;background:var(--surface-2);border-radius:6px;padding:0 12px;height:38px;flex:1 1 220px;max-width:320px}
+.search svg{width:16px;height:16px;color:var(--faint);flex:none}
+.search input{border:0;background:transparent;outline:0;width:100%;height:100%}
+.filters{display:flex;gap:6px;flex-wrap:wrap;padding:0 20px 14px;border-bottom:1px solid var(--line)}
+.pill{border:0;background:transparent;border-radius:4px;text-transform:uppercase;letter-spacing:.04em;font-size:12px;padding:6px 12px;font-size:13px;font-weight:600;color:var(--muted);display:inline-flex;align-items:center;gap:7px}
+.pill:hover{background:var(--surface-2);color:var(--ink)}
+.pill[aria-pressed="true"]{background:var(--red);color:#fff}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none}
+
+.prod{display:grid;grid-template-columns:48px minmax(0,1fr) auto auto;gap:6px 18px;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line);transition:background .15s}
+.prod:last-child{border-bottom:0}
+.prod.on{background:var(--surface-2);box-shadow:inset 3px 0 0 var(--red)}
+.prod.blocked{opacity:.55}
+.tile{width:48px;height:48px;border-radius:8px;display:grid;place-items:center}
+.tile svg{width:24px;height:24px}
+.prod h3{font-size:15px;font-weight:600;letter-spacing:-.01em;line-height:1.3}
+.prod .sub{font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:2px 10px;margin-top:2px}
+.price{text-align:right}
+.price b{font-size:15px;font-weight:700}
+.price span{display:block;font-size:11.5px;color:var(--muted)}
+.stepper{display:flex;align-items:center;background:var(--surface-2);border-radius:6px;padding:3px}
+.stepper button{width:30px;height:30px;border:0;border-radius:8px;background:transparent;font-size:17px;font-weight:600;color:var(--muted);display:grid;place-items:center}
+.stepper button:hover:not(:disabled){background:var(--surface);color:var(--ink)}
+.stepper input{width:64px;height:30px;border:0;background:transparent;text-align:center;font-weight:700;font-variant-numeric:tabular-nums;outline:0}
+.stepper input::placeholder{color:var(--faint);font-weight:500}
+.prod-foot{grid-column:2/-1;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;font-size:12.5px;margin-top:4px}
+.pbar{display:flex;gap:3px;flex-wrap:wrap;align-items:center}
+.pbar i{width:10px;height:14px;border-radius:2px;background:var(--surface-3);position:relative;overflow:hidden;display:block}
+.pbar i span{position:absolute;inset:auto 0 0 0;display:block}
+.note{display:inline-flex;align-items:center;gap:6px;font-weight:600}
+.note::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.note.ok{color:var(--ok)}.note.warn{color:var(--warn)}.note.err{color:var(--err)}
+.link{border:0;background:transparent;padding:0;color:var(--red);font-weight:700;font-size:12.5px}
+.link:hover{text-decoration:underline}
+@media (max-width:640px){
+  .prod{grid-template-columns:44px minmax(0,1fr);padding:14px 16px}
+  .tile{width:44px;height:44px}
+  .price{text-align:left;grid-column:2}
+  .stepper{grid-column:2;justify-self:start}
+  .prod-foot{grid-column:1/-1}
+}
+
+/* ---------- painel embarque ---------- */
+.panel{position:sticky;top:calc(env(safe-area-inset-top,0px) + 132px)}
+@media (max-width:1040px){.panel{position:static}}
+.p-sec{padding:18px 20px;display:grid;gap:12px}
+.p-sec + .p-sec{border-top:1px solid var(--line)}
+.p-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.p-head h2{font-size:18px}
+.switch{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);cursor:pointer;user-select:none}
+.switch input{appearance:none;width:34px;height:20px;border-radius:999px;background:var(--surface-3);position:relative;margin:0;cursor:pointer;transition:background .15s;flex:none}
+.switch input::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:left .15s}
+.switch input:checked{background:var(--red)}
+.switch input:checked::after{left:16px}
+.status{display:flex;align-items:center;gap:12px}
+.ring{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;flex:none}
+.ring svg{width:18px;height:18px}
+.status b{display:block;font-size:16px;letter-spacing:-.01em}
+.status small{font-size:12.5px;color:var(--muted)}
+.st-full .ring{background:var(--ok-soft);color:var(--ok)}
+.st-partial .ring{background:var(--warn-soft);color:var(--warn)}
+.st-excess .ring{background:var(--err-soft);color:var(--err)}
+.st-empty .ring{background:var(--surface-2);color:var(--faint)}
+.st-excess b{color:var(--err)}
+.truck{background:var(--surface-2);border-radius:8px;padding:12px}
+.truck svg{width:100%;height:auto;display:block}
+.meters{display:grid;gap:12px}
+.meter{display:grid;gap:6px}
+.meter .top-row{display:flex;justify-content:space-between;gap:8px;font-size:12.5px}
+.meter .top-row span:first-child{color:var(--muted);font-weight:500}
+.meter .top-row b{font-weight:700}
+.meter .bar{height:6px;background:var(--surface-3);border-radius:999px;overflow:hidden}
+.meter .bar span{display:block;height:100%;border-radius:999px;background:var(--faint)}
+.meter .bar.bind span{background:var(--ink)}
+.meter .bar.over span{background:var(--err)}
+.bindtag{font-size:10.5px;font-weight:700;color:var(--ink);background:var(--surface-2);padding:1px 6px;border-radius:999px;margin-left:4px}
+.alerts{display:grid;gap:8px}
+.alert{display:flex;gap:10px;align-items:center;font-size:13px;padding:10px 12px;border-radius:6px;line-height:1.4}
+.alert.err{background:var(--err-soft);color:var(--err)}
+.alert.warn{background:var(--warn-soft);color:var(--warn)}
+.alert.tip{background:var(--surface-2);color:var(--ink)}
+.alert.okb{background:var(--ok-soft);color:var(--ok)}
+.alert .ic{width:16px;height:16px;flex:none}
+.alert button{margin-left:auto;flex:none;border:0;background:var(--ink);color:var(--surface);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:700}
+.value{font-size:32px;font-weight:600;letter-spacing:-.03em;line-height:1.1}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.stat .label{display:block}
+.stat b{font-size:15px;font-weight:700;display:block}
+.fam{display:grid;gap:6px;font-size:12.5px}
+.fam div{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:12px;align-items:center}
+.fam span:nth-child(2),.fam span:nth-child(3){text-align:right;color:var(--muted)}
+.btn{border:0;border-radius:6px;padding:13px 20px;font-weight:600;letter-spacing:.02em;font-size:14.5px;background:var(--red);color:var(--on-red);width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:background .15s}
+.btn:hover:not(:disabled){background:var(--red-hover)}
+.btn:disabled{opacity:.4}
+.btn.dark{background:var(--coffee);color:#fff}
+.btn.sm{width:auto;padding:10px 16px;font-size:13.5px}
+.btn-soft{border:0;background:var(--surface-2);border-radius:6px;padding:9px 14px;font-weight:600;font-size:13px}
+.btn-soft:hover{background:var(--surface-3)}
+
+/* ---------- overlay ---------- */
+.overlay{position:fixed;inset:0;background:rgba(20,10,8,.45);backdrop-filter:blur(2px);z-index:50;display:grid;place-items:center;padding:16px}
+.sheet{background:var(--surface);border-radius:12px;max-width:760px;width:100%;max-height:calc(100% - 24px);overflow:auto;display:grid;gap:18px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.x{width:34px;height:34px;border-radius:6px;border:0;background:var(--surface-2);font-size:16px;flex:none}
+.tbl-wrap{overflow-x:auto}
+table.data{width:100%;border-collapse:collapse;font-size:13px}
+table.data th{text-align:left;font-size:11.5px;font-weight:600;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+table.data td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle}
+table.data tbody tr:last-child td{border-bottom:0}
+table.data td.r,table.data th.r{text-align:right}
+table.data tfoot td{font-weight:700;border-top:1px solid var(--line);border-bottom:0}
+.info{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px}
+.info b{display:block;font-weight:600}
+.field{display:grid;gap:6px}
+.field input{border:0;background:var(--surface-2);border-radius:6px;padding:10px 12px;outline:0}
+.field input:focus{box-shadow:0 0 0 2px var(--red)}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;padding:3px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.03em}
+.chip.ok{background:var(--ok-soft);color:var(--ok)}.chip.warn{background:var(--warn-soft);color:var(--warn)}.chip.err{background:var(--err-soft);color:var(--err)}.chip.neutral{background:var(--surface-2);color:var(--ink)}
+.timeline{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.timeline div{display:grid;gap:8px;font-size:12px;color:var(--faint);font-weight:500}
+.timeline div::before{content:"";height:4px;border-radius:999px;background:var(--surface-3)}
+.timeline div.done{color:var(--ink);font-weight:700}
+.timeline div.done::before{background:var(--red)}
+.success{width:52px;height:52px;border-radius:50%;background:var(--ok-soft);color:var(--ok);display:grid;place-items:center}
+.success svg{width:26px;height:26px}
+
+/* ---------- exportação ---------- */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);border:1px solid var(--line)}
+.kpi{padding:18px 20px}
+.kpi + .kpi{border-left:1px solid var(--line)}
+.kpi b{display:block;font-size:27px;font-weight:600;letter-spacing:-.03em;margin-top:2px}
+@media (max-width:720px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpi:nth-child(3){border-left:0}.kpi:nth-child(n+3){border-top:1px solid var(--line)}}
+.exp{display:grid;grid-template-columns:320px minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:920px){.exp{grid-template-columns:minmax(0,1fr)}}
+.olist{display:grid;padding:6px}
+.orow{text-align:left;border:0;background:transparent;border-radius:8px;padding:12px 14px;display:grid;gap:4px;width:100%}
+.orow:hover{background:var(--surface-2)}
+.orow[aria-pressed="true"]{background:var(--surface-2);box-shadow:inset 3px 0 0 var(--red)}
+.orow .r1{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.orow .id{font-weight:700}
+.orow .r3{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted)}
+.d-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:flex-start}
+.d-head h3{font-size:22px}
+.callout{background:var(--red-soft);color:var(--ink);border-radius:8px;padding:14px 16px;font-size:13.5px;line-height:1.5}
+.callout b{color:var(--red)}
+.mini-in{width:80px;border:0;background:var(--surface-2);border-radius:8px;padding:6px 8px;text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.mini-in:disabled{background:transparent}
+pre.csv{background:var(--surface-2);border-radius:8px;padding:14px;font-family:var(--mono);font-size:11.5px;overflow-x:auto;margin:0;white-space:pre;line-height:1.6}
+.audit{display:grid}
+.audit div{display:grid;grid-template-columns:92px minmax(0,1fr);gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
+.audit div:last-child{border-bottom:0}
+.audit time{font-size:12px;color:var(--faint);font-variant-numeric:tabular-nums}
+.sec-title{font-size:13px;font-weight:700;margin-bottom:6px}
+
+/* ---------- base ---------- */
+td.div{color:var(--err);font-weight:700;background:var(--err-soft)}
+.road{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;counter-reset:s}
+.road div{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);padding:18px;display:grid;gap:6px;align-content:start}
+.road div::before{counter-increment:s;content:counter(s);width:28px;height:28px;border-radius:8px;background:var(--surface-2);display:grid;place-items:center;font-weight:800;font-size:13px}
+.road div.now::before{background:var(--red);color:var(--on-red)}
+.road b{font-size:15px}
+.road span{color:var(--muted);font-size:13px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px}
+.rules{display:grid;gap:8px;font-size:13.5px}
+.rules div{display:flex;gap:10px}
+.rules div::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--red);margin-top:8px;flex:none}
+/* ---------- áreas ---------- */
+:root{--admin-bg:#25282D;--admin-fg:#FFFFFF;--admin-muted:rgba(255,255,255,.62);--admin-seg:rgba(255,255,255,.10)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--admin-bg:#0B0C0E}}
+:root[data-theme="dark"]{--admin-bg:#0B0C0E}
+.top.admin{background:var(--admin-bg);color:var(--admin-fg);border-bottom-color:transparent;backdrop-filter:none}
+.top.admin .seg{background:var(--admin-seg)}
+.top.admin .seg button{color:var(--admin-muted)}
+.top.admin .seg button:hover{color:var(--admin-fg)}
+.top.admin .seg button[aria-pressed="true"]{background:var(--red);color:#fff}
+.top.admin .proto{background:var(--admin-seg);color:var(--admin-muted)}
+.area{font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;margin-left:8px;vertical-align:1px;white-space:nowrap}
+.area.client{background:var(--red-soft);color:var(--red)}
+.area.admin{background:var(--gold);color:var(--gold-ink)}
+.out{border:0;background:transparent;color:inherit;opacity:.75;font-weight:600;font-size:13px;display:inline-flex;align-items:center;gap:6px;padding:6px 4px}
+.out:hover{opacity:1}
+.count{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--red);color:#fff;font-size:10.5px;font-weight:800;margin-left:6px}
+.entry{width:100%;max-width:980px;margin:0 auto;display:grid;gap:28px;padding-top:12px}
+.entry-hero{text-align:center;display:grid;gap:10px;justify-items:center}
+.entry-hero .mark{width:56px;height:56px;border-radius:10px}
+.entry-hero .mark svg{width:30px;height:30px}
+.entry-hero h1{font-size:40px;letter-spacing:-.03em}
+.entry-hero p{color:var(--muted);max-width:52ch;margin:0;font-size:15px}
+.doors{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.door{background:var(--surface);border-radius:12px;box-shadow:var(--shadow);padding:26px;display:grid;gap:14px;align-content:start;border:2px solid transparent;transition:border-color .15s,transform .15s}
+.door:hover{border-color:var(--red)}
+.door .ico{width:52px;height:52px;border-radius:10px;display:grid;place-items:center}
+.door .ico svg{width:26px;height:26px}
+.door h2{font-size:22px}
+.door p{margin:0;color:var(--muted)}
+.door ul{margin:0;padding:0;list-style:none;display:grid;gap:6px;font-size:13.5px}
+.door li{display:flex;gap:8px}
+.door li::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--red);margin-top:8px;flex:none}
+.door.adm .ico{background:var(--admin-bg);color:var(--red)}
+.door.cli .ico{background:var(--red-soft);color:var(--red)}
+.mo{display:grid;gap:14px;padding:20px}
+.mo + .mo{border-top:1px solid var(--line)}
+.mo .r1{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:center}
+.prices td.best{font-weight:700}
+.drop{border:2px dashed var(--surface-3);border-radius:10px;padding:24px 16px;display:grid;justify-items:center;gap:4px;text-align:center;cursor:pointer;background:var(--surface-2);transition:border-color .15s,background .15s}
+.drop:hover,.drop.over{border-color:var(--red);background:var(--red-soft)}
+.drop svg{width:28px;height:28px;color:var(--red);margin-bottom:4px}
+.files{display:flex;flex-wrap:wrap;gap:8px}
+.file{display:flex;align-items:center;gap:8px;background:var(--surface-2);border-radius:6px;padding:8px 12px;font-size:12.5px}
+.sumrow{display:flex;flex-wrap:wrap;gap:8px}
+.qcol{display:grid;gap:6px;justify-items:end}
+.useg{display:flex;background:var(--surface-2);border-radius:8px;padding:2px;gap:1px}
+.useg button{border:0;background:transparent;font-size:11px;font-weight:700;color:var(--muted);padding:3px 8px;border-radius:6px}
+.useg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(40,20,15,.12)}
+.useg button:disabled{opacity:.5}
+.eq{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.build{font-size:12px;color:var(--muted);margin-top:3px;display:flex;flex-wrap:wrap;gap:2px 8px;align-items:center}
+.build svg{width:13px;height:13px;flex:none}
+.opt{border:0;background:var(--ink);color:var(--surface);border-radius:7px;padding:3px 9px;font-size:12px;font-weight:700}
+.opt.alt{background:var(--surface-3);color:var(--ink)}
+.mbar{display:none}
+@media (max-width:1040px){
+  .mbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:30;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -4px 16px rgba(40,20,15,.08);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px))}
+  .mbar b{font-size:14px}
+  .mbar .label{display:block}
+  #v-dist{padding-bottom:76px}
+}
+@media (max-width:640px){.qcol{justify-items:start;grid-column:2}}
+.kpi small{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.kpi.soon b{color:var(--faint);font-size:18px;margin-top:8px}
+.kgroup{display:grid;gap:8px}
+.kgroup > .label{font-weight:700;color:var(--ink)}
+.journey{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:8px}
+@media (max-width:1560px){.journey{grid-template-columns:repeat(4,minmax(0,1fr));row-gap:16px}}
+@media (max-width:520px){.journey{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.js{display:grid;gap:4px;align-content:start;font-size:12px}
+.js::before{content:"";height:4px;border-radius:999px;background:var(--surface-3)}
+.js b{font-size:12.5px;line-height:1.3}
+.js .who{color:var(--muted)}
+.js .when{color:var(--faint);font-variant-numeric:tabular-nums}
+.js.done::before{background:var(--ok)}
+.js.done .when{color:var(--ok);font-weight:600}
+.js.bad::before{background:var(--err)}
+.js.bad .when{color:var(--err);font-weight:600}
+.js.now::before{background:var(--warn)}
+.js.now .when{color:var(--warn);font-weight:700}
+.js.future::before{background:repeating-linear-gradient(90deg,var(--surface-3) 0 6px,transparent 6px 10px)}
+.js.future b,.js.future .who{color:var(--faint)}
+/* ---------- sidebar admin ---------- */
+.side{position:fixed;inset:0 auto 0 0;width:252px;background:var(--admin-bg);color:var(--admin-fg);flex-direction:column;gap:4px;padding:20px 14px calc(16px + env(safe-area-inset-bottom,0px));z-index:25;display:flex}
+.side .brand{margin:0 6px 14px}
+.side .navh{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--admin-muted);margin:16px 12px 6px}
+.side nav{display:grid;gap:2px}
+.side nav button{display:flex;align-items:center;gap:11px;border:0;background:transparent;color:var(--admin-muted);padding:10px 12px;border-radius:6px;font-weight:600;font-size:13.5px;text-align:left;width:100%}
+.side nav button svg{width:18px;height:18px;flex:none}
+.side nav button:hover{background:var(--admin-seg);color:var(--admin-fg)}
+.side nav button[aria-pressed="true"]{background:var(--red);color:#fff}
+.side nav .count{margin-left:auto}
+.side .me{margin-top:auto;display:flex;align-items:center;gap:10px;padding:12px;border-radius:8px;background:var(--admin-seg)}
+.side .me .av{width:34px;height:34px;border-radius:6px;background:var(--red);color:#fff;display:grid;place-items:center;font-weight:800;flex:none}
+.side .me small{display:block;color:var(--admin-muted);font-size:11.5px}
+.side .me button{margin-left:auto;border:0;background:transparent;color:var(--admin-muted);padding:6px;border-radius:8px}
+.side .me button:hover{color:var(--admin-fg);background:var(--admin-seg)}
+@media (min-width:1100px){body.is-admin .top{display:none}body.is-admin main.wrap,body.is-admin footer{margin-left:252px;margin-right:0;max-width:none;padding-inline:36px}}
+@media (max-width:1099px){.side{display:none!important}}
+/* ---------- conta / passos / toasts ---------- */
+.acct{display:flex;align-items:center;gap:10px;padding:4px 4px 4px 4px;border-radius:8px}
+.acct .av{width:34px;height:34px;border-radius:6px;background:var(--red-soft);color:var(--red);display:grid;place-items:center;font-weight:800;flex:none}
+.acct b{display:block;font-size:13px;line-height:1.2}
+.acct small{display:block;font-size:11.5px;color:var(--muted)}
+.acct button{border:0;background:var(--surface-2);color:var(--muted);border-radius:6px;padding:7px;display:grid;place-items:center}
+.acct button:hover{color:var(--ink)}
+@media (max-width:640px){.acct > div{display:none}}
+.steps{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;font-weight:600;color:var(--faint)}
+.steps li{display:flex;align-items:center;gap:8px}
+.steps li span{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--surface-3);color:var(--muted);font-size:11.5px;font-weight:800}
+.steps li.on{color:var(--ink)}
+.steps li.on span{background:var(--red);color:#fff}
+.steps li + li::before{content:"";width:18px;height:2px;border-radius:2px;background:var(--surface-3);margin-right:4px}
+.toasts{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:grid;gap:8px;z-index:60;width:max-content;max-width:calc(100% - 32px);pointer-events:none}
+@media (max-width:1040px){.toasts{bottom:calc(92px + env(safe-area-inset-bottom,0px))}}
+.toast{background:var(--coffee);color:#fff;padding:11px 16px;border-radius:8px;font-weight:600;font-size:13.5px;box-shadow:0 12px 32px rgba(0,0,0,.28);display:flex;align-items:center;gap:10px;animation:tin .22s ease}
+.toast svg{width:17px;height:17px;flex:none;color:var(--ok)}
+@keyframes tin{from{transform:translateY(8px);opacity:.3}to{transform:none;opacity:1}}
+.view:not([hidden]){animation:vin .28s ease}
+@keyframes vin{from{opacity:.5;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.view,.toast{animation:none!important}}
+.how{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.how div{display:grid;gap:6px;padding:4px 6px}
+.how b{font-size:14.5px}
+.how span{color:var(--muted);font-size:13px}
+.how i{font-style:normal;width:28px;height:28px;border-radius:8px;background:var(--red-soft);color:var(--red);display:grid;place-items:center;font-weight:800;font-size:13px}
+.empty{display:grid;justify-items:center;text-align:center;gap:6px;padding:8px 0;color:var(--muted);font-size:13px}
+footer{background:var(--coffee);color:rgba(255,255,255,.62);font-size:12px;padding:22px 16px calc(22px + env(safe-area-inset-bottom,0px));margin-top:8px}
+footer > div{max-width:1320px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px 24px;align-items:center;justify-content:space-between}
+footer b{color:#fff;font-weight:600}
+footer::before{content:"";display:block;height:6px;background:var(--red);margin:-22px -16px 22px}
+.strip-wrap{max-width:1320px;margin:0 auto;padding:0 16px 10px}
+.strip{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--surface-3);border-radius:6px;padding:4px 8px;flex-wrap:wrap}
+.strip nav{display:flex;gap:2px;flex-wrap:wrap}
+.strip nav button{border:0;background:transparent;text-transform:uppercase;letter-spacing:.05em;font-weight:500;font-size:13.5px;color:var(--ink);padding:10px 16px;border-radius:4px;position:relative}
+.strip nav button:hover{color:var(--red)}
+.strip nav button[aria-pressed="true"]{color:var(--red)}
+.strip nav button[aria-pressed="true"]::after{content:"";position:absolute;left:16px;right:16px;bottom:4px;height:2px;border-radius:2px;background:var(--red)}
+.strip .seg{background:transparent}
+.themebtn{border:0;background:var(--surface-2);color:var(--muted);border-radius:6px;width:36px;height:36px;display:grid;place-items:center;flex:none;transition:color .15s,background .15s}
+.themebtn:hover{color:var(--red)}
+.themebtn svg{width:18px;height:18px}
+.top.admin .themebtn{background:var(--admin-seg);color:var(--admin-muted)}
+.top.admin .themebtn:hover{color:var(--admin-fg)}
+.top-in .themebtn{margin-left:auto}
+.top-in .brand + .themebtn{margin-left:auto}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="top" id="topbar"></header>
+<aside id="side" class="side" hidden></aside>
+<div id="toasts" class="toasts" aria-live="polite"></div>
+
+<main class="wrap">
+  <section id="v-entry" class="view"></section>
+  <section id="v-dist" class="view" hidden></section>
+  <section id="v-myorders" class="view" hidden></section>
+  <section id="v-exp" class="view" hidden></section>
+  <section id="v-clients" class="view" hidden></section>
+  <section id="v-base" class="view" hidden></section>
+</main>
+<div id="overlay" class="overlay" hidden></div>
+<footer><div><span><b>3C Conecta</b> · protótipo do Hackathon Cafeína Week 2026 (FIAP), desafio Pedido sem Fronteiras</span><span>Não é um sistema oficial da 3corações. Clientes marcados como "demo" são fictícios.</span></div></footer>
+
+<script src="vendor/xlsx.full.min.js"></script>
+<script>window.XLSX||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"><\/script>')</script>
+<script>
+/* ============ DADOS (extraídos das planilhas do desafio) ============ */
+// Peso/volume por caixa: Conferência de produtos (SAP). Cx/pallet: lastro x altura (Materiais, SAP).
+// Preço: Registros (lista US / EXP-MINOIL); quando ausente, preço manual da Order Basis.
+const ICON = {
+  CAFES:'<path d="M7 3h10l1.5 4.5V19a2 2 0 0 1-2 2h-9a2 2 0 0 1-2-2V7.5z"/><path d="M5.5 7.5h13"/><path d="M12 11c-1.6 1-1.6 4 0 5 1.6-1 1.6-4 0-5z"/>',
+  CAPPUCCINO:'<path d="M4 9h13v4a6 6 0 0 1-6 6h-1a6 6 0 0 1-6-6z"/><path d="M17 10.5h1.5a2.5 2.5 0 0 1 0 5H16.5"/><path d="M8.5 3.5c0 1 1 1.2 1 2.2s-1 1.2-1 2.2M12.5 3.5c0 1 1 1.2 1 2.2s-1 1.2-1 2.2"/>',
+  SOLUVEIS:'<rect x="8" y="2.5" width="8" height="3.5" rx="1"/><path d="M7 6h10a1 1 0 0 1 1 1v12a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 6 19V7a1 1 0 0 1 1-1z"/><path d="M6 11h12M6 16h12"/>',
+  FILTROS:'<path d="M3.5 5h17l-6.5 14h-4z"/><path d="M8 9.5h8"/>',
+  OUTROS:'<path d="M3 7.5L12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5l9 4.5 9-4.5M12 12v9"/>',
+  PORTA:'<path d="M4.5 6h15l-3.2 8H7.7z"/><path d="M10 14v3.5h4V14"/><path d="M7 20.5h10"/><path d="M19.5 8H21"/>'
+};
+const FAM = {
+  CAFES:{pt:"Cafés",es:"Cafés",c:"--f-cafe"},
+  CAPPUCCINO:{pt:"Cappuccino",es:"Cappuccino",c:"--f-capp"},
+  SOLUVEIS:{pt:"Solúveis",es:"Solubles",c:"--f-sol"},
+  FILTROS:{pt:"Filtros",es:"Filtros de papel",c:"--f-filtro"},
+  PORTA:{pt:"Porta filtros",es:"Porta filtros",c:"--f-porta"}
+};
+const P = [
+ {code:"12031189",fam:"CAFES",brand:"3corações",sap:"CAFE TM 3C TRAD EXP VAC 20X250G",pt:"Café Tradicional a vácuo 250 g",es:"Café Tradicional al vacío 250 g",un:20,unLbl:"20 × 250 g",net:5.0,gross:5.33,dm3:13.276,lastro:14,alt:12,price:49.41,priceSrc:"sap",loteMin:1,shelf:547,ncm:"0901.21.00",dims:"426×196×159",
+  ob:{cxPal:168,palz:168,price:49.41,lote:1,grossCx:5.18}},
+ {code:"12031291",fam:"CAFES",brand:"3corações",sap:"CAFE TM 3C EST R PREM AL VAC 20X250G",pt:"Café Estrada Real Premium a vácuo 250 g",es:"Café Premium Estrada Real al vacío 250 g",un:20,unLbl:"20 × 250 g",net:5.0,gross:5.33,dm3:13.276,lastro:14,alt:12,price:60.17,priceSrc:"sap",loteMin:1,shelf:547,ncm:"0901.21.00",dims:"426×196×159",
+  ob:{cxPal:168,palz:168,price:60.17,lote:1,grossCx:5.34}},
+ {code:"12034103",fam:"CAPPUCCINO",brand:"3corações",sap:"CAFE CAPP 3C CLAS AL SACHE 16X10X20G",pt:"Cappuccino Clássico sachê 20 g",es:"Cappuccino Clásico sachet 20 g",un:160,unLbl:"16 × 10 × 20 g",net:3.2,gross:4.15,dm3:17.159,lastro:9,alt:9,price:24.75,priceSrc:"sap",loteMin:1,shelf:365,ncm:"2101.12.00",dims:"414×264×157",
+  ob:{cxPal:81,palz:9,price:24.75,lote:1,grossCx:3.84}},
+ {code:"12034109",fam:"CAPPUCCINO",brand:"3corações",sap:"CAFE CAPP 3C BAUN ABRA COR AL PT 24X200G",pt:"Cappuccino Baunilha pote 200 g",es:"Cappuccino Vainilla pote 200 g",un:24,unLbl:"24 × 200 g",net:4.8,gross:6.177,dm3:21.279,lastro:4,alt:7,price:36.96,priceSrc:"manual",loteMin:1,shelf:365,ncm:"2101.12.00",dims:"346×246×250",
+  ob:{cxPal:98,palz:98,price:36.96,lote:1,grossCx:6.17}},
+ {code:"12037417",fam:"FILTROS",brand:"3corações",sap:"FILTRO PAP 3C 102/30 RED DES 40X30UN",pt:"Filtro de papel 102 com 30",es:"Filtro de papel #102 x 30",un:40,unLbl:"40 × 30 un",net:1.56,gross:2.34,dm3:18.743,lastro:13,alt:7,price:29.48,priceSrc:"manual",loteMin:2,shelf:1095,ncm:"4823.20.99",dims:"350×210×255",
+  ob:{cxPal:91,palz:68.25,price:29.48,lote:1,grossCx:1.36}},
+ {code:"12142146",fam:"SOLUVEIS",brand:"Iguaçu",sap:"CAFE SOL IGUA CLAS AL VID 12X160G",pt:"Solúvel Clássico vidro 160 g",es:"Soluble Clásico frasco 160 g",un:12,unLbl:"12 × 160 g",net:1.92,gross:6.886,dm3:16.03,lastro:12,alt:10,price:50.27,priceSrc:"sap",loteMin:5,shelf:1095,ncm:"2101.11.10",dims:"330×276×176",
+  ob:{cxPal:120,palz:120,price:50.01,lote:5,grossCx:6.79}},
+ {code:"12142501",fam:"SOLUVEIS",brand:"Iguaçu",sap:"CAFE SOL IGUA PO TRAD REF 24X40G",pt:"Solúvel Tradicional refil 40 g",es:"Soluble Tradicional repuesto 40 g",un:24,unLbl:"24 × 40 g",net:0.96,gross:1.38,dm3:7.056,lastro:20,alt:14,price:21.56,priceSrc:"sap",loteMin:5,shelf:730,ncm:"2101.11.10",dims:"360×140×140",
+  ob:{cxPal:280,palz:240,price:21.56,lote:5,grossCx:1.37}},
+ {code:"12144012",fam:"CAPPUCCINO",brand:"Iguaçu",sap:"CAFE CAPP IGUA CLAS SCH 8X10X10G",pt:"Cappuccino Clássico sachê 10 g",es:"Cappuccino Clásico sachet 10 g",un:80,unLbl:"8 × 10 × 10 g",net:0.8,gross:1.3,dm3:7.373,lastro:19,alt:11,price:9.68,priceSrc:"sap",loteMin:1,shelf:365,ncm:"2101.12.00",dims:"518×105×145",
+  ob:{cxPal:209,palz:20.9,price:9.68,lote:3.12,grossCx:1.28}},
+ {code:"12147801",fam:"SOLUVEIS",brand:"Iguaçu",sap:"CAFE SOL IGUA TRAD STICK 24X10X1,7G",pt:"Solúvel Tradicional stick 1,7 g",es:"Soluble Tradicional stick 1,7 g",un:240,unLbl:"24 × 10 × 1,7 g",net:0.408,gross:1.2,dm3:8.67,lastro:15,alt:12,price:19.71,priceSrc:"sap",loteMin:1,shelf:730,ncm:"2101.11.10",dims:"340×198×127",
+  ob:{cxPal:180,palz:180,price:19.71,lote:1,grossCx:11.52}},
+ {code:"20908885",fam:"PORTA",brand:"3corações",sap:"PORTA FILTRO 3C PLAST VM 102 C/12",pt:"Porta filtro plástico 102",es:"Porta filtro plástico #102",un:12,unLbl:"12 un",net:0.552,gross:1.24,dm3:25.35,lastro:11,alt:10,price:17.61,priceSrc:"manual",loteMin:1,shelf:9999,ncm:"3924.10.00",dims:"390×260×250",
+  ob:{cxPal:60,palz:77,price:17.61,lote:1,grossCx:0.90}}
+];
+P.forEach(p=>{p.cxPal=p.lastro*p.alt;p.m3=p.dm3/1000});
+const BY = Object.fromEntries(P.map(p=>[p.code,p]));
+
+const VEH = {
+  carreta:{pt:"Carreta",es:"Camión",pos:28,m3:72,kg:25000,cols:14,cab:true},
+  c40:{pt:"Contêiner 40'",es:"Contenedor 40'",pos:20,m3:60.84,kg:25000,cols:10,cab:false},
+  c20:{pt:"Contêiner 20'",es:"Contenedor 20'",pos:10,m3:29.7,kg:25000,cols:5,cab:false}
+};
+const RULES = {fullAt:0.90};
+
+const CLIENTS = {
+  minoil:{name:"MINOIL S.A.",code:"11131",dest:"Mercosul",cur:"USD",inc:"FCA",pay:"Standby irrevogável 60 dias",payCode:"2304",list:"US",factor:1,blocked:[],filial:"CD Londrina (2612)",contact:"Martín",demo:false},
+  demo:{name:"Distribuidora Río Claro S.R.L.",code:"11999",dest:"Argentina",cur:"USD",inc:"FCA",pay:"Antecipado 30 dias",payCode:"0030",list:"AR",factor:1.06,blocked:["20908885"],filial:"CD Londrina (2612)",contact:"Sofía",demo:true}
+};
+
+/* ============ TEXTOS PT / ES ============ */
+const T = {
+ pt:{portal:"Portal do distribuidor",hello:n=>`Olá, ${n}`,heroSub:"Monte seu pedido e veja na hora quantos pallets ele forma e quanto do veículo ocupa.",
+  code:"Cód.",catalog:"Catálogo de exportação",items:n=>`${n} produtos`,search:"Buscar produto ou código",all:"Todos",
+  perBox:"por caixa",boxPal:"cx/pallet",minLot:"lote mín.",pallets:"pallets",
+  missing:(n,k)=>`Faltam ${n} cx para fechar o ${k}º pallet`,belowMin:(m)=>`Abaixo do lote mínimo de ${fmt(m,0)} pallet${m===1?"":"s"}`,blocked:"Não liberado para o destino",palFull:"Pallets fechados",closePal:n=>`Fechar pallet (+${n})`,
+  shipment:"Embarque",paletizada:"Paletizada",estivada:"Estivada",mixed:"Permitir pallet misto",stick:"Sem pallets. A alocação usa a cubagem total.",
+  weight:"Peso bruto",volume:"Cubagem",positions:"Posições de pallet",value:"Valor do pedido",net:"Peso líquido",totalPal:"Pallets",
+  st_empty:"Monte seu pedido",st_empty_s:"Adicione produtos do catálogo",st_full:"Carga completa",st_full_s:"Veículo bem aproveitado",st_partial:"Carga incompleta",st_partial_s:p=>`Sobra ${p}% de espaço no veículo`,st_excess:"Excesso de carga",st_excess_s:"O pedido não cabe neste veículo",
+  bind:"limitante",fams:"Por família",review:"Revisar pedido",
+  sugAdd:(n,name)=>`Cabem mais ${n} pallet${n>1?"s":""}. Completar com ${name}?`,sugCut:(n,name)=>`Excede ${n} posiç${n>1?"ões":"ão"}. Reduzir ${name}?`,sugRound:"Há pallets incompletos. Arredondar para pallets fechados?",apply:"Aplicar",
+  errPos:n=>`Faltam ${n} posições de pallet no veículo`,errKg:n=>`Peso bruto excede em ${n} kg`,errM3:n=>`Cubagem excede em ${n} m³`,
+  rvTitle:"Revise e confirme",rvSub:"Depois de confirmado, o pedido vai direto para a equipe de Exportação, já validado.",ref:"Sua referência (opcional)",date:"Data desejada de carregamento",client:"Cliente",vehicle:"Veículo",inc:"Incoterm",pay:"Pagamento",
+  product:"Produto",boxes:"Caixas",unitPrice:"Preço/cx",total:"Total",confirm:"Confirmar pedido",back:"Voltar",cannot:"Corrija os bloqueios antes de confirmar",
+  okTitle:n=>`Pedido ${n} enviado`,okSub:"A equipe de Exportação já recebeu o pedido validado. Você acompanha o status por aqui.",tl:["Enviado","Em análise","Aprovado","Em preparação","Embarcado"],newOrder:"Novo pedido",seeExp:"Ver no painel 3corações",seeMine:"Ver meus pedidos",navNew:"Novo pedido",navOrders:"Meus pedidos",logout:"Sair",areaName:"Área do cliente",myTitle:"Meus pedidos",mySub:"Acompanhe cada pedido desde o envio até o embarque.",noOrders:"Você ainda não enviou pedidos pelo portal.",loading:"Carregamento",ordered:"Enviado em",noPrice:"Sem preço para sua lista",s1:"Monte o pedido",s2:"Revise e confirme",s3:"Acompanhe",tApplied:"Sugestão aplicada",tAdj:n=>`Quantidade ajustada para ${n} cx`,uCX:"cx",uUN:"un",uKG:"kg",eq:n=>`= ${n} cx`,perBox2:(un,kg)=>`1 cx = ${un} un · ${kg} kg`,boxMult:n=>`Não fecha caixa (${n} cx)`,box:"Caixa",perLayer:"cx por camada",layers:"camadas",seeShip:"Ver embarque",unitHint:"Peça em caixas, unidades ou quilos",kOpen:"Pedidos em andamento",kOcc:"Ocupação média dos embarques",kBought:"Comprado no ano",kFirst:"Aprovados sem ajuste",kNone:"sem pedidos aprovados ainda",journey:"Jornada do pedido"},
+ es:{portal:"Portal del distribuidor",hello:n=>`Hola, ${n}`,heroSub:"Arma tu pedido y ve al instante cuántos pallets forma y cuánto del vehículo ocupa.",
+  code:"Cód.",catalog:"Catálogo de exportación",items:n=>`${n} productos`,search:"Buscar producto o código",all:"Todos",
+  perBox:"por caja",boxPal:"cajas/pallet",minLot:"lote mín.",pallets:"pallets",
+  missing:(n,k)=>`Faltan ${n} cajas para cerrar el ${k}º pallet`,belowMin:(m)=>`Debajo del lote mínimo de ${fmt(m,0)} pallet${m===1?"":"s"}`,blocked:"No habilitado para el destino",palFull:"Pallets cerrados",closePal:n=>`Cerrar pallet (+${n})`,
+  shipment:"Despacho",paletizada:"Paletizada",estivada:"Estibada",mixed:"Permitir pallet mixto",stick:"Sin pallets. La asignación usa la cubicación total.",
+  weight:"Peso bruto",volume:"Cubicación",positions:"Posiciones de pallet",value:"Valor del pedido",net:"Peso neto",totalPal:"Pallets",
+  st_empty:"Arma tu pedido",st_empty_s:"Agrega productos del catálogo",st_full:"Carga completa",st_full_s:"Vehículo bien aprovechado",st_partial:"Carga incompleta",st_partial_s:p=>`Sobra ${p}% de espacio en el vehículo`,st_excess:"Exceso de carga",st_excess_s:"El pedido no cabe en este vehículo",
+  bind:"limitante",fams:"Por familia",review:"Revisar pedido",
+  sugAdd:(n,name)=>`Caben ${n} pallet${n>1?"s":""} más. ¿Completar con ${name}?`,sugCut:(n,name)=>`Excede ${n} posici${n>1?"ones":"ón"}. ¿Reducir ${name}?`,sugRound:"Hay pallets incompletos. ¿Redondear a pallets cerrados?",apply:"Aplicar",
+  errPos:n=>`Faltan ${n} posiciones de pallet en el vehículo`,errKg:n=>`El peso bruto excede en ${n} kg`,errM3:n=>`La cubicación excede en ${n} m³`,
+  rvTitle:"Revisa y confirma",rvSub:"Una vez confirmado, el pedido va directo al equipo de Exportación, ya validado.",ref:"Tu referencia (opcional)",date:"Fecha deseada de carga",client:"Cliente",vehicle:"Vehículo",inc:"Incoterm",pay:"Pago",
+  product:"Producto",boxes:"Cajas",unitPrice:"Precio/caja",total:"Total",confirm:"Confirmar pedido",back:"Volver",cannot:"Corrige los bloqueos antes de confirmar",
+  okTitle:n=>`Pedido ${n} enviado`,okSub:"El equipo de Exportación ya recibió el pedido validado. Sigues el estado por aquí.",tl:["Enviado","En análisis","Aprobado","En preparación","Despachado"],newOrder:"Nuevo pedido",seeExp:"Ver en el panel 3corações",seeMine:"Ver mis pedidos",navNew:"Nuevo pedido",navOrders:"Mis pedidos",logout:"Salir",areaName:"Área del cliente",myTitle:"Mis pedidos",mySub:"Sigue cada pedido desde el envío hasta el despacho.",noOrders:"Todavía no enviaste pedidos por el portal.",loading:"Carga",ordered:"Enviado el",noPrice:"Sin precio para tu lista",s1:"Arma el pedido",s2:"Revisa y confirma",s3:"Sigue el estado",tApplied:"Sugerencia aplicada",tAdj:n=>`Cantidad ajustada a ${n} cajas`,uCX:"caja",uUN:"un",uKG:"kg",eq:n=>`= ${n} cajas`,perBox2:(un,kg)=>`1 caja = ${un} un · ${kg} kg`,boxMult:n=>`No cierra caja (${n} cajas)`,box:"Caja",perLayer:"cajas por capa",layers:"capas",seeShip:"Ver despacho",unitHint:"Pide en cajas, unidades o kilos",kOpen:"Pedidos en curso",kOcc:"Ocupación media de los despachos",kBought:"Comprado en el año",kFirst:"Aprobados sin ajuste",kNone:"todavía sin pedidos aprobados",journey:"Recorrido del pedido"}
+};
+
+/* ============ ESTADO ============ */
+const S = {
+  theme:null, area:null, view:"entry", lang:"pt", client:"minoil", veh:"carreta", mode:"pal", mixed:false, fam:"ALL", q:"", unit:{},
+  qty:{"12031189":2352,"12034103":300,"12142146":600,"12142501":1400},
+  orders:[], sel:null, seq:3, csvFor:null
+};
+const t = k => T[S.lang][k];
+const L = () => S.lang==="es"?"es-AR":"pt-BR";
+function fmt(n,d=2){return Number(n).toLocaleString(L(),{minimumFractionDigits:d,maximumFractionDigits:d})}
+function fmtPT(n,d=2){return Number(n).toLocaleString("pt-BR",{minimumFractionDigits:d,maximumFractionDigits:d})}
+const money=(n,loc)=>"US$ "+Number(n).toLocaleString(loc||L(),{minimumFractionDigits:2,maximumFractionDigits:2});
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const famColor = f => `var(${FAM[f].c})`;
+const EPS=1e-9;
+const SVG={
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  half:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>',
+  alert:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 7v6M12 17h.01"/></svg>',
+  empty:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="7"/></svg>',
+  x:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5h.01"/></svg>',
+  bulb:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg>',
+  ok:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></svg>',
+  search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4-4"/></svg>',
+  arrow:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>'
+};
+const tile = f => `<div class="tile" style="background:color-mix(in srgb,${famColor(f)} 14%,var(--surface));color:${famColor(f)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${ICON[f]||ICON.OUTROS}</svg></div>`;
+function nowStamp(){const d=new Date();return d.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"})+" "+d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}
+function priceFor(p,clientId){const cl=CLIENTS[clientId];if(p.prices&&p.prices[cl.list]!=null)return p.prices[cl.list];if(p.price==null)return 0;return Math.round(p.price*cl.factor*100)/100}
+
+const UF={CX:p=>1,UN:p=>p.un,KG:p=>p.net};
+function unitOf(code){return S.unit[code]||"CX"}
+function fmtUnit(v,u){const d=u==="KG"?3:2;const r=Math.round(v*1000)/1000;return Number.isInteger(r)?String(r):r.toLocaleString(L(),{maximumFractionDigits:d,useGrouping:false})}
+function parseNum(v){v=String(v).trim().replace(/\s/g,"");if(v.includes(","))v=v.replace(/\./g,"").replace(",",".");else v=v.replace(/\.(?=\d{3}(\D|$))/g,"");const n=parseFloat(v);return isFinite(n)?n:0}
+function issueText(l,i){return i.k==="noPrice"?t("noPrice"):i.k==="blocked"?t("blocked"):i.k==="boxMult"?t("boxMult")(fmt(i.raw)):t("belowMin")(i.v)}
+
+function toast(msg){const box=document.getElementById("toasts");const el=document.createElement("div");el.className="toast";el.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></svg><span>${esc(msg)}</span>`;box.appendChild(el);setTimeout(()=>el.remove(),2600)}
+
+/* ============ MOTOR DE CÁLCULO ============ */
+function calc(qty,o){
+  const v=VEH[o.veh], cl=CLIENTS[o.client];
+  const lines=[]; const tot={cx:0,pallets:0,net:0,gross:0,m3:0,value:0,positions:0};
+  for(const p of P){
+    const raw=Math.max(0,qty[p.code]||0); if(raw<EPS) continue;
+    const isInt=Math.abs(raw-Math.round(raw))<1e-6; const cx=isInt?Math.round(raw):Math.ceil(raw);
+    const pallets=cx/p.cxPal, full=Math.floor(pallets+EPS), frac=pallets-full;
+    const hasFrac=frac>EPS;
+    const missing=hasFrac?Math.ceil(p.cxPal*(full+1)-cx-EPS):0;
+    const price=priceFor(p,o.client);
+    const l={p,cx,pallets,full,frac:hasFrac?frac:0,missing,net:cx*p.net,gross:cx*p.gross,m3:cx*p.m3,price,value:cx*price,issues:[]};
+    if(!isInt) l.issues.push({lv:"err",k:"boxMult",raw,lo:Math.floor(raw),hi:Math.ceil(raw)});
+    if(cl.blocked.includes(p.code)) l.issues.push({lv:"err",k:"blocked"});
+    if(p.price==null&&!(p.prices&&p.prices[cl.list]!=null)) l.issues.push({lv:"err",k:"noPrice"});
+    if(pallets+EPS<p.loteMin) l.issues.push({lv:"err",k:"belowMin",v:p.loteMin});
+    if(hasFrac && o.mode==="pal") l.issues.push({lv:"warn",k:"missing",v:missing,n:full+1});
+    lines.push(l);
+    tot.cx+=cx; tot.pallets+=pallets; tot.net+=l.net; tot.gross+=l.gross; tot.m3+=l.m3; tot.value+=l.value;
+    tot.positions+=Math.ceil(pallets-EPS);
+  }
+  if(o.mixed) tot.positions=Math.ceil(tot.pallets-EPS);
+  const u={kg:tot.gross/v.kg, m3:tot.m3/v.m3, pos:o.mode==="pal"?tot.positions/v.pos:0};
+  const keys=o.mode==="pal"?["kg","m3","pos"]:["kg","m3"];
+  const bind=keys.reduce((a,b)=>u[b]>u[a]?b:a,keys[0]);
+  const maxU=u[bind];
+  const status=!lines.length?"empty":maxU>1+EPS?"excess":maxU>=RULES.fullAt?"full":"partial";
+  const over={pos:o.mode==="pal"?Math.max(0,tot.positions-v.pos):0,kg:Math.max(0,tot.gross-v.kg),m3:Math.max(0,tot.m3-v.m3)};
+  const blocking=lines.some(l=>l.issues.some(i=>i.lv==="err"))||status==="excess";
+  const fams={}; lines.forEach(l=>{const f=l.p.fam;fams[f]=fams[f]||{kg:0,val:0,pal:0};fams[f].kg+=l.net;fams[f].val+=l.value;fams[f].pal+=l.pallets});
+  return {lines,tot,u,bind,status,over,v,blocking,fams,maxU};
+}
+
+/* ============ RENDER ============ */
+const VIEWS=["entry","dist","myorders","exp","clients","base"];
+const LOGOUT='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"/></svg>';
+const MARK='<div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="6" r="2.6"/><circle cx="18" cy="18" r="2.6"/><path d="M8.4 10.8l7.2-3.6M8.4 13.2l7.2 3.6"/></svg></div>';
+const SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/></svg>';
+const MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>';
+function isDark(){return S.theme?S.theme==="dark":!!(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)}
+function themeLabel(){return isDark()?(S.area==="client"&&S.lang==="es"?"Modo claro":"Modo claro"):(S.area==="client"&&S.lang==="es"?"Modo oscuro":"Modo escuro")}
+function themeBtn(){return `<button class="themebtn" data-theme-toggle aria-label="${themeLabel()}" title="${themeLabel()}">${isDark()?SUN:MOON}</button>`}
+function applyTheme(){if(S.theme)document.documentElement.setAttribute("data-theme",S.theme);else document.documentElement.removeAttribute("data-theme")}
+function headerHTML(){
+  const brand=(extra)=>`<div class="brand">${MARK}<div><b>3C Conecta</b>${extra}</div></div>`;
+  if(!S.area) return `<div class="top-in">${brand('<span class="proto">protótipo</span>')}<span class="label">Demonstração · Hackathon Cafeína Week 2026</span>${themeBtn()}</div>`;
+  if(S.area==="client"){
+    const mine=S.orders.filter(o=>o.client===S.client&&o.origin!=="Order Basis").length;
+    return `<div class="top-in">${brand(`<span class="area client">${t("areaName")}</span>`)}
+      ${themeBtn()}<div class="acct"><div class="av">${CLIENTS[S.client].contact[0]}</div><div><b>${CLIENTS[S.client].contact}</b><small>${esc(CLIENTS[S.client].name)}</small></div><button data-logout aria-label="${t("logout")}" title="${t("logout")}">${LOGOUT}</button></div></div>
+      <div class="strip-wrap"><div class="strip"><nav aria-label="Menu"><button data-view="dist" aria-pressed="${S.view==="dist"}">${t("navNew")}</button><button data-view="myorders" aria-pressed="${S.view==="myorders"}">${t("navOrders")}${mine?`<span class="count">${mine}</span>`:""}</button></nav>
+      <div class="seg sm" aria-label="Idioma"><button data-lang="pt" aria-pressed="${S.lang==="pt"}">PT</button><button data-lang="es" aria-pressed="${S.lang==="es"}">ES</button></div></div></div>`;
+  }
+  const fila=S.orders.filter(o=>o.status==="analise").length;
+  return `<div class="top-in">${brand('<span class="area admin">Painel 3corações</span>')}
+    <nav class="seg" aria-label="Menu"><button data-view="exp" aria-pressed="${S.view==="exp"}">Pedidos${fila?`<span class="count">${fila}</span>`:""}</button><button data-view="clients" aria-pressed="${S.view==="clients"}">Clientes e preços</button><button data-view="base" aria-pressed="${S.view==="base"}">Produtos e regras</button></nav>
+    ${themeBtn()}<button class="out" data-logout>${LOGOUT} Sair</button></div>`;
+}
+const NI={
+  exp:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13l2.5-7.5A2 2 0 0 1 7.4 4h9.2a2 2 0 0 1 1.9 1.5L21 13v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M3 13h5l1.5 2.5h5L16 13h5"/></svg>',
+  clients:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.5a6.5 6.5 0 0 1 3.5 5.5"/></svg>',
+  base:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 7.5L12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5l9 4.5 9-4.5M12 12v9"/></svg>',
+  portal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/></svg>'
+};
+function sideHTML(){
+  const fila=S.orders.filter(o=>o.status==="analise").length;
+  const item=(v,lab,extra="")=>`<button data-view="${v}" aria-pressed="${S.view===v}">${NI[v]}<span>${lab}</span>${extra}</button>`;
+  return `<div class="brand">${MARK}<div><b>3C Conecta</b></div></div>
+    <span class="area admin" style="justify-self:start;margin:0 6px 4px">Painel 3corações</span>
+    <div class="navh">Exportação</div>
+    <nav>${item("exp","Pedidos",fila?`<span class="count">${fila}</span>`:"")}${item("clients","Clientes e preços")}${item("base","Produtos e regras")}</nav>
+    <div class="navh">Demonstração</div>
+    <nav><button data-enter="client">${NI.portal}<span>Abrir portal do cliente</span></button><button data-theme-toggle>${isDark()?SUN:MOON}<span>${themeLabel()}</span></button></nav>
+    <div class="me"><div class="av">L</div><div><b style="font-size:13px">Lucas</b><small>Analista de Exportação</small></div><button data-logout aria-label="Sair" title="Sair">${LOGOUT}</button></div>`;
+}
+function render(){
+  document.body.classList.toggle("is-admin",S.area==="admin");
+  const side=document.getElementById("side"); side.hidden=S.area!=="admin"; side.innerHTML=S.area==="admin"?sideHTML():"";
+  const top=document.getElementById("topbar");
+  top.className="top"+(S.area==="admin"?" admin":"");
+  top.innerHTML=headerHTML();
+  document.documentElement.lang=S.area==="client"&&S.lang==="es"?"es":"pt-BR";
+  VIEWS.forEach(v=>document.getElementById("v-"+v).hidden=S.view!==v);
+  ({entry:renderEntry,dist:renderDist,myorders:renderMyOrders,exp:renderExp,clients:renderClients,base:renderBase})[S.view]();
+}
+
+/* ---------- Entrada ---------- */
+function renderEntry(){
+  document.getElementById("v-entry").innerHTML=`<div class="entry">
+    <div class="entry-hero">${MARK}<h1>3C Conecta</h1><p>Plataforma de pedidos de exportação da 3corações. O distribuidor monta o pedido vendo pallets e ocupação do veículo, e a Exportação recebe tudo validado.</p></div>
+    <div class="doors">
+      <div class="door cli"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5L5.5 4h13L20 9.5"/><path d="M4 9.5h16v1a3 3 0 0 1-5.3 1.9A3 3 0 0 1 12 13.5a3 3 0 0 1-2.7-1.1A3 3 0 0 1 4 10.5z"/><path d="M5.5 13v7h13v-7M10 20v-4h4v4"/></svg></div>
+        <h2>Área do cliente</h2><p>Para distribuidores e importadores no Mercosul.</p>
+        <ul><li>Catálogo com o preço do cliente</li><li>Pallets e ocupação do veículo em tempo real</li><li>Confirmação do pedido e acompanhamento do status</li><li>Português e espanhol</li></ul>
+        <button class="btn" data-enter="client">Entrar como Martín · MINOIL S.A. ${SVG.arrow}</button></div>
+      <div class="door adm"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 13h3M8 16h6M15 13h1"/></svg></div>
+        <h2>Painel 3corações</h2><p>Para a equipe de Exportação e logística.</p>
+        <ul><li>Fila de pedidos já validados</li><li>Ajustes com trilha de auditoria</li><li>Aprovação e arquivo de importação para o SAP</li><li>Clientes, tabelas de preço, produtos e regras</li></ul>
+        <button class="btn dark" data-enter="admin">Entrar como Lucas · Exportação ${SVG.arrow}</button></div>
+    </div>
+    <div class="card card-pad" style="display:grid;gap:14px"><div class="sec-title" style="margin:0">Como funciona</div><div class="how">
+      <div><i>1</i><b>O distribuidor monta o pedido</b><span>Escolhe produtos em caixas, unidades ou quilos e vê na hora os pallets e a ocupação do veículo.</span></div>
+      <div><i>2</i><b>O sistema valida na hora</b><span>Lote mínimo, múltiplo de caixa, restrições do destino, peso, cubagem e posições de pallet.</span></div>
+      <div><i>3</i><b>A Exportação recebe pronto</b><span>Pedido validado na fila, ajustes com trilha de auditoria e arquivo para importar no SAP.</span></div>
+    </div></div>
+    <div class="label" style="text-align:center">Demonstração sem senha. Na versão real, cada área tem login próprio e perfis de acesso.</div>
+  </div>`;
+}
+
+/* ---------- Meus pedidos (cliente) ---------- */
+function renderMyOrders(){
+  const cl=CLIENTS[S.client]; const mine=S.orders.filter(o=>o.client===S.client&&o.origin!=="Order Basis");
+  const step={analise:1,aprovado:2,sap:3};
+  document.getElementById("v-myorders").innerHTML=`
+  <div class="hero"><div><div class="eyebrow">${esc(cl.name)}</div><h1>${t("myTitle")}</h1><p>${t("mySub")}</p></div>
+    <button class="btn sm" data-view="dist">${t("newOrder")} ${SVG.arrow}</button></div>
+  ${clientKPIs(mine)}
+  <div class="card">${mine.length?mine.map(o=>{const r=calc(o.qty,o);const k=step[o.status];return `<div class="mo">
+    <div class="r1"><div><b class="num" style="font-size:16px">${o.id}</b> <span class="label">· ${t("ordered")} ${o.created}${o.ref?` · Ref. ${esc(o.ref)}`:""}</span></div><span class="chip ${k>=2?"ok":"warn"}">${t("tl")[k]}</span></div>
+    <div class="timeline">${t("tl").map((x,i)=>`<div class="${i<=k?"done":""}">${x}</div>`).join("")}</div>
+    <div class="info">
+      <div><span class="label">${t("vehicle")}</span><b>${VEH[o.veh][S.lang]} · ${fmt(r.maxU*100,0)}%</b></div>
+      <div><span class="label">${t("totalPal")}</span><b class="num">${fmt(r.tot.pallets)} · ${r.lines.length} ${S.lang==="es"?"productos":"produtos"}</b></div>
+      <div><span class="label">${t("value")}</span><b class="num">${money(r.tot.value)}</b></div>
+      <div><span class="label">${t("loading")}</span><b class="num">${o.date?o.date.split("-").reverse().join("/"):"—"}</b></div>
+    </div></div>`}).join(""):`<div class="card-pad muted">${t("noOrders")}</div>`}</div>`;
+}
+
+function adjCount(o){return o.audit.filter(a=>a.what.startsWith("Alterou")).length}
+function firstPass(list){const ap=list.filter(o=>o.status!=="analise");if(!ap.length)return null;return ap.filter(o=>!adjCount(o)).length/ap.length}
+function clientKPIs(mine){
+  const rs=mine.map(o=>calc(o.qty,o));
+  const occ=rs.length?rs.reduce((a,r)=>a+r.maxU,0)/rs.length:0;
+  const usd=rs.reduce((a,r)=>a+r.tot.value,0), kg=rs.reduce((a,r)=>a+r.tot.net,0);
+  const fp=firstPass(mine);
+  return `<div class="kpis">
+    <div class="kpi"><span class="label">${t("kOpen")}</span><b class="num">${mine.length}</b></div>
+    <div class="kpi"><span class="label">${t("kOcc")}</span><b class="num">${fmt(occ*100,0)}%</b></div>
+    <div class="kpi"><span class="label">${t("kBought")}</span><b class="num">${money(usd)}</b><small class="num">${fmt(kg,0)} kg</small></div>
+    <div class="kpi ${fp==null?"soon":""}"><span class="label">${t("kFirst")}</span><b class="num">${fp==null?t("kNone"):fmt(fp*100,0)+"%"}</b></div>
+  </div>`;
+}
+function fmtDur(ms){const m=Math.round(ms/60000);if(m<60)return m+" min";const h=Math.floor(m/60);return h+"h "+String(m%60).padStart(2,"0")+"min"}
+function journeyHTML(o,r){
+  const adj=adjCount(o); const st=o.status;
+  const steps=[
+    {t:o.origin==="Order Basis"?"Pedido importado":"Pedido montado",w:o.origin==="Order Basis"?"Exportação (planilha)":"Cliente (portal)",s:"done",when:o.created},
+    {t:"Validação automática",w:"Sistema",s:r.blocking?"bad":"done",when:r.blocking?"bloqueado":"OK"},
+    {t:"Revisão e ajustes",w:"Exportação",s:st==="analise"?"now":"done",when:st==="analise"?"em andamento":(adj?adj+" ajuste"+(adj>1?"s":""):"sem ajustes")},
+    {t:"Aprovação",w:"Exportação",s:st==="analise"?"":"done",when:o.approved||(st==="analise"?"aguardando":"")},
+    {t:"Ordem de venda no SAP",w:"Exportação",s:st==="sap"?"done":"",when:st==="sap"?o.sapAt:"arquivo de importação"},
+    {t:"Proforma e packing list",w:"Exportação / Comex",s:"future",when:"próxima fase"},
+    {t:"Separação e carregamento",w:"CD Londrina",s:"",when:"plano de carga pronto"},
+    {t:"Entrega FCA ao transportador",w:"Logística",s:"",when:"status visível ao cliente"}
+  ];
+  return `<div><div class="sec-title">Jornada completa do pedido</div><div class="journey">${steps.map((x,i)=>`<div class="js ${x.s}"><span class="when">${i+1}. ${x.when||"&nbsp;"}</span><b>${x.t}</b><span class="who">${x.w}</span></div>`).join("")}</div></div>`;
+}
+
+/* ---------- Clientes e preços (admin) ---------- */
+function renderClients(){
+  const cls=Object.entries(CLIENTS);
+  document.getElementById("v-clients").innerHTML=`
+  <div class="hero"><div><div class="eyebrow">Painel 3corações</div><h1>Clientes e preços</h1><p>Cada distribuidor tem sua lista de preço, Incoterm, condição de pagamento e restrições por destino. Na versão real, o cadastro vem do SAP (relatório ZSDR059A, citado na Order Basis) e a tabela de preços da extração Registros.</p></div></div>
+  <div class="card card-pad" style="display:grid;gap:12px"><h3 style="font-size:18px">Distribuidores</h3><div class="tbl-wrap"><table class="data">
+    <thead><tr><th>Cliente</th><th>Código</th><th>Destino</th><th>Idioma</th><th>Lista</th><th>Incoterm</th><th>Pagamento</th><th>Restrições</th><th class="r">Pedidos</th></tr></thead>
+    <tbody>${cls.map(([k,c])=>`<tr><td><b>${esc(c.name)}</b>${c.demo?' <span class="chip neutral" style="font-size:10.5px;padding:1px 7px">demo</span>':""}<div class="label">Contato: ${c.contact}</div></td><td class="num">${c.code}</td><td>${c.dest}</td><td>Espanhol</td><td><span class="chip neutral">${c.list}</span></td><td>${c.inc}</td><td>${c.pay}</td><td>${c.blocked.length?c.blocked.map(b=>`<span class="note err">${BY[b].pt}</span>`).join(""):'<span class="label">Nenhuma</span>'}</td><td class="r num">${S.orders.filter(o=>o.client===k).length}</td></tr>`).join("")}</tbody></table></div></div>
+  <div class="card card-pad" style="display:grid;gap:12px"><div class="p-head"><h3 style="font-size:18px">Tabela de preços por cliente</h3><span class="label">USD por caixa · CD Londrina (2612)</span></div><div class="tbl-wrap"><table class="data prices">
+    <thead><tr><th>Produto</th>${cls.map(([k,c])=>`<th class="r">${esc(c.name.split(" ")[0])} · lista ${c.list}</th>`).join("")}<th class="r">Fonte</th></tr></thead>
+    <tbody>${P.map(p=>`<tr><td><div style="display:flex;gap:10px;align-items:center"><span class="dot" style="background:${famColor(p.fam)}"></span><div>${esc(p.pt)}<div class="code">${p.code}</div></div></div></td>${cls.map(([k,c])=>`<td class="r num">${c.blocked.includes(p.code)?'<span class="label">bloqueado</span>':(p.price==null&&!(p.prices&&p.prices[c.list]!=null))?'<span class="label">—</span>':money(priceFor(p,k),"pt-BR")}</td>`).join("")}<td class="r">${p.priceSrc==="missing"?'<span class="note err">sem preço</span>':p.priceSrc==="manual"?'<span class="note warn">manual</span>':'<span class="note ok">SAP</span>'}</td></tr>`).join("")}</tbody></table></div>
+    <div class="label">Lista US vem da extração Registros (EXP-MINOIL). Três produtos não têm preço no SAP e usam o valor digitado na Order Basis. A lista AR do cliente demo é fictícia.</div></div>`;
+}
+
+/* ---------- Distribuidor ---------- */
+function renderDist(){
+  const cl=CLIENTS[S.client]; const r=calc(S.qty,S);
+  const el=document.getElementById("v-dist");
+  const q=S.q.trim().toLowerCase();
+  const list=P.filter(p=>(S.fam==="ALL"||p.fam===S.fam)&&(!q||p[S.lang].toLowerCase().includes(q)||p.code.includes(q)||p.sap.toLowerCase().includes(q)));
+  const pills=["ALL",...Object.keys(FAM)].map(f=>`<button class="pill" data-fam="${f}" aria-pressed="${S.fam===f}">${f==="ALL"?t("all"):`<span class="dot" style="background:${famColor(f)}"></span>${FAM[f][S.lang]}`}</button>`).join("");
+  el.innerHTML=`
+  <div class="hero">
+    <div><div class="eyebrow">${t("portal")}</div><h1>${t("hello")(cl.contact)}</h1><p>${t("heroSub")}</p><ol class="steps"><li class="on"><span>1</span>${t("s1")}</li><li><span>2</span>${t("s2")}</li><li><span>3</span>${t("s3")}</li></ol></div>
+    <div class="client"><div class="avatar">${cl.contact[0]}</div>
+      <div style="min-width:0"><select id="clientSel" aria-label="${t("client")}">${Object.entries(CLIENTS).map(([k,c])=>`<option value="${k}" ${k===S.client?"selected":""}>${esc(c.name)}${c.demo?" (demo)":""}</option>`).join("")}</select>
+      <div class="sub num">${t("code")} ${cl.code} · ${cl.dest} · ${cl.cur} · ${cl.inc} · ${cl.pay}</div></div></div>
+  </div>
+  <div class="cols">
+    <div class="card">
+      <div class="cat-top"><div><h2>${t("catalog")}</h2><div class="label">${t("items")(P.length)}</div></div>
+        <label class="search">${SVG.search}<input id="search" value="${esc(S.q)}" placeholder="${t("search")}" aria-label="${t("search")}"></label></div>
+      <div class="filters">${pills}</div>
+      <div>${list.map(p=>itemHTML(p,r,cl)).join("")||`<div class="card-pad muted">Nenhum produto encontrado.</div>`}</div>
+    </div>
+    <aside class="card panel" id="panel" aria-label="${t("shipment")}">${panelHTML(r)}</aside>
+  </div>
+  <div class="mbar"><div><span class="label">${r.v[S.lang]} · ${t("st_"+r.status)}</span><b class="num" style="${r.status==="excess"?"color:var(--err)":""}">${fmt(r.tot.pallets)} ${t("pallets")} · ${fmt(r.maxU*100,0)}%</b></div><button class="btn sm" data-seeship>${t("seeShip")}</button></div>`;
+}
+
+function itemHTML(p,r,cl){
+  const l=r.lines.find(x=>x.p.code===p.code); const raw=S.qty[p.code]||0;
+  const noPrice=p.price==null&&!(p.prices&&p.prices[cl.list]!=null); const blocked=cl.blocked.includes(p.code)||noPrice; const u=unitOf(p.code); const f=UF[u](p);
+  const dims=p.dims.split("×").map(x=>fmt(parseInt(x)/10,1)).join(" × ");
+  let foot="";
+  if(l){
+    const n=Math.ceil(l.pallets-EPS); const cells=[];
+    for(let i=0;i<Math.min(n,24);i++){const fr=i<l.full?1:l.frac;cells.push(`<i><span style="height:${Math.round(fr*100)}%;background:${famColor(p.fam)}"></span></i>`)}
+    const notes=l.issues.map(i=>{
+      if(i.k==="missing")return `<span class="note warn">${t("missing")(i.v,i.n)}</span> <button class="link" data-close="${p.code}">${t("closePal")(i.v)}</button>`;
+      if(i.k==="boxMult"){const lab=n=>u==="CX"?`${n} ${t("uCX")}`:`${n} ${t("uCX")} · ${fmtUnit(n*f,u)} ${t("u"+u)}`;return `<span class="note err">${t("boxMult")(fmt(i.raw))}</span> ${i.lo>0?`<button class="opt alt" data-setcx="${p.code}:${i.lo}">${lab(i.lo)}</button>`:""}<button class="opt" data-setcx="${p.code}:${i.hi}">${lab(i.hi)}</button>`}
+      return `<span class="note err">${issueText(l,i)}</span>`}).join(" ");
+    foot=`<div class="prod-foot"><span class="pbar" aria-hidden="true">${cells.join("")}${n>24?`<span class="label">+${n-24}</span>`:""}</span><span class="num"><b>${fmt(l.pallets)}</b> ${t("pallets")}</span>${notes||`<span class="note ok">${t("palFull")}</span>`}</div>`;
+  } else if(blocked){foot=`<div class="prod-foot"><span class="note err">${noPrice?t("noPrice"):t("blocked")}</span></div>`}
+  const shown=raw?fmtUnit(raw*f,u):"";
+  return `<article class="prod ${raw?"on":""} ${blocked?"blocked":""}">
+    ${tile(p.fam)}
+    <div style="min-width:0"><h3>${esc(p[S.lang])}</h3>
+      <div class="sub"><span>${p.brand}</span><span>${p.unLbl}</span><span class="num">${t("perBox2")(p.un,fmt(p.net,p.net<1?3:1))}</span><span class="num">${t("minLot")} ${fmt(p.loteMin,0)} pallet${p.loteMin===1?"":"s"}</span></div>
+      <div class="build"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 7.5L12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5l9 4.5 9-4.5M12 12v9"/></svg><span class="num">${t("box")} ${dims} cm</span><span class="num">· ${p.lastro} ${t("perLayer")} × ${p.alt} ${t("layers")} = <b style="color:var(--ink)">${p.cxPal} ${t("boxPal")}</b></span></div>
+      <div class="code">${p.code} · ${esc(p.sap)}</div></div>
+    <div class="price"><b class="num">${noPrice?"—":money(priceFor(p,S.client))}</b><span>${t("perBox")}</span></div>
+    <div class="qcol">
+      <div class="useg" role="group" aria-label="${t("unitHint")}">${["CX","UN","KG"].map(x=>`<button data-unit="${p.code}:${x}" aria-pressed="${u===x}" ${blocked?"disabled":""}>${t("u"+x).toUpperCase()}</button>`).join("")}</div>
+      <div class="stepper"><button data-dec="${p.code}" aria-label="−1 pallet" ${blocked?"disabled":""}>−</button><input id="q-${p.code}" data-q="${p.code}" inputmode="decimal" value="${shown}" placeholder="0" aria-label="${esc(p[S.lang])} (${t("u"+u)})" ${blocked?"disabled":""}><button data-inc="${p.code}" aria-label="+1 pallet" ${blocked?"disabled":""}>+</button></div>
+      ${u!=="CX"&&raw?`<span class="eq">${t("eq")(fmt(raw,Number.isInteger(Math.round(raw*1e6)/1e6)?0:2))}</span>`:""}
+    </div>
+    ${foot}
+  </article>`;
+}
+
+function truckSVG(r){
+  const v=r.v, cols=v.cols, cw=30, ch=26, gap=3, padX=v.cab?52:4, padY=4;
+  const trailerW=cols*(cw+gap)+gap, trailerH=2*(ch+gap)+gap;
+  const units=[];
+  if(S.mode==="pal"){
+    r.lines.forEach(l=>{for(let i=0;i<l.full;i++)units.push([{f:1,c:famColor(l.p.fam)}])});
+    const fr=r.lines.filter(l=>l.frac>EPS).map(l=>({f:l.frac,c:famColor(l.p.fam)}));
+    if(S.mixed){let cur=[],acc=0;fr.forEach(x=>{let rem=x.f;while(rem>EPS){const take=Math.min(rem,1-acc);cur.push({f:take,c:x.c});acc+=take;rem-=take;if(acc>=1-EPS){units.push(cur);cur=[];acc=0}}});if(cur.length)units.push(cur)}
+    else fr.forEach(x=>units.push([x]));
+  }
+  const extra=Math.max(0,units.length-v.pos), extraCols=Math.ceil(extra/2);
+  const W=padX+trailerW+(extraCols?extraCols*(cw+gap)+14:0)+4, H=trailerH+padY*2+(extra?14:0);
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${t("positions")}: ${r.tot.positions}/${v.pos}">`;
+  if(v.cab)s+=`<rect x="4" y="${padY+5}" width="40" height="${trailerH-10}" rx="10" fill="var(--surface)" stroke="var(--surface-3)" stroke-width="1.5"/><rect x="9" y="${padY+11}" width="10" height="${trailerH-22}" rx="3" fill="var(--surface-3)"/>`;
+  s+=`<rect x="${padX}" y="${padY}" width="${trailerW}" height="${trailerH}" rx="6" fill="var(--surface)" stroke="var(--surface-3)" stroke-width="1.5"/>`;
+  if(S.mode==="est"){
+    const fillW=Math.min(1,r.u.m3)*(trailerW-6); let x=padX+3; const tot=r.tot.m3||1;
+    r.lines.forEach(l=>{const w=fillW*(l.m3/tot);s+=`<rect x="${x}" y="${padY+3}" width="${Math.max(0,w)}" height="${trailerH-6}" fill="${famColor(l.p.fam)}"/>`;x+=w});
+    for(let gx=padX+3+10;gx<padX+3+fillW;gx+=10)s+=`<line x1="${gx}" y1="${padY+3}" x2="${gx}" y2="${padY+trailerH-3}" stroke="var(--surface)" stroke-opacity=".5"/>`;
+  } else {
+    for(let i=0;i<Math.max(v.pos,units.length);i++){
+      const inside=i<v.pos, col=inside?Math.floor(i/2):Math.floor((i-v.pos)/2), row=i%2;
+      const x=inside?padX+gap+col*(cw+gap):padX+trailerW+14+col*(cw+gap), y=padY+gap+row*(ch+gap);
+      s+=`<rect x="${x}" y="${y}" width="${cw}" height="${ch}" rx="3" fill="${inside?"var(--surface-2)":"none"}" ${inside?"":'stroke="var(--err)" stroke-dasharray="3 2" stroke-width="1.5"'}/>`;
+      const u=units[i]; if(u){let yy=y+ch;u.forEach(seg=>{const h=ch*seg.f;yy-=h;s+=`<rect x="${x}" y="${yy}" width="${cw}" height="${h}" rx="${seg.f>.95?3:1}" fill="${seg.c}" ${inside?"":'opacity=".45"'}/>`})}
+    }
+    if(extra)s+=`<text x="${padX+trailerW+14}" y="${H-1}" font-size="10" font-weight="700" font-family="var(--font)" fill="var(--err)">+${extra}</text>`;
+  }
+  return s+`</svg>`;
+}
+
+function meter(label,val,cap,unit,u,isBind,d=0){
+  const pct=Math.min(u,1)*100, over=u>1+EPS;
+  return `<div class="meter"><div class="top-row"><span>${label}${isBind?`<span class="bindtag">${t("bind")}</span>`:""}</span><span class="num"><b style="${over?"color:var(--err)":""}">${fmt(val,d)}</b> / ${fmt(cap,d)} ${unit}</span></div>
+  <div class="bar ${over?"over":isBind?"bind":""}"><span style="width:${pct}%"></span></div></div>`;
+}
+
+function suggestions(r){
+  const out=[]; if(!r.lines.length||S.mode!=="pal") return out;
+  const v=r.v;
+  if(r.status==="excess"&&r.over.pos>0){
+    const big=[...r.lines].sort((a,b)=>b.pallets-a.pallets)[0];
+    out.push({txt:t("sugCut")(r.over.pos,big.p[S.lang]),act:`cut:${big.p.code}:${r.over.pos}`});
+  } else if(r.status!=="excess"){
+    const free=v.pos-r.tot.positions;
+    if(r.lines.some(l=>l.frac>EPS)) out.push({txt:t("sugRound"),act:"round"});
+    else if(free>=1){
+      const ok=r.lines.filter(l=>!CLIENTS[S.client].blocked.includes(l.p.code)).sort((a,b)=>b.cx-a.cx);
+      for(const l of ok){const add=free*l.p.cxPal;if(r.tot.gross+add*l.p.gross<=v.kg&&r.tot.m3+add*l.p.m3<=v.m3){out.push({txt:t("sugAdd")(free,l.p[S.lang]),act:`add:${l.p.code}:${free}`});break}}
+    }
+  }
+  return out;
+}
+
+function panelHTML(r){
+  const v=r.v, tot=r.tot;
+  const st={empty:[t("st_empty"),t("st_empty_s"),SVG.empty],full:[t("st_full"),t("st_full_s"),SVG.check],partial:[t("st_partial"),t("st_partial_s")(fmt((1-r.maxU)*100,0)),SVG.half],excess:[t("st_excess"),t("st_excess_s"),SVG.alert]}[r.status];
+  const errs=[]; if(r.over.pos)errs.push(t("errPos")(r.over.pos)); if(r.over.kg)errs.push(t("errKg")(fmt(r.over.kg,0))); if(r.over.m3)errs.push(t("errM3")(fmt(r.over.m3,1)));
+  const lineErrs=r.lines.flatMap(l=>l.issues.filter(i=>i.lv==="err").map(i=>`${l.p[S.lang]}: ${issueText(l,i)}`));
+  const sug=suggestions(r);
+  const fams=Object.entries(r.fams).map(([f,x])=>`<div><span><span class="dot" style="background:${famColor(f)}"></span>&nbsp; ${FAM[f][S.lang]}</span><span class="num">${fmt(x.kg,0)} kg</span><span class="num">${money(x.val)}</span></div>`).join("");
+  return `
+  <div class="p-sec">
+    <div class="p-head"><h2>${t("shipment")}</h2><span class="label">${CLIENTS[S.client].inc} · ${CLIENTS[S.client].filial}</span></div>
+    <div class="seg full" role="group" aria-label="${t("vehicle")}">${Object.entries(VEH).map(([k,x])=>`<button data-veh="${k}" aria-pressed="${S.veh===k}">${x[S.lang]}</button>`).join("")}</div>
+    <div class="seg full" role="group"><button data-mode="pal" aria-pressed="${S.mode==="pal"}">${t("paletizada")}</button><button data-mode="est" aria-pressed="${S.mode==="est"}">${t("estivada")}</button></div>
+    ${S.mode==="pal"?`<label class="switch"><input type="checkbox" id="mixed" ${S.mixed?"checked":""}> ${t("mixed")}</label>`:`<div class="label">${t("stick")}</div>`}
+  </div>
+  <div class="p-sec">
+    <div class="status st-${r.status}"><div class="ring">${st[2]}</div><div><b>${st[0]}</b><small>${st[1]}</small></div></div>
+    <div class="truck">${truckSVG(r)}</div>
+    <div class="meters">
+      ${S.mode==="pal"?meter(t("positions"),tot.positions,v.pos,"",r.u.pos,r.bind==="pos"&&r.lines.length):""}
+      ${meter(t("weight"),tot.gross,v.kg,"kg",r.u.kg,r.bind==="kg"&&r.lines.length)}
+      ${meter(t("volume"),tot.m3,v.m3,"m³",r.u.m3,r.bind==="m3"&&r.lines.length,1)}
+    </div>
+    ${(errs.length||lineErrs.length||sug.length)?`<div class="alerts">
+      ${errs.map(e=>`<div class="alert err">${SVG.x}<span>${e}</span></div>`).join("")}
+      ${lineErrs.map(e=>`<div class="alert err">${SVG.x}<span>${esc(e)}</span></div>`).join("")}
+      ${sug.map(s=>`<div class="alert tip">${SVG.bulb}<span>${esc(s.txt)}</span><button data-act="${s.act}">${t("apply")}</button></div>`).join("")}
+    </div>`:""}
+  </div>
+  <div class="p-sec">
+    <div><span class="label">${t("value")}</span><div class="value num">${money(tot.value)}</div></div>
+    <div class="stats">
+      <div class="stat"><span class="label">${t("totalPal")}</span><b class="num">${fmt(tot.pallets)}</b>${S.mode==="pal"?`<span class="label num" style="display:block">${tot.positions} posições</span>`:""}</div>
+      <div class="stat"><span class="label">${t("net")}</span><b class="num">${fmt(tot.net,0)} kg</b></div>
+      <div class="stat"><span class="label">${t("weight")}</span><b class="num">${fmt(tot.gross,0)} kg</b></div>
+      <div class="stat"><span class="label">${t("volume")}</span><b class="num">${fmt(tot.m3,2)} m³</b></div>
+    </div>
+    ${fams?`<div class="fam"><span class="label">${t("fams")}</span>${fams}</div>`:""}
+    <button class="btn" id="reviewBtn" ${r.lines.length?"":"disabled"}>${t("review")} ${SVG.arrow}</button>
+  </div>`;
+}
+
+/* ---------- Revisão ---------- */
+function statusChip(r){const c=r.status==="excess"?"err":r.status==="full"?"ok":r.status==="empty"?"neutral":"warn";return `<span class="chip ${c}">${t("st_"+r.status)} · ${fmt(r.maxU*100,0)}%</span>`}
+function openReview(){
+  const r=calc(S.qty,S), cl=CLIENTS[S.client], ov=document.getElementById("overlay");
+  const d=new Date();d.setDate(d.getDate()+21);const iso=d.toISOString().slice(0,10);
+  ov.innerHTML=`<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="rvT">
+    <div class="d-head"><div><h2 id="rvT" style="font-size:24px">${t("rvTitle")}</h2><div class="muted">${t("rvSub")}</div></div><button class="x" data-close-ov aria-label="Fechar">✕</button></div>
+    <div class="info">
+      <div><span class="label">${t("client")}</span><b>${esc(cl.name)}</b></div>
+      <div><span class="label">${t("vehicle")}</span><b>${r.v[S.lang]} · ${S.mode==="pal"?t("paletizada"):t("estivada")}</b></div>
+      <div><span class="label">${t("inc")} · ${t("pay")}</span><b>${cl.inc} · ${cl.pay}</b></div>
+    </div>
+    <div class="tbl-wrap"><table class="data"><thead><tr><th>${t("product")}</th><th class="r">${t("boxes")}</th><th class="r">${t("pallets")}</th><th class="r">${t("unitPrice")}</th><th class="r">${t("total")}</th></tr></thead>
+    <tbody>${r.lines.map(l=>`<tr><td><div style="display:flex;gap:10px;align-items:center"><span class="dot" style="background:${famColor(l.p.fam)}"></span><div>${esc(l.p[S.lang])}<div class="code">${l.p.code}</div></div></div></td><td class="r num">${fmt(l.cx,0)}</td><td class="r num">${fmt(l.pallets)}</td><td class="r num">${money(l.price)}</td><td class="r num">${money(l.value)}</td></tr>`).join("")}</tbody>
+    <tfoot><tr><td>${t("total")}</td><td class="r num">${fmt(r.tot.cx,0)}</td><td class="r num">${fmt(r.tot.pallets)}</td><td></td><td class="r num">${money(r.tot.value)}</td></tr></tfoot></table></div>
+    <div class="info">
+      <div><span class="label">${t("weight")} / ${t("net")}</span><b class="num">${fmt(r.tot.gross,0)} / ${fmt(r.tot.net,0)} kg</b></div>
+      <div><span class="label">${t("volume")}</span><b class="num">${fmt(r.tot.m3,2)} m³</b></div>
+      <div><span class="label">${t("shipment")}</span><div>${statusChip(r)}</div></div>
+    </div>
+    <div class="info">
+      <label class="field"><span class="label">${t("ref")}</span><input id="rvRef" placeholder="OC-2026-118"></label>
+      <label class="field"><span class="label">${t("date")}</span><input id="rvDate" type="date" value="${iso}"></label>
+    </div>
+    ${r.blocking?`<div class="alert err">${SVG.x}<span>${t("cannot")}</span></div>`:""}
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end"><button class="btn-soft" data-close-ov>${t("back")}</button><button class="btn sm" id="confirmBtn" ${r.blocking?"disabled":""}>${t("confirm")}</button></div>
+  </div>`;
+  ov.hidden=false;
+}
+function confirmOrder(){
+  const r=calc(S.qty,S); if(r.blocking) return;
+  const id="3CC-2026-"+String(S.seq++).padStart(4,"0");
+  const o={id,client:S.client,veh:S.veh,mode:S.mode,mixed:S.mixed,qty:{...S.qty},ref:document.getElementById("rvRef").value||"",date:document.getElementById("rvDate").value,status:"analise",created:nowStamp(),createdMs:Date.now(),origin:"Portal",
+    audit:[{at:nowStamp(),who:`${CLIENTS[S.client].contact} (${CLIENTS[S.client].name})`,what:`Pedido criado no portal com ${r.lines.length} itens e validado automaticamente (${T.pt["st_"+r.status].toLowerCase()}, ${fmtPT(r.maxU*100,0)}%)`}]};
+  S.orders.unshift(o); S.sel=id;
+  document.getElementById("overlay").innerHTML=`<div class="sheet" role="dialog" aria-modal="true"><div class="success">${SVG.check}</div><div><h2 style="font-size:26px">${t("okTitle")(id)}</h2><div class="muted" style="margin-top:4px">${t("okSub")}</div></div>
+  <div class="timeline">${t("tl").map((x,i)=>`<div class="${i<1?"done":""}">${x}</div>`).join("")}</div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end"><button class="btn-soft" data-goexp>${t("seeExp")}</button><button class="btn-soft" data-gomine>${t("seeMine")}</button><button class="btn sm" data-neworder>${t("newOrder")}</button></div></div>`;
+}
+
+/* ---------- Exportação ---------- */
+const ST={analise:["Em análise","warn"],aprovado:["Aprovado","ok"],sap:["Arquivo SAP gerado","neutral"]};
+function renderExp(){
+  const el=document.getElementById("v-exp");
+  if(!S.sel&&S.orders.length)S.sel=S.orders[0].id;
+  const rs=S.orders.map(o=>({o,r:calc(o.qty,o)}));
+  const fila=S.orders.filter(o=>o.status==="analise").length;
+  const val=rs.reduce((a,x)=>a+x.r.tot.value,0);
+  const occ=rs.length?rs.reduce((a,x)=>a+x.r.maxU,0)/rs.length:0;
+  const apr=S.orders.filter(o=>o.approvedMs&&o.createdMs);
+  const fp=firstPass(S.orders);
+  const nEx=rs.filter(x=>x.r.status==="excess").length, nPart=rs.filter(x=>x.r.status==="partial").length;
+  const kgNet=rs.reduce((a,x)=>a+x.r.tot.net,0), pal=rs.reduce((a,x)=>a+x.r.tot.pallets,0);
+  const used=[...new Set(S.orders.map(o=>o.client))]; const clientsN=used.length; const dests=new Set(used.map(c=>CLIENTS[c].dest)).size;
+  const cur=rs.find(x=>x.o.id===S.sel);
+  el.innerHTML=`
+  <div class="hero"><div><div class="eyebrow">Painel 3corações · Lucas, Analista de Exportação</div><h1>Pedidos recebidos</h1><p>Todo pedido chega validado pelo mesmo motor de cálculo. Nada é redigitado: a Exportação revisa, aprova e gera o arquivo para o SAP.</p></div></div>
+  <div class="kgroup"><span class="label">Operação do dia</span><div class="kpis">
+    <div class="kpi"><span class="label">Aguardando aprovação</span><b class="num">${fila}</b><small>de ${S.orders.length} pedidos na carteira</small></div>
+    <div class="kpi"><span class="label">Tempo médio de aprovação</span><b class="num">${apr.length?fmtDur(apr.reduce((a,o)=>a+(o.approvedMs-o.createdMs),0)/apr.length):"—"}</b><small>${apr.length} pedido${apr.length!==1?"s":""} aprovado${apr.length!==1?"s":""} na demo</small></div>
+    <div class="kpi"><span class="label">Certos na primeira</span><b class="num">${fp==null?"—":fmtPT(fp*100,0)+"%"}</b><small>aprovados sem ajuste da Exportação</small></div>
+    <div class="kpi"><span class="label">Ocupação média dos veículos</span><b class="num">${fmtPT(occ*100,0)}%</b><small>${nEx} com excesso · ${nPart} com carga incompleta</small></div>
+  </div></div>
+  <div class="kgroup"><span class="label">Gestão · indicadores da área de Internacionalização</span><div class="kpis">
+    <div class="kpi"><span class="label">Receita em carteira</span><b class="num">${money(val,"pt-BR")}</b><small>volume de vendas e receita</small></div>
+    <div class="kpi"><span class="label">Volume exportado</span><b class="num">${fmtPT(kgNet/1000,1)} t</b><small>${fmtPT(pal,1)} pallets</small></div>
+    <div class="kpi"><span class="label">Países e clientes ativos</span><b class="num">${dests} · ${clientsN}</b><small>destinos · clientes</small></div>
+    <div class="kpi soon"><span class="label">Embarcados na data pedida</span><b>Disponível na POC</b><small>nível de serviço · requer data real de embarque</small></div>
+  </div></div>
+  <div class="exp">
+    <div class="card olist">${rs.map(({o,r})=>`<button class="orow" data-sel="${o.id}" aria-pressed="${o.id===S.sel}">
+      <div class="r1"><span class="id num">${o.id}</span><span class="chip ${ST[o.status][1]}">${ST[o.status][0]}</span></div>
+      <div>${esc(CLIENTS[o.client].name)}${CLIENTS[o.client].demo?' <span class="chip neutral" style="font-size:10.5px;padding:1px 7px">demo</span>':""}</div>
+      <div class="r3"><span>${o.origin} · ${o.created}</span><span class="num" style="${r.status==="excess"?"color:var(--err);font-weight:700":""}">${VEH[o.veh].pt} ${fmtPT(r.maxU*100,0)}%</span></div></button>`).join("")}</div>
+    ${cur?expDetail(cur.o,cur.r):`<div class="card card-pad">Nenhum pedido.</div>`}
+  </div>`;
+}
+function expDetail(o,r){
+  const cl=CLIENTS[o.client], v=VEH[o.veh];
+  const issues=[]; if(r.over.pos)issues.push(`Faltam ${r.over.pos} posições de pallet na ${v.pt.toLowerCase()} (${r.tot.positions} de ${v.pos})`);
+  if(r.over.kg)issues.push(`Peso bruto excede em ${fmtPT(r.over.kg,0)} kg`); if(r.over.m3)issues.push(`Cubagem excede em ${fmtPT(r.over.m3,1)} m³`);
+  r.lines.forEach(l=>l.issues.forEach(i=>{if(i.lv==="err")issues.push(`${l.p.pt}: ${i.k==="blocked"?"não liberado para o destino":"abaixo do lote mínimo ("+fmtPT(i.v,0)+" pallets)"}`)}));
+  const warns=r.lines.filter(l=>l.frac>EPS&&o.mode==="pal").map(l=>`${l.p.pt}: pallet incompleto, faltam ${l.missing} cx`);
+  const csv=S.csvFor===o.id?buildCSV(o,r):"";
+  const stat=(k,val,u,show=true)=>`<div><span class="label">${k}</span><b class="num" style="${u>1+EPS?"color:var(--err)":""}">${val}</b>${show&&u!=null?`<span class="label num" style="display:block">${fmtPT(u*100,0)}% da capacidade</span>`:""}</div>`;
+  return `<div class="card card-pad" style="display:grid;gap:20px">
+    <div class="d-head"><div><span class="label">${o.origin==="Order Basis"?"Importado da planilha Order Basis":"Recebido pelo portal"}</span><h3>${o.id} · ${esc(cl.name)}</h3>
+      <div class="label" style="margin-top:2px">Cód. ${cl.code} · ${cl.inc} · ${cl.pay} · Lista ${cl.list} · ${cl.filial}${o.ref?` · Ref. ${esc(o.ref)}`:""}${o.date?` · Carregamento ${o.date.split("-").reverse().join("/")}`:""}</div></div>
+      <span class="chip ${ST[o.status][1]}">${ST[o.status][0]}</span></div>
+    ${journeyHTML(o,r)}
+    ${o.origin==="Order Basis"?`<div class="callout"><b>Este é o pedido teste da Order Basis.</b> A planilha marcou o embarque como "OK" porque só confere peso e cubagem. O 3C Conecta também conta as posições de pallet: são ${r.tot.positions} pallets para ${v.pos} posições na carreta. O pedido não cabe.</div>`:""}
+    <div class="info">
+      ${stat("Posições",o.mode==="pal"?`${r.tot.positions} / ${v.pos}`:"Estivada",r.u.pos,o.mode==="pal")}
+      ${stat("Peso bruto",`${fmtPT(r.tot.gross,0)} kg`,r.u.kg)}
+      ${stat("Cubagem",`${fmtPT(r.tot.m3,1)} m³`,r.u.m3)}
+      ${stat("Valor",money(r.tot.value,"pt-BR"),null)}
+    </div>
+    <div class="alerts">
+      ${issues.length?issues.map(e=>`<div class="alert err">${SVG.x}<span>${esc(e)}</span></div>`).join(""):`<div class="alert okb">${SVG.ok}<span>Pedido dentro das regras: lote mínimo, liberação por destino, peso, cubagem e posições.</span></div>`}
+      ${warns.map(e=>`<div class="alert warn">${SVG.x}<span>${esc(e)}</span></div>`).join("")}
+    </div>
+    <div class="tbl-wrap"><table class="data"><thead><tr><th>Produto</th><th class="r">Caixas</th><th class="r">Pallets</th><th class="r">Peso bruto</th><th class="r">Cubagem</th><th class="r">Preço/cx</th><th class="r">Total</th></tr></thead>
+      <tbody>${r.lines.map(l=>`<tr><td><div style="display:flex;gap:10px;align-items:center"><span class="dot" style="background:${famColor(l.p.fam)}"></span><div>${esc(l.p.pt)}<div class="code">${l.p.code}</div></div></div></td><td class="r"><input class="mini-in" id="e-${o.id}-${l.p.code}" data-edit="${l.p.code}" value="${l.cx}" ${o.status!=="analise"?"disabled":""} aria-label="Caixas ${esc(l.p.pt)}"></td><td class="r num">${fmtPT(l.pallets)}</td><td class="r num">${fmtPT(l.gross,0)} kg</td><td class="r num">${fmtPT(l.m3,2)} m³</td><td class="r num">${money(l.price,"pt-BR")}</td><td class="r num">${money(l.value,"pt-BR")}</td></tr>`).join("")}</tbody>
+      <tfoot><tr><td>Total</td><td class="r num">${fmtPT(r.tot.cx,0)}</td><td class="r num">${fmtPT(r.tot.pallets)}</td><td class="r num">${fmtPT(r.tot.gross,0)} kg</td><td class="r num">${fmtPT(r.tot.m3,2)} m³</td><td></td><td class="r num">${money(r.tot.value,"pt-BR")}</td></tr></tfoot></table></div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+      ${o.status==="analise"?`<button class="btn sm" data-approve ${r.blocking?"disabled":""}>Aprovar pedido</button>`:`<button class="btn sm dark" data-csv>Gerar arquivo para o SAP</button>`}
+      ${o.status==="analise"&&r.blocking?`<span class="label">Ajuste as quantidades na tabela para liberar a aprovação. Cada alteração fica registrada.</span>`:""}
+    </div>
+    ${csv?`<div style="display:grid;gap:8px"><div class="p-head"><span class="label">Arquivo de importação · layout sugerido, a substituir pelo layout oficial do SAP</span><span style="display:flex;gap:8px"><button class="btn-soft" data-copy>Copiar CSV</button><button class="btn sm" data-download>Baixar CSV</button></span></div><pre class="csv" id="csvBox">${esc(csv)}</pre></div>`:""}
+    <div><div class="sec-title">Trilha de auditoria</div><div class="audit">${o.audit.map(a=>`<div><time>${a.at}</time><span><b>${esc(a.who)}</b> · ${esc(a.what)}</span></div>`).join("")}</div></div>
+  </div>`;
+}
+function buildCSV(o,r){
+  const cl=CLIENTS[o.client];
+  const h="PEDIDO_PORTAL;COD_CLIENTE;REF_CLIENTE;CANAL;CENTRO;LISTA_PRECO;MATERIAL;DESCRICAO_SAP;QTD;UM;PRECO_UNIT;MOEDA;VALOR_TOTAL;INCOTERM;COND_PAGTO;DATA_CARREGAMENTO";
+  return [h,...r.lines.map(l=>[o.id,cl.code,o.ref,"13","2612",cl.list,l.p.code,l.p.sap,l.cx,"CX",l.price.toFixed(2),cl.cur,l.value.toFixed(2),cl.inc,cl.payCode,o.date||""].join(";"))].join("\n");
+}
+
+/* ---------- Base e regras ---------- */
+function renderBase(){
+  const el=document.getElementById("v-base");
+  let nDiv=0; const d=(a,b,tol=0.011)=>{const x=Math.abs(a-b)>tol;if(x)nDiv++;return x};
+  const rows=P.map(p=>{
+    if(!p.ob) return `<tr><td><div style="display:flex;gap:10px;align-items:center"><span class="dot" style="background:${famColor(p.fam)}"></span><div>${esc(p.pt)} <span class="chip neutral" style="font-size:10.5px;padding:1px 7px">importado</span><div class="code">${p.code} · ${p.lastro} × ${p.alt} camadas</div></div></div></td><td class="r num">${p.cxPal}</td><td class="r label">—</td><td class="r label">—</td><td class="r num">${p.price==null?"sem preço":fmtPT(p.price)}</td><td class="r label">—</td><td class="r num">${fmtPT(p.loteMin,0)}</td><td class="r label">—</td><td class="r num">${fmtPT(p.gross,2)}</td><td class="r label">—</td></tr>`;
+    const c1=d(p.ob.cxPal,p.cxPal), c2=d(p.ob.palz,p.cxPal), manual=p.priceSrc==="manual", pr=manual||d(p.ob.price,p.price), lo=d(p.ob.lote,p.loteMin), gw=d(p.ob.grossCx,p.gross,0.05);
+    if(manual)nDiv++;
+    return `<tr><td><div style="display:flex;gap:10px;align-items:center"><span class="dot" style="background:${famColor(p.fam)}"></span><div>${esc(p.pt)}<div class="code">${p.code} · ${p.lastro} × ${p.alt} camadas · pallet ≈ ${fmtPT(p.alt*parseInt(p.dims.split("×")[2])/1000+0.15,2)} m de altura</div></div></div></td>
+    <td class="r num">${p.cxPal}</td><td class="r num ${c1?"div":""}">${fmtPT(p.ob.cxPal,0)}</td><td class="r num ${c2?"div":""}">${fmtPT(p.ob.palz,p.ob.palz%1?2:0)}</td>
+    <td class="r num ${pr?"div":""}">${manual?"sem preço":fmtPT(p.price)}</td><td class="r num">${fmtPT(p.ob.price)}</td>
+    <td class="r num">${fmtPT(p.loteMin,0)}</td><td class="r num ${lo?"div":""}">${fmtPT(p.ob.lote,p.ob.lote%1?2:0)}</td>
+    <td class="r num">${fmtPT(p.gross,2)}</td><td class="r num ${gw?"div":""}">${fmtPT(p.ob.grossCx,2)}</td></tr>`}).join("");
+  el.innerHTML=`
+  <div class="hero"><div><div class="eyebrow">Painel 3corações · Produtos e regras</div><h1>Uma fonte única de dados</h1>
+  <p>Cruzamos as quatro planilhas do desafio. Onde a Order Basis diverge do SAP, o valor aparece em vermelho. Hoje cada pedido depende de qual versão do dado a pessoa usou. Na plataforma, o SAP é a única fonte e a Exportação só confirma as exceções.</p></div></div>
+  <div class="kpis"><div class="kpi"><span class="label">Produtos no recorte</span><b class="num">${P.length}</b></div><div class="kpi"><span class="label">Divergências encontradas</span><b class="num" style="color:var(--err)">${nDiv}</b></div><div class="kpi"><span class="label">Sem preço no SAP</span><b class="num">${P.filter(p=>p.priceSrc!=="sap").length}</b></div><div class="kpi"><span class="label">Veículos cadastrados</span><b class="num">${Object.keys(VEH).length}</b></div></div>
+  ${importHTML()}
+  <div class="card card-pad" style="display:grid;gap:16px"><div class="tbl-wrap"><table class="data">
+    <thead><tr><th rowspan="2" style="vertical-align:bottom">Produto</th><th class="r" colspan="3">Caixas por pallet</th><th class="r" colspan="2">Preço USD/cx</th><th class="r" colspan="2">Lote mínimo</th><th class="r" colspan="2">Peso bruto/cx (kg)</th></tr>
+    <tr><th class="r">SAP</th><th class="r">Order Basis</th><th class="r">Aba Paletiz.</th><th class="r">SAP</th><th class="r">Order Basis</th><th class="r">LONT</th><th class="r">Order Basis</th><th class="r">SAP</th><th class="r">Order Basis</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>
+    <div class="rules" style="font-size:13px;color:var(--muted)">
+      <div><span><b style="color:var(--ink)">Fontes.</b> SAP = Materiais (lastro × altura), Conferência de produtos (peso e volume da caixa) e Registros (preço). Order Basis = valores que a planilha usa hoje.</span></div>
+      <div><span><b style="color:var(--ink)">Peso.</b> A Order Basis multiplica o peso da unidade pela quantidade por caixa e ignora a caixa de papelão. No stick de solúvel, a unidade cadastrada é o display de 10, então o peso fica quase 10 vezes maior.</span></div>
+      <div><span><b style="color:var(--ink)">Lote mínimo.</b> A planilha pega o primeiro valor que encontra (filial BHO), mesmo quando o pedido sai de Londrina.</span></div>
+    </div></div>
+  <div class="grid2">
+    <div class="card card-pad" style="display:grid;gap:12px"><h3 style="font-size:18px">Veículos</h3><div class="tbl-wrap"><table class="data"><thead><tr><th>Veículo</th><th class="r">Cubagem</th><th class="r">Peso</th><th class="r">Posições</th></tr></thead><tbody>
+      ${Object.values(VEH).map(x=>`<tr><td>${x.pt}</td><td class="r num">${fmtPT(x.m3,2)} m³</td><td class="r num">${fmtPT(x.kg,0)} kg</td><td class="r num">${x.pos}</td></tr>`).join("")}</tbody></table></div>
+      <div class="label">Cubagem e peso vêm da Order Basis. Posições de pallet PBR (1,20 × 1,00 m) são premissa da equipe, a confirmar com a logística.</div></div>
+    <div class="card card-pad" style="display:grid;gap:12px"><h3 style="font-size:18px">Regras e premissas</h3><div class="rules">
+      <div>Pallets = caixas ÷ (lastro × altura)</div>
+      <div>Sem pallet misto, cada pallet incompleto ocupa uma posição inteira</div>
+      <div>Carga completa a partir de ${fmtPT(RULES.fullAt*100,0)}% do recurso limitante (peso, cubagem ou posições)</div>
+      <div>Lote mínimo por material e filial bloqueia a confirmação</div>
+      <div>Restrição por destino bloqueia o produto no catálogo (exemplo no cliente demo)</div>
+      <div>Estivada: alocação pela cubagem total, sem pallets</div>
+      <div>Regras ficam em configuração, não no código</div></div></div>
+  </div>
+  <div style="display:grid;gap:14px"><div><div class="eyebrow">Visão de escala</div><h2 style="font-size:22px">Do hackathon ao Mercosul inteiro</h2></div>
+  <div class="road">
+    <div class="now"><b>Hackathon</b><span>1 cliente, 10 produtos, carreta e contêineres. Motor de cálculo e arquivo para o SAP.</span></div>
+    <div><b>POC</b><span>1 país, 2 ou 3 distribuidores reais. Login seguro e dados sincronizados do SAP.</span></div>
+    <div><b>Piloto</b><span>Todo o Mercosul. Regras por país, integração direta com o SAP e indicadores da área.</span></div>
+    <div><b>Escala</b><span>Novos continentes, frete marítimo, proforma e packing list automáticos, sugestão de pedido por IA.</span></div>
+  </div></div>`;
+}
+
+/* ============ IMPORTAÇÃO DO SAP ============ */
+const IMP={files:[],preview:null,log:[],error:""};
+const KIND={conferencia:"Conferência de produtos",materiais:"Materiais",registros:"Registros (preços)",desconhecido:"Não reconhecido",erro:"Erro de leitura"};
+function num(v){if(typeof v==="number")return v;if(v==null||v==="")return NaN;return parseNum(v)}
+const ok=v=>typeof v==="number"&&isFinite(v)&&v>0;
+function title(s){return String(s).toLowerCase().replace(/(^|\s)\S/g,m=>m.toUpperCase())}
+function mapFam(s){const u=String(s||"").toUpperCase().trim();if(!u)return null;if(u.startsWith("CAF"))return "CAFES";if(u.startsWith("CAPP"))return "CAPPUCCINO";if(u.startsWith("SOL"))return "SOLUVEIS";if(u.startsWith("PORTA"))return "PORTA";if(u.startsWith("FILTRO"))return "FILTROS";return u}
+function mapBrand(s){const u=String(s||"").toUpperCase();if(!u)return null;if(u.includes("IGUA"))return "Iguaçu";if(u.includes("GERAL")||u.startsWith("3C"))return "3corações";return title(u.replace(/\s*\(\d+\)/,""))}
+function unLabel(sap,un){const m=String(sap).match(/(\d+(?:X\d+)*X[\d,]+)(G|KG|ML|UN)\b/i);if(m)return m[1].split(/X/i).join(" × ")+" "+m[2].toLowerCase();const c=String(sap).match(/C\/(\d+)/);if(c)return c[1]+" un";return (un||"?")+" un"}
+async function readFiles(list){
+  IMP.error="";
+  if(!window.XLSX){IMP.error="Não foi possível carregar o leitor de planilhas. Verifique a conexão e tente de novo.";render();return}
+  const out=[];
+  for(const f of list){
+    try{
+      const wb=XLSX.read(await f.arrayBuffer(),{type:"array",cellDates:true});
+      const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:"",raw:true});
+      let hi=-1;for(let i=0;i<Math.min(rows.length,10);i++){if(rows[i].some(c=>String(c).trim()==="Material")){hi=i;break}}
+      const head=hi>=0?rows[hi].map(h=>String(h).trim()):[]; const body=hi>=0?rows.slice(hi+1).filter(r=>r.some(c=>c!==""&&c!=null)):[];
+      const kind=head.includes("UM alternativa")?"conferencia":head.includes("Lista de Preço")?"registros":head.includes("Lastro")?"materiais":"desconhecido";
+      out.push({name:f.name,kind,head,body});
+    }catch(e){out.push({name:f.name,kind:"erro",head:[],body:[]})}
+  }
+  IMP.files=out; IMP.preview=buildPreview(out); render();
+}
+function buildPreview(files){
+  const conf=files.find(f=>f.kind==="conferencia"),mat=files.find(f=>f.kind==="materiais"),reg=files.find(f=>f.kind==="registros");
+  if(!conf&&!mat&&!reg) return {items:[],msg:"Nenhuma extração reconhecida. Use os arquivos Conferência de produtos, Materiais ou Registros, como saem do SAP."};
+  const R={}; const get=c=>R[c]=R[c]||{code:c,alerts:[]};
+  if(mat){const h=mat.head,iM=h.indexOf("Material"),iD=h.indexOf("Descrição"),iL=h.indexOf("Lastro"),iA=h.indexOf("Altura");
+    mat.body.forEach(r=>{const c=String(r[iM]).trim();if(!c)return;const x=get(c);x.sap=x.sap||String(r[iD]).trim();x.lastro=num(r[iL]);x.alt=num(r[iA])})}
+  if(conf){const h=conf.head,iM=h.indexOf("Material"),iD=h.indexOf("Texto breve material"),iU=h.indexOf("UM alternativa"),iC=h.indexOf("Contador"),iJ=h.indexOf("Comprimento"),iK=h.indexOf("Largura"),iH=h.indexOf("Altura"),iV=h.indexOf("Volume"),iN=h.indexOf("Peso líquido"),iG=h.indexOf("Peso bruto"),iW=h.indexOf("Unidade de peso"),iS=h.indexOf("Prazo de validade"),iF=h.indexOf("Denominação"),iB=iF>=0?h.indexOf("Denominação",iF+1):-1,iL=h.indexOf("Lastro"),iA=h.lastIndexOf("Altura");
+    conf.body.forEach(r=>{const c=String(r[iM]).trim();if(!c)return;const x=get(c);x.sap=String(r[iD]).trim()||x.sap;x.famRaw=String(r[iF]||"").trim();x.brandRaw=iB>=0?String(r[iB]).trim():"";x.shelf=num(r[iS]);
+      if(!ok(x.lastro)&&iL>=0){x.lastro=num(r[iL]);x.alt=num(r[iA])}
+      if(String(r[iU]).trim()==="CX"){const k=String(r[iW]).trim().toUpperCase()==="G"?0.001:1;x.un=num(r[iC]);x.net=num(r[iN])*k;x.gross=num(r[iG])*k;x.dm3=num(r[iV]);x.dims=[r[iJ],r[iK],r[iH]].map(v=>Math.round(num(v))).join("×")}})}
+  if(reg){const h=reg.head,iM=h.indexOf("Material"),iD=h.indexOf("Desc. Material"),iL=h.indexOf("Lista de Preço"),iP=h.indexOf("Preço Sugerido"),iDe=h.indexOf("Válido desde"),iAt=h.indexOf("Válido até"),iX=h.indexOf("Exclusão"),iMa=h.indexOf("Marca"),iFa=h.indexOf("Família");const now=new Date();
+    reg.body.forEach(r=>{const c=String(r[iM]).trim();if(!c)return;if(Number(r[iX])===1)return;const de=r[iDe] instanceof Date?r[iDe]:null,at=r[iAt] instanceof Date?r[iAt]:null;if((de&&de>now)||(at&&at<now))return;
+      const x=get(c);x.sap=x.sap||String(r[iD]).trim();x.prices=x.prices||{};x.pdate=x.pdate||{};const l=String(r[iL]).trim(),pr=num(r[iP]);if(!ok(pr))return;
+      if(!x.pdate[l]||(de&&de>x.pdate[l])){x.prices[l]=pr;x.pdate[l]=de||new Date(0)}
+      if(iMa>=0&&!x.brandRaw)x.brandRaw=String(r[iMa]);if(iFa>=0&&!x.famRaw)x.famRaw=String(r[iFa]).replace(/\s*\(\d+\)/,"")})}
+  const items=[]; let skipped=0;
+  Object.values(R).forEach(x=>{
+    const cur=BY[x.code]; const alerts=[];
+    if(!cur&&(!ok(x.un)||!ok(x.lastro))){skipped++;return}
+    let gross=ok(x.gross)?x.gross:cur&&cur.gross;
+    if(ok(x.gross)&&ok(x.net)&&x.gross<x.net){alerts.push("Peso bruto menor que o líquido no SAP (unidade trocada)."+(cur?" Mantido o valor atual.":""));gross=cur?cur.gross:x.net}
+    let price,priceSrc,prices=cur&&cur.prices;
+    if(x.prices&&Object.keys(x.prices).length){prices=x.prices;price=x.prices.US!=null?x.prices.US:Object.values(x.prices)[0];priceSrc="sap"}
+    else if(cur&&cur.price!=null){price=cur.price;priceSrc=reg?"manual":cur.priceSrc;if(reg)alerts.push("Sem preço vigente no SAP. Mantido o preço manual.")}
+    else{price=null;priceSrc="missing";alerts.push("Sem preço. Fica indisponível no catálogo até ter preço.")}
+    if(!cur)alerts.push("Lote mínimo não vem do SAP. Usado 1 pallet como padrão.");
+    const p={code:x.code,fam:mapFam(x.famRaw)||(cur&&cur.fam)||"OUTROS",brand:mapBrand(x.brandRaw)||(cur&&cur.brand)||"3corações",sap:x.sap||(cur&&cur.sap),
+      pt:cur?cur.pt:x.sap,es:cur?cur.es:x.sap,un:ok(x.un)?x.un:cur.un,unLbl:cur?cur.unLbl:unLabel(x.sap,x.un),net:ok(x.net)?x.net:cur.net,gross,dm3:ok(x.dm3)?x.dm3:cur.dm3,
+      lastro:ok(x.lastro)?x.lastro:cur.lastro,alt:ok(x.alt)?x.alt:cur.alt,price,priceSrc,prices,loteMin:cur?cur.loteMin:1,shelf:ok(x.shelf)?x.shelf:cur&&cur.shelf,ncm:cur?cur.ncm:"",dims:x.dims||(cur&&cur.dims),ob:cur?cur.ob:null};
+    p.cxPal=p.lastro*p.alt;p.m3=p.dm3/1000;
+    const ch=[];
+    if(cur){const cmp=(k,a,b,d)=>{if(a!=null&&b!=null&&Math.abs(a-b)>(d||0.001))ch.push(`${k}: ${fmtPT(a,a%1?2:0)} → ${fmtPT(b,b%1?2:0)}`)};
+      cmp("cx/pallet",cur.cxPal,p.cxPal);cmp("peso bruto/cx",cur.gross,p.gross,0.005);cmp("peso líquido/cx",cur.net,p.net,0.005);cmp("volume/cx (dm³)",cur.dm3,p.dm3,0.01);if(cur.price!=null&&p.price!=null)cmp("preço US$",cur.price,p.price,0.005)}
+    items.push({p,status:!cur?"novo":ch.length?"alterado":"igual",changes:ch,alerts});
+  });
+  items.sort((a,b)=>({novo:0,alterado:1,igual:2}[a.status]-{novo:0,alterado:1,igual:2}[b.status]));
+  return {items,skipped,missing:P.filter(p=>!items.some(i=>i.p.code===p.code)).length};
+}
+function applyImport(){
+  const pv=IMP.preview;if(!pv||!pv.items.length)return;
+  pv.items.forEach(({p})=>{if(!FAM[p.fam])FAM[p.fam]={pt:title(p.fam),es:title(p.fam),c:"--faint"};const i=P.findIndex(q=>q.code===p.code);if(i>=0)P[i]=p;else P.push(p);BY[p.code]=p});
+  IMP.log.unshift({at:nowStamp(),files:IMP.files.filter(f=>KIND[f.kind]&&f.kind!=="desconhecido"&&f.kind!=="erro").map(f=>KIND[f.kind]),n:pv.items.length,nNew:pv.items.filter(i=>i.status==="novo").length,nChg:pv.items.filter(i=>i.status==="alterado").length});
+  IMP.files=[];IMP.preview=null;render();toast(`Catálogo atualizado: ${IMP.log[0].n} produtos`);
+}
+function importHTML(){
+  const pv=IMP.preview;
+  const cnt=k=>pv?pv.items.filter(i=>i.status===k).length:0;
+  const nAl=pv?pv.items.reduce((a,i)=>a+i.alerts.length,0):0;
+  return `<div class="card card-pad" style="display:grid;gap:16px">
+    <div class="p-head"><div><h3 style="font-size:18px">Importar do SAP</h3><div class="label">Arraste as extrações Conferência de produtos, Materiais e Registros, no formato em que saem do SAP. Nada muda no catálogo antes da sua confirmação.</div></div></div>
+    <label class="drop" id="drop"><input type="file" id="sapFiles" multiple accept=".xlsx,.xls,.csv" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5"/><path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg>
+      <b>Arraste as planilhas aqui</b><span class="label">ou clique para escolher · .xlsx, .xls ou .csv</span></label>
+    ${IMP.error?`<div class="alert err">${SVG.x}<span>${IMP.error}</span></div>`:""}
+    ${IMP.files.length?`<div class="files">${IMP.files.map(f=>`<div class="file"><span class="chip ${f.kind==="desconhecido"||f.kind==="erro"?"err":"ok"}">${KIND[f.kind]}</span><span>${esc(f.name)}</span><span class="label num">${f.body.length} linhas</span></div>`).join("")}</div>`:""}
+    ${pv?(pv.msg?`<div class="alert warn">${SVG.x}<span>${pv.msg}</span></div>`:`
+      <div class="sumrow"><span class="chip neutral">${pv.items.length} produtos lidos</span><span class="chip ok">${cnt("novo")} novos</span><span class="chip warn">${cnt("alterado")} alterados</span><span class="chip neutral">${cnt("igual")} sem mudança</span>${nAl?`<span class="chip err">${nAl} alertas de qualidade</span>`:""}${pv.missing?`<span class="chip neutral">${pv.missing} do catálogo não vieram no arquivo (mantidos)</span>`:""}${pv.skipped?`<span class="chip neutral">${pv.skipped} ignorados por falta de dados</span>`:""}</div>
+      <div class="tbl-wrap"><table class="data"><thead><tr><th>Produto</th><th>Situação</th><th>Mudanças</th><th>Alertas</th></tr></thead><tbody>
+      ${pv.items.map(i=>`<tr><td><div>${esc(i.p.pt)}</div><div class="code">${i.p.code} · ${i.p.cxPal} cx/pallet · ${i.p.price==null?"sem preço":"US$ "+fmtPT(i.p.price)}</div></td><td><span class="chip ${i.status==="novo"?"ok":i.status==="alterado"?"warn":"neutral"}">${i.status}</span></td><td style="font-size:12.5px">${i.changes.join("<br>")||'<span class="label">—</span>'}</td><td style="font-size:12.5px;color:var(--warn)">${i.alerts.join("<br>")||'<span class="label">—</span>'}</td></tr>`).join("")}
+      </tbody></table></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end"><button class="btn-soft" data-impcancel>Cancelar</button><button class="btn sm" data-impapply>Aplicar ao catálogo</button></div>`):""}
+    ${IMP.log.length?`<div><div class="sec-title">Histórico de importações</div><div class="audit">${IMP.log.map(l=>`<div><time>${l.at}</time><span><b>Lucas (Exportação)</b> · importou ${l.files.join(", ")}: ${l.n} produtos, ${l.nNew} novos, ${l.nChg} alterados</span></div>`).join("")}</div></div>`:""}
+  </div>`;
+}
+
+/* ============ SEED ============ */
+S.orders.push({id:"3CC-2026-0001",client:"minoil",veh:"carreta",mode:"pal",mixed:false,qty:{"12031189":3528,"12034103":300,"12037417":250,"12144012":300},ref:"PEDIDO TESTE",date:"",status:"analise",created:"09/10 17:53",createdMs:new Date(2026,9,9,17,53).getTime(),origin:"Order Basis",
+  audit:[{at:"09/10 17:53",who:"Lucas (Exportação)",what:"Pedido importado da planilha Order Basis para comparação. A planilha indicava embarque OK."},{at:"09/10 17:54",who:"Motor de validação",what:"30 pallets para 28 posições na carreta: excesso de 2 posições."}]});
+S.orders.push({id:"3CC-2026-0002",client:"demo",veh:"c40",mode:"pal",mixed:false,qty:{"12031291":1176,"12034109":140,"12142501":1400,"12147801":540},ref:"OC-4471",date:"2026-11-03",status:"aprovado",created:"12/10 10:21",createdMs:new Date(2026,9,12,10,21).getTime(),approved:"12/10 14:05",approvedMs:new Date(2026,9,12,14,5).getTime(),origin:"Portal",
+  audit:[{at:"12/10 10:21",who:"Sofía (Distribuidora Río Claro, demo)",what:"Pedido criado no portal e validado automaticamente."},{at:"12/10 14:05",who:"Lucas (Exportação)",what:"Pedido aprovado sem alterações."}]});
+S.sel="3CC-2026-0001";
+
+/* ============ EVENTOS ============ */
+function setQty(code,v){const n=Math.max(0,Math.round((v||0)*1e6)/1e6);if(n<EPS)delete S.qty[code];else S.qty[code]=n}
+function act(a){
+  const [k,code,n]=a.split(":");
+  if(k==="round"){for(const p of P){const q=S.qty[p.code];if(q&&q%p.cxPal)S.qty[p.code]=Math.ceil(q/p.cxPal)*p.cxPal}}
+  if(k==="add")setQty(code,(S.qty[code]||0)+Number(n)*BY[code].cxPal);
+  if(k==="cut"){const p=BY[code];setQty(code,Math.max(0,Math.ceil(S.qty[code]/p.cxPal-EPS)-Number(n))*p.cxPal)}
+  render();toast(t("tApplied"));
+}
+try{const th=localStorage.getItem("3cc-theme");if(th==="light"||th==="dark")S.theme=th}catch(_){}
+applyTheme();
+try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{if(!S.theme)render()})}catch(_){}
+document.addEventListener("click",e=>{
+  const b=e.target.closest("button"); if(!b) return;
+  if(b.hasAttribute("data-theme-toggle")){S.theme=isDark()?"light":"dark";applyTheme();try{localStorage.setItem("3cc-theme",S.theme)}catch(_){}render();return}
+  if(b.dataset.enter){S.area=b.dataset.enter;S.view=S.area==="client"?"dist":"exp";render();window.scrollTo(0,0);return}
+  if(b.hasAttribute("data-logout")){S.area=null;S.view="entry";render();window.scrollTo(0,0);return}
+  if(b.dataset.view){S.view=b.dataset.view;render();window.scrollTo(0,0);return}
+  if(b.dataset.lang){S.lang=b.dataset.lang;render();return}
+  if(b.dataset.fam){S.fam=b.dataset.fam;render();return}
+  if(b.dataset.inc){const p=BY[b.dataset.inc];const q=S.qty[p.code]||0;setQty(p.code,(Math.floor(q/p.cxPal+EPS)+1)*p.cxPal);render();return}
+  if(b.dataset.dec){const p=BY[b.dataset.dec];const q=S.qty[p.code]||0;setQty(p.code,(Math.ceil(q/p.cxPal-EPS)-1)*p.cxPal);render();return}
+  if(b.dataset.close){const p=BY[b.dataset.close];setQty(p.code,Math.ceil((S.qty[p.code]||0)/p.cxPal)*p.cxPal);render();return}
+  if(b.dataset.unit){const [c,u]=b.dataset.unit.split(":");S.unit[c]=u;render();const el=document.getElementById("q-"+c);if(el)el.focus();return}
+  if(b.dataset.setcx){const [c,n]=b.dataset.setcx.split(":");setQty(c,Number(n));render();toast(t("tAdj")(n));return}
+  if(b.hasAttribute("data-seeship")){document.getElementById("panel").scrollIntoView({behavior:"smooth",block:"start"});return}
+  if(b.hasAttribute("data-impapply")){applyImport();return}
+  if(b.hasAttribute("data-impcancel")){IMP.files=[];IMP.preview=null;IMP.error="";render();return}
+  if(b.dataset.veh){S.veh=b.dataset.veh;render();return}
+  if(b.dataset.mode){S.mode=b.dataset.mode;render();return}
+  if(b.dataset.act){act(b.dataset.act);return}
+  if(b.id==="reviewBtn"){openReview();return}
+  if(b.id==="confirmBtn"){confirmOrder();return}
+  if(b.hasAttribute("data-close-ov")){document.getElementById("overlay").hidden=true;return}
+  if(b.hasAttribute("data-goexp")){document.getElementById("overlay").hidden=true;S.area="admin";S.view="exp";render();window.scrollTo(0,0);return}
+  if(b.hasAttribute("data-gomine")){document.getElementById("overlay").hidden=true;S.view="myorders";S.qty={};render();window.scrollTo(0,0);return}
+  if(b.hasAttribute("data-neworder")){document.getElementById("overlay").hidden=true;S.qty={};render();return}
+  if(b.dataset.sel){S.sel=b.dataset.sel;S.csvFor=null;render();return}
+  if(b.hasAttribute("data-approve")){const o=S.orders.find(x=>x.id===S.sel);o.status="aprovado";o.approved=nowStamp();o.approvedMs=Date.now();o.audit.push({at:nowStamp(),who:"Lucas (Exportação)",what:"Pedido aprovado"});render();toast(`Pedido ${o.id} aprovado`);return}
+  if(b.hasAttribute("data-csv")){const o=S.orders.find(x=>x.id===S.sel);S.csvFor=o.id;if(o.status!=="sap"){o.status="sap";o.sapAt=nowStamp();o.audit.push({at:nowStamp(),who:"Lucas (Exportação)",what:"Arquivo de importação para o SAP gerado"})}render();toast("Arquivo para o SAP gerado");return}
+  if(b.hasAttribute("data-download")){const o=S.orders.find(x=>x.id===S.sel);const txt=document.getElementById("csvBox").textContent;const url=URL.createObjectURL(new Blob(["\ufeff"+txt],{type:"text/csv;charset=utf-8"}));const a=document.createElement("a");a.href=url;a.download=o.id+".csv";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast("CSV baixado");return}
+  if(b.hasAttribute("data-copy")){const txt=document.getElementById("csvBox").textContent;try{navigator.clipboard.writeText(txt).then(()=>{b.textContent="Copiado";toast("CSV copiado")}).catch(selectPre)}catch(_){selectPre()}return}
+});
+function selectPre(){const r=document.createRange();r.selectNodeContents(document.getElementById("csvBox"));const s=getSelection();s.removeAllRanges();s.addRange(r)}
+document.getElementById("overlay").addEventListener("click",e=>{if(e.target.id==="overlay")e.currentTarget.hidden=true});
+document.addEventListener("input",e=>{
+  if(e.target.id==="search"){S.q=e.target.value;const pos=e.target.selectionStart;render();const s=document.getElementById("search");s.focus();s.setSelectionRange(pos,pos)}
+});
+document.addEventListener("dragover",e=>{const d=e.target.closest&&e.target.closest("#drop");if(d){e.preventDefault();d.classList.add("over")}});
+document.addEventListener("dragleave",e=>{const d=e.target.closest&&e.target.closest("#drop");if(d)d.classList.remove("over")});
+document.addEventListener("drop",e=>{const d=e.target.closest&&e.target.closest("#drop");if(d){e.preventDefault();readFiles([...e.dataTransfer.files])}});
+document.addEventListener("change",e=>{
+  if(e.target.id==="sapFiles"){readFiles([...e.target.files]);return}
+  if(e.target.id==="clientSel"){S.client=e.target.value;S.lang=CLIENTS[S.client].demo?"es":S.lang;render();return}
+  if(e.target.id==="mixed"){S.mixed=e.target.checked;render();return}
+  if(e.target.dataset.q){const c=e.target.dataset.q;const p=BY[c];setQty(c,parseNum(e.target.value)/UF[unitOf(c)](p));render();return}
+  if(e.target.dataset.edit){const o=S.orders.find(x=>x.id===S.sel);const code=e.target.dataset.edit;const nv=Math.max(0,parseInt(e.target.value.replace(/\D/g,""),10)||0);const old=o.qty[code]||0;
+    if(nv!==old){o.qty[code]=nv;if(!nv)delete o.qty[code];o.audit.push({at:nowStamp(),who:"Lucas (Exportação)",what:`Alterou ${code} (${BY[code].pt}) de ${fmtPT(old,0)} para ${fmtPT(nv,0)} cx`});render();toast("Alteração registrada na auditoria");return}render();return}
+});
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.dataset&&(e.target.dataset.q||e.target.dataset.edit))e.target.blur();if(e.key==="Escape")document.getElementById("overlay").hidden=true});
+render();
+</script>
+</body>
+</html>
