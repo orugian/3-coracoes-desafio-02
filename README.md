@@ -68,7 +68,7 @@ O item extra pedido no desafio, *"importar o restante dos produtos e exportar o 
 * Sugestões: fechar pallet, completar o veículo, reduzir excesso
 * **Recomendação de veículo**: compara carreta, contêiner 40' e 20' com a ocupação de cada um e marca o mais bem aproveitado
 * **Divisão em embarques**: quando o pedido não cabe em um veículo, o sistema propõe a divisão (ex.: carreta 100% + contêiner 20' 20%)
-* **Importar pedido do Excel**: colar linhas ou enviar a planilha que o distribuidor já usa; reconhece código 3C, EAN ou DUN e quantidade em caixas, unidades ou quilos, com prévia antes de aplicar
+* **Importar pedido do Excel**: colar linhas ou enviar a planilha que o distribuidor já usa; reconhece código 3C, EAN ou DUN e quantidade em caixas, unidades ou quilos, com prévia antes de aplicar. Lê o cabeçalho da planilha (código, caixas ou quantidade, unidade) e escolhe a aba certa: enviando a própria `ORDEN BASIS TESTE.xlsm`, o pedido teste entra sozinho (aba ORDEM, coluna CAIXAS)
 * **Repetir pedido** a partir de Meus pedidos
 * Rascunho salvo automaticamente
 * Revisão com a lista exata do que impede a confirmação, prazo mínimo de carregamento e proteção contra envio duplicado
