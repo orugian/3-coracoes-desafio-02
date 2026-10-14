@@ -158,7 +158,7 @@ Garante que o servidor e o navegador dão o mesmo resultado enquanto a UI usar o
 - `o.vsnap` (capacidade do veículo congelada na aprovação) equivale à versão gravada, imutável; a paridade não passa `vsnap`.
 - Veículo desconhecido cai em `bigVeh()`; no servidor, veículo fora do contrato é 422.
 
-A fixture é gerada por `npm run fixtures:piloto`, que lê o `index.html` do commit indicado (padrão: `f89cef4`; `PILOTO_COMMIT` troca) e grava o commit de origem, `P` (com `cxPal = lastro × alt` e `m3 = dm3 ÷ 1000`, como o piloto faz), `VEH`, `CLIENTS` e `RULES`. Não editar à mão.
+A fixture é gerada por `npm run fixtures:piloto`, que lê o `index.html` do commit indicado (padrão: `f89cef4`; `PILOTO_COMMIT` troca) e grava o commit de origem, `P` (com `cxPal = lastro × alt` e `m3 = dm3 ÷ 1000`, como o piloto faz), `VEH`, `CLIENTS` e `RULES`. Não editar à mão. Desde a S7, os dados saíram do `index.html` para o `demo-data.js`: o padrão continua `f89cef4`, e um `PILOTO_COMMIT` posterior à S7 não tem os blocos que o extrator procura (falha com "bloco não encontrado").
 
 ## Motor no navegador (depois do corte)
 
