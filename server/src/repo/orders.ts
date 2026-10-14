@@ -69,6 +69,19 @@ export async function loadOrder(q: Queryable, id: string): Promise<OrderData | n
   return (await loadOrders(q, { id }))[0] ?? null;
 }
 
+// Primeira leitura de toda ação de escrita sobre um pedido (02, "Porta Db"): no pg, a segunda ação espera aqui e,
+// quando segue, relê o estado e a versão atual já gravados pela primeira. null = pedido inexistente.
+export async function lockOrder(q: Queryable, id: string): Promise<{ status: OrderStatus; currentVersion: number } | null> {
+  const { rows: [r] } = await q.query<{ status: OrderStatus; current_version: number }>(
+    'select status, current_version from sales_order where id = $1 for update', [id]);
+  return r ? { status: r.status, currentVersion: Number(r.current_version) } : null;
+}
+
+export async function currentVersionOf(q: Queryable, id: string): Promise<number | null> {
+  const { rows: [r] } = await q.query<{ current_version: number }>('select current_version from sales_order where id = $1', [id]);
+  return r ? Number(r.current_version) : null;
+}
+
 export async function findByIdempotencyKey(q: Queryable, customerCode: string, key: string): Promise<{ id: string; hash: string | null } | null> {
   const { rows: [r] } = await q.query<{ id: string; idempotency_hash: string | null }>(
     'select id, idempotency_hash from sales_order where customer_code = $1 and idempotency_key = $2', [customerCode, key]);

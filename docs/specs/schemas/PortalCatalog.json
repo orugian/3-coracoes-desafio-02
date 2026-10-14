@@ -1,0 +1,332 @@
+{
+  "title": "PortalCatalog",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "engineVersion": {
+      "type": "number",
+      "const": 1
+    },
+    "customer": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "slug": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "destinationLabel": {
+          "type": "string"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "incoterm": {
+          "type": "string"
+        },
+        "paymentCode": {
+          "type": "string"
+        },
+        "paymentTerms": {
+          "type": "string"
+        },
+        "priceList": {
+          "type": "string"
+        },
+        "plant": {
+          "type": "string"
+        },
+        "plantName": {
+          "type": "string"
+        },
+        "branch": {
+          "type": "string"
+        },
+        "contactName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "language": {
+          "type": "string",
+          "enum": [
+            "pt",
+            "es",
+            "en"
+          ]
+        },
+        "mixedPallet": {
+          "type": "boolean"
+        },
+        "restrictedMaterials": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "code",
+        "slug",
+        "name",
+        "destinationLabel",
+        "currency",
+        "incoterm",
+        "paymentCode",
+        "paymentTerms",
+        "priceList",
+        "plant",
+        "plantName",
+        "branch",
+        "contactName",
+        "language",
+        "mixedPallet",
+        "restrictedMaterials"
+      ],
+      "additionalProperties": false
+    },
+    "rules": {
+      "type": "object",
+      "properties": {
+        "fullAt": {
+          "type": "number"
+        },
+        "leadDays": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "fullAt",
+        "leadDays"
+      ],
+      "additionalProperties": false
+    },
+    "vehicles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": [
+              "carreta_padrao",
+              "container_40",
+              "container_20"
+            ]
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "modal": {
+            "type": "string",
+            "enum": [
+              "rodoviario",
+              "maritimo"
+            ]
+          },
+          "volumeM3": {
+            "type": "number"
+          },
+          "payloadKg": {
+            "type": "number"
+          },
+          "palletPositions": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "assumptions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "displayName",
+          "modal",
+          "volumeM3",
+          "payloadKg",
+          "palletPositions",
+          "assumptions"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "material": {
+            "type": "string"
+          },
+          "family": {
+            "type": "string"
+          },
+          "brand": {
+            "type": "string"
+          },
+          "sapDescription": {
+            "type": "string"
+          },
+          "names": {
+            "type": "object",
+            "properties": {
+              "pt": {
+                "type": "string"
+              },
+              "es": {
+                "type": "string"
+              },
+              "en": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "pt",
+              "es",
+              "en"
+            ],
+            "additionalProperties": false
+          },
+          "unitsLabel": {
+            "type": "string"
+          },
+          "unitsPerBox": {
+            "type": "number"
+          },
+          "netKgPerBox": {
+            "type": "number"
+          },
+          "grossKgPerBox": {
+            "type": "number"
+          },
+          "volumeDm3": {
+            "type": "number"
+          },
+          "dimsMm": {
+            "type": "object",
+            "properties": {
+              "length": {
+                "type": "number"
+              },
+              "width": {
+                "type": "number"
+              },
+              "height": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "length",
+              "width",
+              "height"
+            ],
+            "additionalProperties": false
+          },
+          "layerBoxes": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "layers": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "boxesPerPallet": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "minLotPallets": {
+            "type": "number"
+          },
+          "price": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "ean": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "dun": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ncm": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "productLine": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "shelfLifeDays": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "material",
+          "family",
+          "brand",
+          "sapDescription",
+          "names",
+          "unitsLabel",
+          "unitsPerBox",
+          "netKgPerBox",
+          "grossKgPerBox",
+          "volumeDm3",
+          "dimsMm",
+          "layerBoxes",
+          "layers",
+          "boxesPerPallet",
+          "minLotPallets",
+          "price",
+          "ean",
+          "dun",
+          "ncm",
+          "productLine",
+          "shelfLifeDays"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "engineVersion",
+    "customer",
+    "rules",
+    "vehicles",
+    "items"
+  ],
+  "additionalProperties": false
+}

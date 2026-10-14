@@ -1,0 +1,152 @@
+{
+  "title": "BackofficeCustomers",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "customers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "destinationLabel": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "incoterm": {
+            "type": "string"
+          },
+          "paymentCode": {
+            "type": "string"
+          },
+          "paymentTerms": {
+            "type": "string"
+          },
+          "priceList": {
+            "type": "string"
+          },
+          "plant": {
+            "type": "string"
+          },
+          "plantName": {
+            "type": "string"
+          },
+          "branch": {
+            "type": "string"
+          },
+          "contactName": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "pt",
+              "es",
+              "en"
+            ]
+          },
+          "mixedPallet": {
+            "type": "boolean"
+          },
+          "country": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "autoApprove": {
+            "type": "boolean"
+          },
+          "isDemo": {
+            "type": "boolean"
+          },
+          "restrictedMaterials": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "code",
+          "slug",
+          "name",
+          "destinationLabel",
+          "currency",
+          "incoterm",
+          "paymentCode",
+          "paymentTerms",
+          "priceList",
+          "plant",
+          "plantName",
+          "branch",
+          "contactName",
+          "language",
+          "mixedPallet",
+          "country",
+          "autoApprove",
+          "isDemo",
+          "restrictedMaterials"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "ruleChanges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "at": {
+            "type": "string"
+          },
+          "customerCode": {
+            "type": "string"
+          },
+          "field": {
+            "type": "string",
+            "enum": [
+              "mixedPallet",
+              "autoApprove"
+            ]
+          },
+          "oldValue": {
+            "type": "boolean"
+          },
+          "newValue": {
+            "type": "boolean"
+          },
+          "actorLabel": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "at",
+          "customerCode",
+          "field",
+          "oldValue",
+          "newValue",
+          "actorLabel"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "customers",
+    "ruleChanges"
+  ],
+  "additionalProperties": false
+}

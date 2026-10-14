@@ -1,5 +1,5 @@
 // Clientes: visão interna e regras comerciais (docs/specs/04-api.md, CustomerInternal e PUT .../rules; D5).
-import type { CustomerInternal, RulesBody } from '#contracts';
+import type { CustomerInternal, RuleChange, RulesBody } from '#contracts';
 import type { Queryable } from '../ports/db.ts';
 import { restrictedMaterials } from './catalog.ts';
 import { CUSTOMER_PROFILE_COLUMNS, toCustomerProfile } from './users.ts';
@@ -44,4 +44,18 @@ export async function lastAutoApproveChange(q: Queryable, code: string): Promise
   const { rows: [r] } = await q.query<{ id: number }>(
     `select id from customer_rule_change where customer_code = $1 and field = 'auto_approve' and new_value order by id desc limit 1`, [code]);
   return r ? Number(r.id) : null;
+}
+
+const RULE_FIELD = { mixed_pallet: 'mixedPallet', auto_approve: 'autoApprove' } as const;
+
+// Histórico das regras para o backoffice, mais recentes primeiro (nomes de campo da API, como no PUT).
+export async function ruleChanges(q: Queryable, limit = 50): Promise<RuleChange[]> {
+  const { rows } = await q.query<{ at: Date; customer_code: string; field: keyof typeof RULE_FIELD; old_value: boolean; new_value: boolean; actor_label: string }>(
+    `select r.at, r.customer_code, r.field, r.old_value, r.new_value, u.display_name as actor_label
+       from customer_rule_change r join app_user u on u.id = r.actor_id
+      order by r.id desc limit $1`,
+    [limit]);
+  return rows.map((r) => ({
+    at: new Date(r.at).toISOString(), customerCode: r.customer_code, field: RULE_FIELD[r.field], oldValue: r.old_value, newValue: r.new_value, actorLabel: r.actor_label,
+  }));
 }

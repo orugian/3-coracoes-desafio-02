@@ -3,7 +3,7 @@
 import type { EngineInput, EngineItem, LoadMode } from '#engine';
 import type { Queryable } from '../ports/db.ts';
 
-const EXPORT_CHANNEL = '13'; // Exportação, o único canal dos exports do SAP
+export const EXPORT_CHANNEL = '13'; // Exportação, o único canal dos exports do SAP
 export const FULL_AT = 0.9;
 
 export interface ResolvedPrice { priceCents: number | null; priceId: number | null; batchId: number | null }

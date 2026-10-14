@@ -3,6 +3,7 @@
 import { createHash } from 'node:crypto';
 import { calculate, type EngineResult } from '#engine';
 import type { ErrorDetail, LineInput } from '#contracts';
+import { MAX_LINES } from '#contracts';
 import { canonicalJson, orderContentHash } from '../domain/content-hash.ts';
 import { saoPauloDate } from '../domain/time.ts';
 import { ApiError } from '../http/errors.ts';
@@ -63,9 +64,14 @@ export async function checkKnownMaterials(q: Queryable, customerCode: string, li
   if (unknown.length) throw new ApiError('VALIDATION_FAILED', { details: unknown.map((l) => ({ code: 'UNKNOWN_MATERIAL', material: l.material })) });
 }
 
-export async function computeVersion(q: Queryable, customerCode: string, header: HeaderInput, lines: Line[], now: Date): Promise<ComputedVersion> {
+// options.mixedPallet: recálculo de uma versão existente (aprovação), com o pallet misto congelado nela; sem ele, vale o
+// do cliente agora (envio e nova versão).
+export async function computeVersion(
+  q: Queryable, customerCode: string, header: HeaderInput, lines: Line[], now: Date, options: { mixedPallet?: boolean } = {},
+): Promise<ComputedVersion> {
   const priceDate = saoPauloDate(now);
   const built = await buildEngineInput(q, customerCode, { vehicleId: header.vehicleId, loadMode: header.loadMode }, lines, priceDate);
+  if (options.mixedPallet !== undefined) built.input.mixedPallet = options.mixedPallet;
   // Material existente e ativo no centro do cliente (o catálogo efetivo que o motor recebe).
   const known = new Set(built.input.items.map((i) => i.material));
   const unknown = lines.filter((l) => !known.has(l.material));
@@ -91,3 +97,36 @@ export function requestHash(customerCode: string, header: HeaderInput, lines: Li
   const canonical = canonicalJson({ customerCode, header, lines: [...lines].sort(byMaterial) });
   return createHash('sha256').update(canonical, 'utf8').digest('hex');
 }
+
+export interface LineChange { material: string; old: number; new: number }
+
+// Nova versão do backoffice: aplica { material, boxes } sobre as linhas atuais (0 remove; material novo entra com old 0).
+// Só as mudanças efetivas entram em changes; nenhuma → 422 NO_CHANGES; nenhuma linha depois → 422.
+export function applyChanges(current: Line[], requested: { material: string; boxes: number }[]): { lines: Line[]; changes: LineChange[] } {
+  const seen = new Set<string>();
+  const duplicated = requested.filter((c) => (seen.has(c.material) ? true : (seen.add(c.material), false)));
+  if (duplicated.length) {
+    throw new ApiError('VALIDATION_FAILED', { details: duplicated.map((c) => ({ code: 'DUPLICATE_MATERIAL', material: c.material })) });
+  }
+  const next = new Map(current.map((l) => [l.material, l.boxes]));
+  const changes: LineChange[] = [];
+  for (const c of [...requested].sort(byMaterial)) {
+    const old = next.get(c.material) ?? 0;
+    if (old === c.boxes) continue;
+    changes.push({ material: c.material, old, new: c.boxes });
+    if (c.boxes === 0) next.delete(c.material);
+    else next.set(c.material, c.boxes);
+  }
+  if (changes.length === 0) throw new ApiError('NO_CHANGES');
+  const lines = [...next].map(([material, boxes]) => ({ material, boxes })).sort(byMaterial);
+  if (lines.length === 0) throw new ApiError('VALIDATION_FAILED', { message: 'O pedido precisa de pelo menos uma linha.', details: [{ code: 'NO_LINES' }] });
+  if (lines.length > MAX_LINES) throw new ApiError('VALIDATION_FAILED', { details: [{ code: 'TOO_MANY_LINES', params: { max: MAX_LINES } }] });
+  return { lines, changes };
+}
+
+// Resultado gravado sem os inputs (data do preço etc.), para comparar com um recálculo.
+export const storedResult = (r: EngineResult & { inputs?: unknown }): EngineResult => {
+  const { inputs: _inputs, ...result } = r;
+  return result;
+};
+export const sameResult = (a: EngineResult, b: EngineResult): boolean => canonicalJson(a) === canonicalJson(b);

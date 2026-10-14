@@ -1,0 +1,70 @@
+{
+  "title": "ApiErrorBody",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "error": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "enum": [
+            "UNAUTHENTICATED",
+            "LOGIN_FAILED",
+            "FORBIDDEN",
+            "SELF_APPROVAL_FORBIDDEN",
+            "NOT_FOUND",
+            "INVALID_TRANSITION",
+            "VERSION_CONFLICT",
+            "IDEMPOTENCY_KEY_REUSED",
+            "ORDER_BLOCKED",
+            "LOADING_DATE_TOO_SOON",
+            "NO_CHANGES",
+            "VALIDATION_FAILED",
+            "IDEMPOTENCY_KEY_REQUIRED",
+            "UNSUPPORTED_MEDIA_TYPE",
+            "PAYLOAD_TOO_LARGE",
+            "INTERNAL"
+          ]
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "material": {
+                "type": "string"
+              },
+              "params": {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {}
+              }
+            },
+            "required": [
+              "code"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "code",
+        "message"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "error"
+  ],
+  "additionalProperties": false
+}

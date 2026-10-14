@@ -1,6 +1,6 @@
 // Itens do catálogo efetivo e veículos (docs/specs/02-banco.md, "Catálogo efetivo"; 04, CatalogItem e Vehicle).
 // Base comum do portal (com o preço da lista do cliente) e do backoffice (com preços, SAP, overrides e OB).
-import type { CatalogItem, Vehicle } from '#contracts';
+import type { CatalogItem, ProductInternal, Vehicle } from '#contracts';
 import type { Queryable } from '../ports/db.ts';
 
 export type CatalogItemBase = Omit<CatalogItem, 'price'>;
@@ -84,4 +84,72 @@ export async function vehicles(q: Queryable): Promise<Vehicle[]> {
       .filter(([, source]) => source !== PRIMARY_SOURCE)
       .map(([field, source]) => `${FIELD_LABEL[field] ?? field}: ${source}`),
   }));
+}
+
+// ---- backoffice: produto com origem do preço, SAP × adotado, overrides e valores da OB (04, ProductInternal)
+
+// No corte há um centro (LONT → 2612). Com mais de um, o contrato precisa ganhar o centro: falha alto em vez de misturar.
+export async function singlePlant(q: Queryable): Promise<string> {
+  const { rows } = await q.query<{ plant: string }>('select distinct plant from branch_plant order by plant');
+  if (rows.length !== 1) throw new Error(`backoffice/products supõe um centro só; há ${rows.length}`);
+  return rows[0].plant;
+}
+
+const OVERRIDE_FIELD = { gross_kg: 'grossKgPerBox', layer_boxes: 'layerBoxes', layers: 'layers' } as const;
+const num = (v: number | string | null) => (v === null ? null : Number(v));
+
+export async function productsInternal(q: Queryable, exportChannel: string): Promise<ProductInternal[]> {
+  const plant = await singlePlant(q);
+  const base = await catalogItems(q, plant);
+  const { rows: prices } = await q.query<{
+    material_code: string; price_list: string; price: string; price_raw: string | null; origin: ProductInternal['prices'][number]['origin']; valid_from: string; valid_to: string;
+  }>(
+    `select material_code, price_list, price::text, price_raw::text, origin, valid_from, valid_to
+       from price
+      where channel = $1 and plant = $2 and uom = 'CX' and customer_code is null
+      order by material_code, price_list, valid_from, id`,
+    [exportChannel, plant]);
+  const { rows: sap } = await q.query<{ material_code: string; layer_boxes: number; layers: number; min_lot_source: ProductInternal['minLotSource']; gross_kg: number | null }>(
+    `select p.material_code, p.layer_boxes, p.layers, p.min_lot_source, cx.gross_kg
+       from palletization p join material_uom cx on cx.material_code = p.material_code and cx.uom = 'CX'
+      where p.plant = $1`,
+    [plant]);
+  const { rows: overrides } = await q.query<{
+    material_code: string; field: keyof typeof OVERRIDE_FIELD; sap_value: number; adopted_value: number; justification: string; decision_ref: string;
+    proposed_by: string; confirmed_by: string; confirmed_at: Date;
+  }>(
+    `select o.material_code, o.field, o.sap_value, o.adopted_value, o.justification, o.decision_ref,
+            pu.display_name as proposed_by, cu.display_name as confirmed_by, o.confirmed_at
+       from master_override o
+       join app_user pu on pu.id = o.proposed_by
+       join app_user cu on cu.id = o.confirmed_by
+      where o.status = 'ACTIVE' and ((o.entity = 'material_uom' and o.key_part = 'CX') or (o.entity = 'palletization' and o.key_part = $1))
+      order by o.id`,
+    [plant]);
+  const { rows: ob } = await q.query<{
+    material_code: string; boxes_per_pallet_tab: number | null; boxes_per_pallet_paletizacao: number | null; price_tab: number | null;
+    min_lot_lookup: number | null; gross_kg_per_box_line: number | null;
+  }>('select * from material_ob_reference');
+
+  return base.map((item) => {
+    const s = sap.find((r) => r.material_code === item.material);
+    if (!s) throw new Error(`paletização ausente: ${item.material} no centro ${plant}`);
+    const o = ob.find((r) => r.material_code === item.material);
+    return {
+      ...item,
+      prices: prices.filter((p) => p.material_code === item.material).map((p) => ({
+        priceList: p.price_list, price: Number(p.price), priceRaw: num(p.price_raw), origin: p.origin, validFrom: p.valid_from, validTo: p.valid_to,
+      })),
+      sap: { layerBoxes: Number(s.layer_boxes), layers: Number(s.layers), grossKgPerBox: num(s.gross_kg) },
+      overrides: overrides.filter((r) => r.material_code === item.material).map((r) => ({
+        field: OVERRIDE_FIELD[r.field], sapValue: Number(r.sap_value), adoptedValue: Number(r.adopted_value), justification: r.justification,
+        decisionRef: r.decision_ref, proposedBy: r.proposed_by, confirmedBy: r.confirmed_by, confirmedAt: new Date(r.confirmed_at).toISOString(),
+      })),
+      ob: {
+        boxesPerPallet: num(o?.boxes_per_pallet_tab ?? null), palletizationBoxes: num(o?.boxes_per_pallet_paletizacao ?? null),
+        price: num(o?.price_tab ?? null), minLot: num(o?.min_lot_lookup ?? null), grossKgPerBox: num(o?.gross_kg_per_box_line ?? null),
+      },
+      minLotSource: s.min_lot_source,
+    };
+  });
 }
