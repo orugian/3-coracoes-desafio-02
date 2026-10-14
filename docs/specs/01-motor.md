@@ -85,11 +85,11 @@ export interface EngineResult {
 export function calculate(input: EngineInput): EngineResult;
 ```
 
-Material das linhas que não existe em `items` lança `EngineInputError`; a API valida antes de chamar.
+Material das linhas que não existe em `items`, material repetido nas linhas e quantidade que não seja número finito lançam `EngineInputError`; a API valida antes de chamar.
 
 ## Regras (iguais ao piloto)
 
-`EPS = 1e-9`. Para cada item de `items`, na ordem, com quantidade `raw > EPS`:
+`EPS = 1e-9`. Para cada item de `items`, na ordem, com quantidade `raw = max(0, caixas) ≥ EPS` (o piloto ignora a linha com `raw < EPS`, inclusive zero e negativo):
 
 1. `inteiro = |raw − round(raw)| < 1e-6`; `boxes = inteiro ? round(raw) : ceil(raw)`. Se não for inteiro: `QTY_NOT_MULTIPLE` (BLOCK, `params: { lo: floor(raw), hi: ceil(raw) }`).
 2. `boxesPerPallet = layerBoxes × layers`; `pallets = boxes ÷ boxesPerPallet`; `fullPallets = floor(pallets + EPS)`; há fração se `pallets − fullPallets > EPS`; `boxesToNextPallet = ceil(boxesPerPallet × (fullPallets + 1) − boxes − EPS)` se houver fração, senão 0.

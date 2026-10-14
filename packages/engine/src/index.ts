@@ -1,2 +1,3 @@
-// Motor de cálculo, engine_version 1 (docs/specs/01-motor.md). A S1 acrescenta calculate e os tipos.
-export const ENGINE_VERSION = 1;
+// Motor de cálculo, engine_version 1 (docs/specs/01-motor.md). Sem dependências e sem I/O; no servidor, #engine.
+export { calculate, ENGINE_VERSION, EngineInputError } from './calculate.ts';
+export type * from './types.ts';
