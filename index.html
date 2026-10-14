@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="3C Conecta: plataforma de pedidos de exportação da 3corações, com plano de carga em 3D, importação de pedidos por Excel e arquivo pronto para o SAP.">
+<meta name="description" content="3C Conecta: plataforma de pedidos de exportação da 3corações, com plano de carga em 3D, importação de pedidos por Excel assistente Xica e arquivo pronto para upload no Sirius/SAP.">
 <title>3C Conecta</title>
 <style>body{margin:0}img{max-width:100%}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -861,6 +861,169 @@ footer > div{justify-content:flex-start;padding-right:230px}
 .p-head .btn-soft{white-space:nowrap}
 @media (max-width:640px){.home2 .p-head,.card > .p-head{flex-wrap:wrap;row-gap:10px}}
 @media (max-width:640px){footer > div{padding-right:72px}}
+.csv-acts{display:flex;gap:8px;flex-wrap:wrap}
+
+/* kit de tabela */
+.tb-tools{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.tb-tools .search{flex:1 1 240px;max-width:380px;height:38px}
+.tb-tools.col{flex-direction:column;align-items:stretch}
+.tb-tools.col .search{max-width:none;flex:none}
+.tb-f{display:flex;flex-wrap:wrap;gap:8px}
+.tb-f select,.tb-sel select,.pager select{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:7px 10px;font-weight:600;color:var(--ink);font-size:13px;max-width:100%}
+.tb-tools.col .tb-f select{flex:1 1 0;min-width:0}
+.tb-sel{display:flex;align-items:center;gap:8px}
+.tb-note{margin-left:auto}
+.pager{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;padding:10px 16px;border-top:1px solid var(--line)}
+.pg-ctl{display:flex;align-items:center;gap:8px}
+.pg-ctl label{display:flex;align-items:center;gap:6px}
+.pg-b{border:1px solid var(--line);background:var(--surface);color:var(--ink);width:30px;height:30px;border-radius:6px;display:grid;place-items:center;font-size:16px;line-height:1}
+.pg-b:disabled{opacity:.4;cursor:default}
+.pg-b svg{transition:transform .15s}
+.pg-b.rot svg{transform:rotate(90deg)}
+.pg-n{font-size:12.5px;color:var(--muted);min-width:44px;text-align:center}
+.pc{display:flex;gap:10px;align-items:center;min-width:0}
+.pl-info{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;padding:12px 16px 4px}
+.rowlink{border:0;background:transparent;padding:0;text-align:left;font-weight:600;color:var(--ink);display:grid;gap:2px;cursor:pointer}
+.rowlink:hover{color:var(--accent-text)}
+.rowlink .code{font-weight:400}
+/* clientes */
+.cl-wrap{display:grid;grid-template-columns:minmax(280px,360px) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:980px){.cl-wrap{grid-template-columns:minmax(0,1fr)}}
+.cl-list{padding:0;overflow:hidden}
+@media (min-width:981px){.cl-list{position:sticky;top:16px}}
+.cl-rows{display:grid;gap:2px;padding:6px}
+.cl-row{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:12px;align-items:center;text-align:left;border:0;background:transparent;border-radius:8px;padding:10px 12px;width:100%}
+.cl-row:hover{background:var(--surface-2)}
+.cl-row[aria-pressed="true"]{background:var(--sel);box-shadow:inset 3px 0 0 var(--red)}
+.cl-av{width:40px;height:40px;border-radius:10px;background:var(--red-soft);color:var(--accent-text);display:grid;place-items:center;font-weight:700;font-size:14px;flex:none}
+.cl-av.lg{width:52px;height:52px;font-size:17px;border-radius:12px}
+.cl-t{min-width:0}.cl-t b{display:block;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cl-t small{display:block;font-size:12px;color:var(--muted)}
+.cl-n small{font-size:12px;color:var(--muted);white-space:nowrap}
+.cl-det{display:grid;gap:0}
+.cd-h{display:flex;align-items:center;gap:14px;padding-bottom:18px}
+.cd-h h3{font-size:21px}
+.cd-sec{border-top:1px solid var(--line);padding:16px 0}
+.cd-sec:last-child{padding-bottom:0}
+.cd-sec .sec-title{margin:0 0 10px}
+.cd-sec .sec-title + .prow{border-top:0;padding-top:4px}
+.cd-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 18px}
+.cd-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px 18px;margin-bottom:12px}
+.cd-grid > div,.cd-stats > div{display:grid;gap:2px;min-width:0}
+.cd-grid b,.cd-stats b{font-size:14px;font-weight:600}
+@media (max-width:640px){.cd-grid,.cd-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.cd-h{flex-wrap:wrap}}
+.cd-st{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.cd-chips{display:flex;flex-wrap:wrap;gap:6px}
+.cd-ord{display:grid;gap:6px}
+.cd-o{display:grid;grid-template-columns:auto minmax(0,1fr) auto 16px;gap:12px;align-items:center;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:10px 12px;width:100%;color:var(--ink)}
+.cd-o:hover{border-color:var(--sel-line);background:var(--sel)}
+.cd-o .label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cd-o svg{color:var(--faint)}
+/* catálogo */
+table.cat2 td.ph{width:52px}
+table.cat2 td.ph img{width:40px;height:40px;object-fit:contain;border-radius:6px;background:var(--surface-2);display:block}
+table.cat2 tr.open > td{background:var(--sel)}
+tr.cat-x > td{background:var(--surface-2);padding:0!important}
+.ficha{display:grid;grid-template-columns:140px minmax(0,1fr);gap:20px;padding:18px 20px}
+@media (max-width:760px){.ficha{grid-template-columns:minmax(0,1fr)}}
+.fi-ph{display:grid;justify-items:center;align-content:start;gap:8px}
+.fi-ph img{width:120px;height:120px;object-fit:contain;background:var(--surface);border-radius:10px;padding:6px}
+.fi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 18px}
+@media (max-width:1100px){.fi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.fi-grid > div{display:grid;gap:2px;min-width:0}
+.fi-grid b{font-size:13.5px;font-weight:600;overflow-wrap:anywhere}
+.fi-iss{grid-column:1 / -1;display:grid;gap:6px;background:var(--warn-soft);border-radius:8px;padding:12px 14px;font-size:13px;color:var(--ink)}
+.fi-iss b{color:var(--warn)}
+.fi-iss .link{justify-self:start}
+.qa-intro{display:flex;gap:14px;align-items:flex-start}
+.qa-intro p{margin:4px 0 0;font-size:13.5px;color:var(--muted);line-height:1.5;max-width:110ch}
+.qcats{display:flex;flex-wrap:wrap;gap:6px}
+.qcats button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;color:var(--muted)}
+.qcats button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+.qcats .n{margin-left:6px;opacity:.75}
+.qlist{columns:2;column-gap:14px}
+@media (max-width:1180px){.qlist{columns:1}}
+.qitem{padding:16px 18px;display:grid;gap:10px;break-inside:avoid;margin-bottom:14px}
+.qi-h{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.qitem ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.qitem li{display:grid;grid-template-columns:112px minmax(0,1fr);gap:12px;border-top:1px solid var(--line);padding-top:10px}
+@media (max-width:640px){.qitem li{grid-template-columns:minmax(0,1fr)}}
+.qitem li p{margin:0;font-size:13.5px;line-height:1.45}
+.qi-m{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;margin-top:6px}
+.qtag{align-self:start;justify-self:start;font-size:11.5px;font-weight:700;border-radius:6px;padding:3px 8px;background:var(--surface-2);color:var(--ink)}
+.qtag.kg{background:#FDECEA;color:#B42318}.qtag.pal{background:#FFF4DE;color:#A35F00}.qtag.price{background:#E8F0FE;color:#1D4ED8}.qtag.lot{background:#EEE8FD;color:#6D28D9}
+:root[data-theme="dark"] .qtag.kg{background:#3A1F1C;color:#FF9A90}:root[data-theme="dark"] .qtag.pal{background:#3A2E14;color:#F5C26B}:root[data-theme="dark"] .qtag.price{background:#1C2840;color:#93B4F8}:root[data-theme="dark"] .qtag.lot{background:#2A2240;color:#C4B0FA}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .qtag.kg{background:#3A1F1C;color:#FF9A90}:root:not([data-theme="light"]) .qtag.pal{background:#3A2E14;color:#F5C26B}:root:not([data-theme="light"]) .qtag.price{background:#1C2840;color:#93B4F8}:root:not([data-theme="light"]) .qtag.lot{background:#2A2240;color:#C4B0FA}}
+.qa-raw{overflow:hidden}
+.qa-raw > summary{cursor:pointer;padding:16px 20px;font-weight:600;font-size:14px}
+.qa-raw[open] > summary{border-bottom:1px solid var(--line)}
+/* indicadores */
+.prow .switch,.prow .btn-soft{white-space:nowrap;flex:none}
+table.data td .pc,table.data td .rowlink{min-width:210px}
+@media (max-width:640px){.cd-h > div{flex:1 1 calc(100% - 66px)!important}.cd-h .btn-soft{margin-left:66px}}
+.kbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding:12px 14px}
+
+/* Pedidos: barra única, lista fixa e detalhe em seções */
+.xbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding:12px 14px}
+.xbar .search{flex:1 1 280px;max-width:420px;height:38px}
+.xbar .qtabs{flex-wrap:nowrap;overflow-x:auto}
+.xbar .qtabs button{white-space:nowrap}
+.xsort{display:flex;align-items:center;gap:8px;margin-left:auto}
+.xsort select{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:7px 10px;font-weight:600;color:var(--ink);font-size:13px}
+.xlist{padding:0;display:flex;flex-direction:column;overflow:hidden}
+.xl-h{display:flex;align-items:baseline;gap:6px;padding:14px 16px 10px;border-bottom:1px solid var(--line)}
+.xl-h b{font-size:14px}
+.xl-b{display:grid;gap:2px;padding:6px;overflow:auto}
+.xl-empty{display:grid;justify-items:center;text-align:center;gap:6px;padding:22px 12px 26px;font-size:13.5px}
+.orow .r2{font-size:13.5px}
+@media (min-width:921px){.xlist{position:sticky;top:16px;max-height:calc(100vh - 32px)}}
+.xdet{display:grid;gap:22px;grid-template-columns:minmax(0,1fr)}
+.xdet > * + *:not(.callout){border-top:1px solid var(--line);padding-top:20px}
+.xdet > .callout{margin-top:-6px}
+.xdet > .d-head{flex-wrap:nowrap}.xdet > .d-head > div:first-child{min-width:0}.xdet > .d-head .d-actions{flex-wrap:nowrap;flex:none}
+@media (max-width:760px){.xdet > .d-head{flex-wrap:wrap}}
+@media (min-width:1100px){.xdet > .d-head{position:sticky;top:0;z-index:6;background:var(--surface);margin:-20px -20px 0;padding:18px 20px 14px;border-radius:var(--r) var(--r) 0 0;border-bottom:1px solid var(--line)}
+  .xdet > .d-head + *{border-top:0;padding-top:0}}
+
+/* painel: tema no canto superior direito */
+main.wrap{position:relative}
+.adm-top{display:none}
+@media (min-width:1100px){body.is-admin .adm-top{display:block;position:absolute;top:26px;right:36px;z-index:6}}
+/* jornada em uma linha */
+.journey.j5{grid-template-columns:repeat(5,minmax(0,1fr))}
+@media (max-width:1560px){.journey.j5{grid-template-columns:repeat(5,minmax(0,1fr));row-gap:0}}
+@media (max-width:760px){.journey.j5{grid-template-columns:repeat(5,minmax(132px,1fr));overflow-x:auto;padding-bottom:6px}}
+/* menu lateral recolhível */
+.side{transition:width .18s ease,box-shadow .18s ease,padding .18s ease;overflow:hidden}
+.side-head{display:flex;align-items:center;gap:6px;margin:0 0 14px}
+.side-head .brand{margin:0 0 0 6px;flex:1;min-width:0}
+.s-tg{border:0;background:transparent;color:var(--admin-muted);width:32px;height:32px;border-radius:6px;display:none;place-items:center;flex:none}
+.s-tg:hover,.s-tg:focus-visible{background:var(--admin-seg);color:var(--admin-fg)}
+.s-tg svg{width:18px;height:18px}
+.side .s-close{display:grid}
+.side nav button{position:relative;white-space:nowrap}
+@media (min-width:1100px){
+  body.is-admin main.wrap,body.is-admin footer{transition:margin-left .18s ease}
+  body.is-admin.side-mini main.wrap,body.is-admin.side-mini footer{margin-left:68px}
+  body.side-mini .side{width:68px;padding-inline:10px}
+  body.side-mini .side .s-close{display:none}
+  body.side-mini .side .s-pin{display:grid}
+  body.side-mini .side:hover,body.side-mini .side.peek{width:252px;padding-inline:14px;box-shadow:12px 0 32px rgba(0,0,0,.28)}
+  body.side-mini .side:not(:hover):not(.peek) .s-pin{display:none}
+  body.side-mini .side:not(:hover):not(.peek) .s-open{display:grid}
+  body.side-mini .side:not(:hover):not(.peek) .side-head{flex-direction:column;gap:10px}
+  body.side-mini .side:not(:hover):not(.peek) .side-head .brand{margin:0;flex:none}
+  body.side-mini .side:not(:hover):not(.peek) .brand > div:not(.mark),
+  body.side-mini .side:not(:hover):not(.peek) .sub-brand,
+  body.side-mini .side:not(:hover):not(.peek) nav button span:not(.count),
+  body.side-mini .side:not(:hover):not(.peek) .me > div:not(.av),
+  body.side-mini .side:not(:hover):not(.peek) .me button{display:none}
+  body.side-mini .side:not(:hover):not(.peek) .navh{font-size:0;height:1px;background:var(--admin-seg);margin:12px 6px}
+  body.side-mini .side:not(:hover):not(.peek) nav button{justify-content:center;padding:11px 0}
+  body.side-mini .side:not(:hover):not(.peek) nav .count{position:absolute;top:3px;right:3px;margin:0;min-width:16px;height:16px;padding:0 4px;font-size:10px;line-height:16px}
+  body.side-mini .side:not(:hover):not(.peek) .me{padding:8px;justify-content:center;background:transparent}
+}
+
 /* Início v3: coluna da Xica + coluna de pedidos */
 .home-hero .hh-sum{margin:6px 0 0;color:var(--muted);font-size:14.5px}
 .home2{grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:20px;align-items:start}
@@ -914,6 +1077,7 @@ footer > div{justify-content:flex-start;padding-right:230px}
 <div id="toasts" class="toasts" aria-live="polite"></div>
 
 <main class="wrap">
+  <div id="admTop" class="adm-top"></div>
   <section id="v-entry" class="view"></section>
   <section id="v-home" class="view" hidden></section>
   <section id="v-dist" class="view" hidden></section>
@@ -1258,8 +1422,19 @@ const NI={
   portal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/></svg>'
 };
 const UPLOAD='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5"/><path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg>';
+const SIDEI={
+  open:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/><path d="M13 10l2 2-2 2"/></svg>',
+  close:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/><path d="M16 10l-2 2 2 2"/></svg>',
+  pin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 3h6l-1 6 3 3v2H7v-2l3-3z"/></svg>'};
+/* menu lateral: fixo (padrão) ou recolhido em ícones; recolhido, abre ao passar o mouse ou ao clicar em Mostrar menu */
+function sideSync(){const mini=S.area==="admin"&&!S.sidePin;document.body.classList.toggle("side-mini",mini);const sd=document.getElementById("side");if(sd)sd.classList.toggle("peek",mini&&!!S.sidePeek)}
+function sideSet(mode){
+  if(mode==="peek"){S.sidePeek=!S.sidePeek}
+  else{S.sidePin=mode==="pin";S.sidePeek=false;try{localStorage.setItem("3cc-side",S.sidePin?"pin":"mini")}catch(_){}}
+  sideSync();setTimeout(()=>window.dispatchEvent(new Event("resize")),220);
+}
 function sideHTML(){
-  const item=(v,lab,extra="")=>`<button data-view="${v}" aria-pressed="${S.view===v}">${NI[v]}<span>${lab}</span>${extra}</button>`;
+  const item=(v,lab,extra="")=>`<button data-view="${v}" aria-pressed="${S.view===v}" title="${lab}">${NI[v]}<span>${lab}</span>${extra}</button>`;
   if(S.area==="client"){
     const c=CLIENTS[S.client], mine=S.orders.filter(o=>o.client===S.client&&o.origin!=="Order Basis").length;
     return `<div class="brand">${MARK}<div><b>3C Conecta</b></div></div>
@@ -1272,7 +1447,10 @@ function sideHTML(){
     <div class="me"><div class="av">${c.contact[0]}</div><div style="min-width:0"><b style="font-size:13px">${c.contact}</b><small style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.name)}</small></div><button data-logout aria-label="${t("logout")}" title="${t("logout")}">${LOGOUT}</button></div>`;
   }
   const fila=S.orders.filter(o=>o.status==="analise").length;
-  return `<div class="brand">${MARK}<div><b>3C Conecta</b></div></div>
+  return `<div class="side-head"><div class="brand">${MARK}<div><b>3C Conecta</b></div></div>
+      <button class="s-tg s-open" data-side="peek" aria-label="Mostrar menu" title="Mostrar menu">${SIDEI.open}</button>
+      <button class="s-tg s-pin" data-side="pin" aria-label="Fixar menu" title="Fixar menu">${SIDEI.pin}</button>
+      <button class="s-tg s-close" data-side="mini" aria-label="Recolher menu" title="Recolher menu">${SIDEI.close}</button></div>
     <div class="sub-brand">Exportação 3corações</div>
     <div class="navh">Operação</div>
     <nav>${item("exp","Pedidos",fila?`<span class="count">${fila}</span>`:"")}${item("clients","Clientes e preços")}${item("base","Catálogo e dados")}</nav>
@@ -1281,7 +1459,7 @@ function sideHTML(){
     <div class="navh">Configuração</div>
     <nav>${item("params","Parâmetros",Object.keys(S.pd).length?`<span class="count">${Object.keys(S.pd).length}</span>`:"")}</nav>
     <div class="navh">Ferramentas</div>
-    <nav><button data-enter="client">${NI.portal}<span>Ver portal do distribuidor</span></button><button data-theme-toggle>${isDark()?SUN:MOON}<span>${themeLabel()}</span></button><button data-reset>${NI.reset}<span>${S.resetArm?"Clique de novo para confirmar":"Restaurar dados"}</span></button></nav>
+    <nav><button data-enter="client" title="Ver portal do distribuidor">${NI.portal}<span>Ver portal do distribuidor</span></button></nav>
     <div class="me"><div class="av">L</div><div><b style="font-size:13px">Lucas</b><small>Analista de Exportação</small></div><button data-logout aria-label="Sair" title="Sair">${LOGOUT}</button></div>`;
 }
 function render(){
@@ -1296,6 +1474,8 @@ function render(){
   const top=document.getElementById("topbar");
   top.className="top"+(S.area==="admin"?" admin":"");
   top.innerHTML=headerHTML();
+  document.getElementById("admTop").innerHTML=S.area==="admin"?themeBtn():"";
+  sideSync();
   document.documentElement.lang=(S.area==="client"||!S.area)&&S.lang!=="pt"?S.lang:"pt-BR";
   const keep=[...document.querySelectorAll("[data-keepscroll]")].map(el=>[el.id,el.scrollTop]);
   VIEWS.forEach(v=>{const el=document.getElementById("v-"+v);el.hidden=S.view!==v;if(el.hidden&&el.firstChild)el.innerHTML=""});
@@ -1368,68 +1548,167 @@ function clientKPIs(mine){
 }
 function fmtDur(ms){const m=Math.round(ms/60000);if(m<60)return m+" min";const h=Math.floor(m/60);return h+"h "+String(m%60).padStart(2,"0")+"min"}
 function journeyHTML(o,r){
-  const adj=adjCount(o); const st=o.status;
+  const adj=adjCount(o), st=o.status;
   const steps=[
-    {t:o.origin==="Order Basis"?"Pedido importado":"Pedido montado",w:o.origin==="Order Basis"?"Exportação (planilha)":"Cliente (portal)",s:"done",when:o.created},
-    {t:"Validação automática",w:"Sistema",s:r.blocking?"bad":"done",when:r.blocking?"bloqueado":"OK"},
-    {t:"Revisão e ajustes",w:"Exportação",s:st==="analise"?"now":"done",when:st==="analise"?"em andamento":(adj?adj+" ajuste"+(adj>1?"s":""):"sem ajustes")},
-    {t:"Aprovação",w:"Exportação",s:st==="analise"?"":"done",when:o.approved||(st==="analise"?"aguardando":"")},
-    {t:"Ordem de venda no SAP",w:"Exportação",s:st==="sap"?"done":"",when:st==="sap"?o.sapAt:"arquivo de importação"},
-    {t:"Proforma e packing list",w:"Exportação / Comex",s:"future",when:"em breve"},
-    {t:"Separação e carregamento",w:"CD Londrina",s:"",when:"plano de carga pronto"},
-    {t:"Entrega FCA ao transportador",w:"Logística",s:"",when:"status visível ao cliente"}
+    {t:o.origin==="Order Basis"?"Pedido importado":"Pedido recebido",w:o.origin==="Order Basis"?"Exportação (planilha)":"Cliente, pelo portal",s:"done",when:o.created},
+    {t:"Validação automática",w:"3C Conecta",s:r.blocking?"bad":"done",when:r.blocking?"com bloqueio":"sem bloqueios"},
+    {t:"Revisão e ajustes",w:"Analista de Exportação",s:st==="analise"?"now":"done",when:st==="analise"?"em andamento":(adj?adj+" ajuste"+(adj>1?"s":""):"sem ajustes")},
+    {t:"Aprovação",w:o.auto?"Regra automática":"Analista de Exportação",s:st==="analise"?"":"done",when:st==="analise"?"aguardando":(o.approved||"aprovado")},
+    {t:"Arquivo Sirius/SAP",w:"Upload pelo analista",s:st==="sap"?"done":st==="aprovado"?"now":"",when:st==="sap"?"gerado "+(o.sapAt||""):st==="aprovado"?"pronto para gerar":"após a aprovação"}
   ];
-  return `<div><div class="sec-title">Jornada completa do pedido</div><div class="journey">${steps.map((x,i)=>`<div class="js ${x.s}"><span class="when">${i+1}. ${x.when||"&nbsp;"}</span><b>${x.t}</b><span class="who">${x.w}</span></div>`).join("")}</div></div>`;
+  return `<div class="jr"><div class="sec-title">Jornada do pedido</div><div class="journey j5">${steps.map((x,i)=>`<div class="js ${x.s}"><span class="when">${i+1}. ${x.when||"&nbsp;"}</span><b>${x.t}</b><span class="who">${x.w}</span></div>`).join("")}</div></div>`;
+}
+
+/* ---------- kit de tabela: busca, filtros e paginação (escala para milhares de linhas) ---------- */
+const TB={};
+function tbState(id){return TB[id]=TB[id]||{q:"",page:1,size:10,f:{}}}
+function tbSlice(id,arr){const st=tbState(id),pages=Math.max(1,Math.ceil(arr.length/st.size));if(st.page>pages)st.page=pages;return arr.slice((st.page-1)*st.size,st.page*st.size)}
+function pager(id,total){const st=tbState(id),pages=Math.max(1,Math.ceil(total/st.size)),from=total?(st.page-1)*st.size+1:0,to=Math.min(total,st.page*st.size);
+  return `<div class="pager"><span class="label">${total?`Mostrando ${from} a ${to} de ${total}`:"Nenhum resultado"}</span><div class="pg-ctl"><label class="label">Por página <select data-tbsize="${id}" aria-label="Linhas por página">${[10,25,50].map(n=>`<option ${n===st.size?"selected":""}>${n}</option>`).join("")}</select></label><button class="pg-b" data-tbpage="${id}:${st.page-1}" ${st.page<=1?"disabled":""} aria-label="Página anterior">‹</button><span class="num pg-n">${st.page} de ${pages}</span><button class="pg-b" data-tbpage="${id}:${st.page+1}" ${st.page>=pages?"disabled":""} aria-label="Próxima página">›</button></div></div>`}
+function tbSearch(id,ph){return `<label class="search">${SVG.search}<input data-tbq="${id}" value="${esc(tbState(id).q)}" placeholder="${ph}" aria-label="${ph}" autocomplete="off"></label>`}
+function tbSelect(id,key,label,opts){const v=tbState(id).f[key]||"";return `<select data-tbf="${id}:${key}" aria-label="${label}">${opts.map(([val,l])=>`<option value="${val}" ${String(val)===String(v)?"selected":""}>${l}</option>`).join("")}</select>`}
+function famName(f){return FAM[f]?FAM[f].pt:f}
+function famOpts(){return [...new Set(P.map(p=>p.fam))].map(f=>[f,famName(f)])}
+function prodCell(p,sub){return `<div class="pc"><span class="dot" style="background:${famColor(p.fam)}"></span><div style="min-width:0">${esc(p.pt)}<div class="code">${sub||p.code}</div></div></div>`}
+function initials(n){return String(n).replace(/[^A-Za-zÀ-ÿ ]/g,"").split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join("").toUpperCase()}
+function langName(c){return {es:"Espanhol",pt:"Português",en:"Inglês"}[c.lang||"es"]}
+function listsInfo(){const m={};Object.entries(CLIENTS).forEach(([k,c])=>{(m[c.list]=m[c.list]||{list:c.list,clients:[],factor:c.factor,cur:c.cur}).clients.push(k)});return m}
+function listPrice(p,l){if(p.prices&&p.prices[l]!=null)return p.prices[l];if(p.price==null)return null;const L=listsInfo()[l];return Math.round(p.price*(L?L.factor:1)*100)/100}
+function srcNote(p){return p.priceSrc==="missing"?'<span class="note err">sem preço</span>':p.priceSrc==="manual"?'<span class="note warn">manual</span>':'<span class="note ok">SAP</span>'}
+const CHEV='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+
+/* ---------- qualidade do cadastro: SAP (fonte usada) x Order Basis (planilha de hoje) ---------- */
+const QCAT={kg:"Peso por caixa",pal:"Paletização",price:"Preço",lot:"Lote mínimo"};
+function qualityIssues(){
+  const out=[], d=(a,b,tol)=>Math.abs(a-b)>(tol||0.011), f=v=>fmtPT(v,v%1?2:0);
+  P.forEach(p=>{const o=p.ob;if(!o)return;
+    if(d(o.cxPal,p.cxPal))out.push({p,cat:"pal",imp:"carga",t:`Caixas por pallet: a Order Basis usa ${f(o.cxPal)}, mas o SAP tem ${p.cxPal} (${p.lastro} caixas × ${p.alt} camadas).`,use:`${p.cxPal} cx por pallet`});
+    if(d(o.palz,p.cxPal))out.push({p,cat:"pal",imp:"carga",t:`A aba de paletização da planilha traz ${f(o.palz)} cx por pallet${o.palz%1?", um valor quebrado":""}; o SAP tem ${p.cxPal}.`,use:`${p.cxPal} cx por pallet`});
+    if(p.priceSrc==="manual")out.push({p,cat:"price",imp:"valor",t:`Sem preço vigente no SAP: a Order Basis usa US$ ${fmtPT(o.price)}, digitado à mão.`,use:`US$ ${fmtPT(p.price)} manual, até o SAP ter preço`});
+    else if(d(o.price,p.price))out.push({p,cat:"price",imp:"valor",t:`Preço: a Order Basis usa US$ ${fmtPT(o.price)}, mas o SAP tem US$ ${fmtPT(p.price)}.`,use:`US$ ${fmtPT(p.price)}`});
+    if(d(o.lote,p.loteMin))out.push({p,cat:"lot",imp:"carga",t:`Lote mínimo: a Order Basis pega ${f(o.lote)}, o primeiro valor que encontra (filial BHO); para Londrina o SAP tem ${f(p.loteMin)} pallet${p.loteMin>1?"s":""}.`,use:`${f(p.loteMin)} pallet${p.loteMin>1?"s":""}`});
+    if(d(o.grossCx,p.gross,0.05)){const r=o.grossCx/p.gross;
+      out.push({p,cat:"kg",imp:"carga",t:r>3?`Peso bruto por caixa: a Order Basis usa ${fmtPT(o.grossCx,2)} kg, quase ${Math.round(r)} vezes o do SAP (${fmtPT(p.gross,2)} kg). A unidade cadastrada é o display, não o stick.`:o.grossCx<p.gross?`Peso bruto por caixa: a Order Basis usa ${fmtPT(o.grossCx,2)} kg porque soma só o produto e ignora a caixa de papelão; o SAP tem ${fmtPT(p.gross,2)} kg.`:`Peso bruto por caixa: a Order Basis usa ${fmtPT(o.grossCx,2)} kg, mas o SAP tem ${fmtPT(p.gross,2)} kg.`,use:`${fmtPT(p.gross,2)} kg por caixa`})}
+  });
+  return out;
 }
 
 /* ---------- Clientes e preços (admin) ---------- */
 function renderClients(){
-  const cls=Object.entries(CLIENTS);
+  const cls=Object.entries(CLIENTS), tab=S.ctab||"clients", L=listsInfo();
+  const nAuto=cls.filter(([,c])=>c.autoApprove).length, nMix=cls.filter(([,c])=>c.mixed).length, nBlk=cls.reduce((a,[,c])=>a+c.blocked.length,0);
   document.getElementById("v-clients").innerHTML=`
-  <div class="hero"><div><div class="eyebrow">Exportação · Cadastro</div><h1>Clientes e preços</h1><p>Cada distribuidor tem sua lista de preço, Incoterm, condição de pagamento, restrições por destino e regra de pallet misto. O cadastro vem do SAP (relatório ZSDR059A, citado na Order Basis) e a tabela de preços, da extração Registros.</p></div></div>
-  <div class="card card-pad" style="display:grid;gap:12px"><h3 style="font-size:18px">Distribuidores</h3><div class="tbl-wrap"><table class="data">
-    <thead><tr><th>Cliente</th><th>Código</th><th>Destino</th><th>Idioma</th><th>Lista</th><th>Incoterm</th><th>Pagamento</th><th>Restrições</th><th>Pallet misto</th><th>Aprovação automática</th><th class="r">Pedidos</th></tr></thead>
-    <tbody>${cls.map(([k,c])=>`<tr><td><b>${esc(c.name)}</b><div class="label">Contato: ${c.contact}</div></td><td class="num">${c.code}</td><td>${c.dest}</td><td>Espanhol</td><td><span class="chip neutral">${c.list}</span></td><td>${c.inc}</td><td>${c.pay}</td><td>${c.blocked.length?c.blocked.map(b=>`<span class="note err">${BY[b].pt}</span>`).join(""):'<span class="label">Nenhuma</span>'}</td><td><label class="switch"><input type="checkbox" data-mixclient="${k}" ${c.mixed?"checked":""} aria-label="Pallet misto para ${esc(c.name)}"> ${c.mixed?"Aceita":"Não aceita"}</label></td><td><label class="switch"><input type="checkbox" data-autoclient="${k}" ${c.autoApprove?"checked":""} aria-label="Aprovação automática para ${esc(c.name)}"> ${c.autoApprove?"Ativa":"Desligada"}</label></td><td class="r num">${S.orders.filter(o=>o.client===k).length}</td></tr>`).join("")}</tbody></table></div><div class="label">A regra de pallet misto vale para os próximos pedidos do cliente e aparece para ele no portal. Com a aprovação automática ativa, pedido sem bloqueio e com carga completa entra aprovado, sem passar pela fila, e a auditoria registra a regra.</div>${RLOG.some(a=>a.kind!=="param")?`<div><div class="sec-title">Histórico de regras</div><div class="audit">${RLOG.filter(a=>a.kind!=="param").slice(0,6).map(a=>`<div><time>${a.at}</time><span><b>${esc(a.who)}</b> · ${esc(a.what)}</span></div>`).join("")}</div></div>`:""}</div>
-  <div class="card card-pad" style="display:grid;gap:12px"><div class="p-head"><h3 style="font-size:18px">Tabela de preços por cliente</h3><span class="label">USD por caixa · CD Londrina (2612)</span></div><div class="tbl-wrap"><table class="data prices">
-    <thead><tr><th>Produto</th>${cls.map(([k,c])=>`<th class="r">${esc(c.name.split(" ")[0])} · lista ${c.list}</th>`).join("")}<th class="r">Fonte</th></tr></thead>
-    <tbody>${P.map(p=>`<tr><td><div style="display:flex;gap:10px;align-items:center"><span class="dot" style="background:${famColor(p.fam)}"></span><div>${esc(p.pt)}<div class="code">${p.code}</div></div></div></td>${cls.map(([k,c])=>`<td class="r num">${c.blocked.includes(p.code)?'<span class="label">bloqueado</span>':(p.price==null&&!(p.prices&&p.prices[c.list]!=null))?'<span class="label">—</span>':money(priceFor(p,k),"pt-BR")}</td>`).join("")}<td class="r">${p.priceSrc==="missing"?'<span class="note err">sem preço</span>':p.priceSrc==="manual"?'<span class="note warn">manual</span>':'<span class="note ok">SAP</span>'}</td></tr>`).join("")}</tbody></table></div>
-    <div class="label">Lista US vem da extração Registros (EXP-MINOIL). Três produtos não têm preço no SAP e usam o valor digitado na Order Basis.</div></div>`;
+  <div class="hero"><div><div class="eyebrow">Exportação · Cadastro</div><h1>Clientes e preços</h1><p>Distribuidores e listas de preço sincronizados do SAP. Aqui ficam as condições comerciais e as regras de carga de cada cliente.</p></div></div>
+  <div class="kpis mini">
+    <div class="kpi"><span class="label">Clientes ativos</span><b class="num">${cls.length}</b><small>${new Set(cls.map(([,c])=>c.dest)).size} destinos de exportação</small></div>
+    <div class="kpi"><span class="label">Listas de preço</span><b class="num">${Object.keys(L).length}</b><small>${Object.keys(L).map(l=>"Lista "+l).join(" · ")}</small></div>
+    <div class="kpi"><span class="label">Regras especiais</span><b class="num">${nAuto+nMix}</b><small>${nAuto} com aprovação automática · ${nMix} com pallet misto</small></div>
+    <div class="kpi"><span class="label">Restrições de produto</span><b class="num">${nBlk}</b><small>produto${nBlk===1?"":"s"} bloqueado${nBlk===1?"":"s"} por destino</small></div>
+  </div>
+  <nav class="ptabs" role="tablist" aria-label="Seções">${[["clients","Clientes",cls.length],["lists","Listas de preço",Object.keys(L).length]].map(([k,l,n])=>`<button role="tab" aria-selected="${tab===k}" data-ctab="${k}">${l}<span class="count">${n}</span></button>`).join("")}</nav>
+  ${tab==="lists"?priceListsHTML():clientsTabHTML()}`;
+}
+function clientsTabHTML(){
+  const cls=Object.entries(CLIENTS), st=tbState("cli"), q=st.q.trim().toLowerCase(), fd=st.f.dest||"", fl=st.f.list||"";
+  const all=cls.filter(([k,c])=>(!q||[c.name,c.code,c.contact].some(x=>String(x).toLowerCase().includes(q)))&&(!fd||c.dest===fd)&&(!fl||c.list===fl));
+  if(!S.csel||!CLIENTS[S.csel])S.csel=cls[0][0];
+  const dests=[...new Set(cls.map(([,c])=>c.dest))], lists=Object.keys(listsInfo());
+  return `<div class="cl-wrap">
+    <div class="card cl-list">
+      <div class="tb-tools col">${tbSearch("cli","Buscar por nome, código ou contato")}
+        <div class="tb-f">${tbSelect("cli","dest","Destino",[["","Todos os destinos"],...dests.map(d=>[d,d])])}${tbSelect("cli","list","Lista de preço",[["","Todas as listas"],...lists.map(l=>[l,"Lista "+l])])}</div></div>
+      <div class="cl-rows">${tbSlice("cli",all).map(([k,c])=>{const n=S.orders.filter(o=>o.client===k).length,op=S.orders.filter(o=>o.client===k&&o.status==="analise").length;return `<button class="cl-row" data-csel="${k}" aria-pressed="${k===S.csel}"><span class="cl-av">${initials(c.name)}</span><span class="cl-t"><b>${esc(c.name)}</b><small>Cód. ${c.code} · ${esc(c.dest)} · lista ${c.list}</small></span><span class="cl-n">${op?`<span class="chip warn">${op} em análise</span>`:`<small>${n} pedido${n===1?"":"s"}</small>`}</span></button>`}).join("")||`<div class="xl-empty"><b>Nenhum cliente encontrado</b><span class="label">Ajuste a busca ou os filtros.</span></div>`}</div>
+      ${pager("cli",all.length)}
+    </div>
+    ${clientDetail(S.csel)}
+  </div>`;
+}
+function clientDetail(k){
+  const c=CLIENTS[k], mine=S.orders.filter(o=>o.client===k), rs=mine.map(o=>calc(o.qty,o));
+  const val=rs.reduce((a,r)=>a+r.tot.value,0), occ=rs.length?rs.reduce((a,r)=>a+Math.min(r.maxU,1),0)/rs.length:0, open=mine.filter(o=>o.status==="analise").length;
+  const hist=RLOG.filter(a=>a.kind!=="param"&&String(a.what).startsWith(c.name)).slice(0,5);
+  const row=(l,v)=>`<div><span class="label">${l}</span><b>${v}</b></div>`;
+  return `<div class="card card-pad cl-det">
+    <div class="cd-h"><span class="cl-av lg">${initials(c.name)}</span><div style="min-width:0;flex:1"><h3>${esc(c.name)}</h3><div class="label">Cód. SAP ${c.code} · contato: ${esc(c.contact)} · portal em ${langName(c).toLowerCase()}</div></div><button class="btn-soft" data-cgo="${k}">Ver pedidos ${SVG.arrow}</button></div>
+    <section class="cd-sec"><div class="sec-title">Condições comerciais</div><div class="cd-grid">${row("Destino",esc(c.dest))}${row("Lista de preço","Lista "+c.list)}${row("Moeda",c.cur)}${row("Incoterm",c.inc)}${row("Pagamento",esc(c.pay))}${row("Centro de distribuição",esc(c.filial))}</div></section>
+    <section class="cd-sec"><div class="sec-title">Regras do cliente</div>
+      <div class="prow"><div><b>Pallet misto</b><span class="label">Permite juntar produtos diferentes no mesmo pallet. Vale para os próximos pedidos e aparece para o cliente no portal.</span></div><label class="switch"><input type="checkbox" data-mixclient="${k}" ${c.mixed?"checked":""} aria-label="Pallet misto para ${esc(c.name)}"> ${c.mixed?"Aceita":"Não aceita"}</label></div>
+      <div class="prow"><div><b>Aprovação automática</b><span class="label">Pedido sem bloqueio e com carga completa entra aprovado, sem passar pela fila. A auditoria registra a regra.</span></div><label class="switch"><input type="checkbox" data-autoclient="${k}" ${c.autoApprove?"checked":""} aria-label="Aprovação automática para ${esc(c.name)}"> ${c.autoApprove?"Ativa":"Desligada"}</label></div>
+    </section>
+    <section class="cd-sec"><div class="cd-st"><div class="sec-title" style="margin:0">Produtos bloqueados para o destino</div><button class="link" data-pdest="${k}">Editar restrições ${SVG.arrow}</button></div>
+      ${c.blocked.length?`<div class="cd-chips">${c.blocked.map(b=>BY[b]?`<span class="chip err">${esc(BY[b].pt)}</span>`:"").join("")}</div>`:'<span class="label">Nenhum. Todo o catálogo com preço na lista aparece para o cliente.</span>'}
+    </section>
+    <section class="cd-sec"><div class="sec-title">Pedidos do cliente</div>
+      <div class="cd-stats">${row("Pedidos",mine.length)}${row("Em análise",open)}${row("Valor em carteira",money(val,"pt-BR"))}${row("Ocupação média",fmtPT(occ*100,0)+"%")}</div>
+      ${mine.length?`<div class="cd-ord">${mine.slice(0,3).map(o=>{const r=calc(o.qty,o);return `<button class="cd-o" data-osel="${o.id}"><b class="num">${o.id}</b><span class="label">${o.created} · ${VEH[o.veh].pt} ${fmtPT(r.maxU*100,0)}% · ${money(r.tot.value,"pt-BR")}</span><span class="chip ${ST[o.status][1]}">${ST[o.status][0]}</span>${CHEV}</button>`}).join("")}</div>`:'<span class="label">Nenhum pedido ainda.</span>'}
+    </section>
+    ${hist.length?`<section class="cd-sec"><div class="sec-title">Histórico de regras</div><div class="audit">${hist.map(a=>`<div><time>${a.at}</time><span><b>${esc(a.who)}</b> · ${esc(a.what)}</span></div>`).join("")}</div></section>`:""}
+  </div>`;
+}
+function priceListsHTML(){
+  const L=listsInfo(), lists=Object.keys(L); if(!S.plist||!L[S.plist])S.plist=lists[0];
+  const st=tbState("pl"), q=st.q.trim().toLowerCase(), ff=st.f.fam||"", fs=st.f.src||"", li=L[S.plist];
+  const rows=P.filter(p=>(!q||[p.pt,p.code,p.sap].some(x=>String(x||"").toLowerCase().includes(q)))&&(!ff||p.fam===ff)&&(!fs||(fs==="missing"?listPrice(p,S.plist)==null:p.priceSrc===fs)));
+  return `<div class="card">
+    <div class="tb-tools"><div class="seg sm" role="group" aria-label="Lista de preço">${lists.map(l=>`<button data-plist="${l}" aria-pressed="${l===S.plist}">Lista ${l}</button>`).join("")}</div>
+      ${tbSearch("pl","Buscar produto ou código")}
+      <div class="tb-f">${tbSelect("pl","fam","Família",[["","Todas as famílias"],...famOpts()])}${tbSelect("pl","src","Fonte do preço",[["","Todas as fontes"],["sap","SAP"],["manual","Manual"],["missing","Sem preço"]])}</div></div>
+    <div class="pl-info"><span class="chip neutral">Lista ${S.plist}</span><span class="label">${li.cur} por caixa · CD Londrina (2612) · usada por ${li.clients.map(k=>esc(CLIENTS[k].name)).join(", ")}</span></div>
+    <div class="tbl-wrap"><table class="data"><thead><tr><th>Produto</th><th>Família</th><th class="r">Cx/pallet</th><th class="r">Preço por caixa</th><th class="r">Preço por pallet</th><th class="r">Fonte</th></tr></thead><tbody>
+    ${tbSlice("pl",rows).map(p=>{const pr=listPrice(p,S.plist);return `<tr><td>${prodCell(p)}</td><td>${famName(p.fam)}</td><td class="r num">${p.cxPal}</td><td class="r num">${pr==null?'<span class="label">sem preço</span>':money(pr,"pt-BR")}</td><td class="r num">${pr==null?"":money(pr*p.cxPal,"pt-BR")}</td><td class="r">${srcNote(p)}</td></tr>`}).join("")||`<tr><td colspan="6"><span class="label">Nenhum produto neste filtro.</span></td></tr>`}
+    </tbody></table></div>
+    ${pager("pl",rows.length)}
+    <div class="card-pad label" style="padding-top:4px">Os preços vêm da extração Registros do SAP. Produto sem preço vigente usa o valor manual da Order Basis até o SAP ser atualizado e aparece em Catálogo e dados, na aba Qualidade do cadastro.</div>
+  </div>`;
 }
 
 /* ---------- Indicadores (gestão) ---------- */
+function kpiOrders(){const per=S.kper||90, lim=Date.now()-per*864e5;return S.orders.filter(o=>(!S.kcli||o.client===S.kcli)&&(per>=9999||(o.createdMs||Date.now())>=lim))}
 function renderKpi(){
-  const fila=S.orders.filter(o=>o.status==="analise").length, apr=S.orders.filter(o=>o.approvedMs&&o.createdMs), fp=firstPass(S.orders);
-  const rsK=S.orders.map(o=>({o,r:calc(o.qty,o)})), occ=rsK.length?rsK.reduce((a,x)=>a+x.r.maxU,0)/rsK.length:0, nEx=rsK.filter(x=>x.r.status==="excess").length, nPart=rsK.filter(x=>x.r.status==="partial").length;
-  const rs=S.orders.map(o=>({o,r:calc(o.qty,o)}));
+  const ORD=kpiOrders(), rs=ORD.map(o=>({o,r:calc(o.qty,o)}));
+  const fila=ORD.filter(o=>o.status==="analise").length, apr=ORD.filter(o=>o.approvedMs&&o.createdMs), fp=firstPass(ORD);
+  const occ=rs.length?rs.reduce((a,x)=>a+Math.min(x.r.maxU,1),0)/rs.length:0, nEx=rs.filter(x=>x.r.status==="excess").length, nPart=rs.filter(x=>x.r.status==="partial").length, nFull=rs.length-nEx-nPart;
   const val=rs.reduce((a,x)=>a+x.r.tot.value,0), kgNet=rs.reduce((a,x)=>a+x.r.tot.net,0), pal=rs.reduce((a,x)=>a+x.r.tot.pallets,0);
-  const used=[...new Set(S.orders.map(o=>o.client))], dests=new Set(used.map(c=>CLIENTS[c].dest)).size;
+  const used=[...new Set(ORD.map(o=>o.client))], dests=new Set(used.map(c=>CLIENTS[c].dest)).size;
   const fams={}; rs.forEach(({r})=>Object.entries(r.fams).forEach(([f,x])=>{fams[f]=(fams[f]||0)+x.kg}));
   const maxF=Math.max(1,...Object.values(fams));
+  const pers=[[30,"30 dias"],[90,"90 dias"],[365,"12 meses"],[9999,"Tudo"]], per=S.kper||90;
+  const dist=[["Carga completa",nFull,"var(--ok)",`a partir de ${fmtPT(RULES.fullAt*100,0)}% do recurso limitante`],["Carga incompleta",nPart,"var(--warn)","frete por pallet mais caro"],["Não cabe no veículo",nEx,"var(--err)","precisa dividir ou ajustar"]];
+  const attn=rs.filter(x=>x.r.status!=="full").sort((a,b)=>(b.r.status==="excess")-(a.r.status==="excess")||a.r.maxU-b.r.maxU).slice(0,5);
+  const byC={}; rs.forEach(({o,r})=>{const c=byC[o.client]=byC[o.client]||{n:0,val:0,kg:0,occ:0,list:[]};c.n++;c.val+=r.tot.value;c.kg+=r.tot.net;c.occ+=Math.min(r.maxU,1);c.list.push(o)});
+  const rank=Object.entries(byC).sort((a,b)=>b[1].val-a[1].val).slice(0,10);
   document.getElementById("v-kpi").innerHTML=`
   <div class="hero"><div><div class="eyebrow">Gestão · Internacionalização</div><h1>Indicadores</h1><p>Os indicadores que a área de Internacionalização acompanha, calculados direto da base de pedidos, sem planilha paralela.</p></div></div>
-  ${adminInsightsHTML(rs)}
+  <div class="card kbar"><div class="seg sm" role="group" aria-label="Período">${pers.map(([d,l])=>`<button data-kper="${d}" aria-pressed="${per===d}">${l}</button>`).join("")}</div>
+    <label class="tb-sel"><span class="label">Cliente</span><select id="kCli" aria-label="Cliente"><option value="">Todos os clientes</option>${Object.entries(CLIENTS).map(([k,c])=>`<option value="${k}" ${S.kcli===k?"selected":""}>${esc(c.name)}</option>`).join("")}</select></label>
+    <span class="label" style="margin-left:auto">${ORD.length} pedido${ORD.length===1?"":"s"} no recorte</span></div>
+  ${rs.length?adminInsightsHTML(rs):""}
   <div class="kgroup"><span class="label">Operação da Exportação</span><div class="kpis mini">
-    <div class="kpi"><span class="label">Aguardando aprovação</span><b class="num">${fila}</b><small>de ${S.orders.length} pedidos na carteira</small></div>
-    <div class="kpi"><span class="label">Tempo médio de aprovação</span><b class="num">${apr.length?fmtDur(apr.reduce((a,o)=>a+(o.approvedMs-o.createdMs),0)/apr.length):"—"}</b><small>${apr.length} pedido${apr.length!==1?"s":""} aprovado${apr.length!==1?"s":""} no período</small></div>
-    <div class="kpi"><span class="label">Certos na primeira</span><b class="num">${fp==null?"—":fmtPT(fp*100,0)+"%"}</b><small>aprovados sem ajuste da Exportação</small></div>
-    <div class="kpi"><span class="label">Ocupação média dos veículos</span><b class="num">${fmtPT(occ*100,0)}%</b><small>${nEx} com excesso · ${nPart} com carga incompleta</small></div>
+    <div class="kpi"><span class="label">Aguardando aprovação</span><b class="num">${fila}</b><small>de ${ORD.length} pedido${ORD.length===1?"":"s"} no recorte</small></div>
+    <div class="kpi"><span class="label">Tempo médio de aprovação</span><b class="num">${apr.length?fmtDur(apr.reduce((a,o)=>a+(o.approvedMs-o.createdMs),0)/apr.length):"-"}</b><small>${apr.length} pedido${apr.length!==1?"s":""} aprovado${apr.length!==1?"s":""}</small></div>
+    <div class="kpi"><span class="label">Certos na primeira</span><b class="num">${fp==null?"-":fmtPT(fp*100,0)+"%"}</b><small>aprovados sem ajuste da Exportação</small></div>
+    <div class="kpi"><span class="label">Ocupação média dos veículos</span><b class="num">${fmtPT(occ*100,0)}%</b><small>${nEx} sem caber · ${nPart} com carga incompleta</small></div>
   </div></div>
   <div class="kgroup"><span class="label">Gestão da área de Internacionalização</span><div class="kpis">
-    <div class="kpi"><span class="label">Receita em carteira</span><b class="num">${money(val,"pt-BR")}</b><small>volume de vendas e receita</small></div>
+    <div class="kpi"><span class="label">Receita em carteira</span><b class="num">${money(val,"pt-BR")}</b><small>valor dos pedidos no recorte</small></div>
     <div class="kpi"><span class="label">Volume exportado</span><b class="num">${fmtPT(kgNet/1000,1)} t</b><small>${fmtPT(pal,1)} pallets</small></div>
     <div class="kpi"><span class="label">Países e clientes ativos</span><b class="num">${dests} · ${used.length}</b><small>destinos · clientes</small></div>
-    <div class="kpi soon"><span class="label">Embarcados na data pedida</span><b>Em integração</b><small>nível de serviço · requer a data real de embarque da logística</small></div>
+    <div class="kpi soon"><span class="label">Embarcados na data pedida</span><b>Em integração</b><small>requer a data real de embarque da logística</small></div>
   </div></div>
   <div class="grid2">
-    <div class="card card-pad" style="display:grid;gap:16px;align-content:start"><h3 style="font-size:18px">Ocupação por pedido</h3>
-      <div class="bars">${rs.map(({o,r})=>{const pct=r.maxU*100,c=r.status==="excess"?"var(--err)":r.status==="full"?"var(--ok)":"var(--warn)";return `<div class="row"><span><b class="num">${o.id}</b><span class="label" style="display:block">${esc(CLIENTS[o.client].name)}</span></span><div class="track"><span style="width:${Math.min(pct,100)}%;background:${c}"></span></div><span class="num" style="text-align:right;${r.status==="excess"?"color:var(--err);font-weight:700":""}">${fmtPT(pct,0)}%</span></div>`}).join("")||'<span class="label">Sem pedidos.</span>'}</div>
-      <div class="label">Carga completa a partir de ${fmtPT(RULES.fullAt*100,0)}% do recurso limitante (peso, cubagem ou posições). Acima de 100% o pedido não cabe no veículo.</div></div>
+    <div class="card card-pad" style="display:grid;gap:16px;align-content:start"><h3 style="font-size:18px">Ocupação dos embarques</h3>
+      <div class="bars">${dist.map(([l,n,c,sub])=>`<div class="row"><span>${l}<span class="label" style="display:block">${sub}</span></span><div class="track"><span style="width:${rs.length?n/rs.length*100:0}%;background:${c}"></span></div><span class="num" style="text-align:right"><b>${n}</b> <span class="label">${rs.length?fmtPT(n/rs.length*100,0)+"%":""}</span></span></div>`).join("")}</div>
+      ${attn.length?`<div><div class="sec-title">Pedidos que pedem atenção</div><div class="cd-ord">${attn.map(({o,r})=>`<button class="cd-o" data-osel="${o.id}"><b class="num">${o.id}</b><span class="label">${esc(CLIENTS[o.client].name)} · ${VEH[o.veh].pt}</span><span class="num" style="font-weight:700;color:${r.status==="excess"?"var(--err)":"var(--warn)"}">${fmtPT(r.maxU*100,0)}%</span>${CHEV}</button>`).join("")}</div></div>`:'<span class="label">Todos os pedidos do recorte estão com carga completa.</span>'}</div>
     <div class="card card-pad" style="display:grid;gap:16px;align-content:start"><h3 style="font-size:18px">Volume por família</h3>
-      <div class="bars">${Object.entries(fams).sort((a,b)=>b[1]-a[1]).map(([f,kg])=>`<div class="row"><span>${FAM[f]?FAM[f].pt:f}</span><div class="track"><span style="width:${kg/maxF*100}%;background:${famColor(f)}"></span></div><span class="num" style="text-align:right">${fmtPT(kg/1000,1)} t</span></div>`).join("")||'<span class="label">Sem pedidos.</span>'}</div>
-      <div class="label">Peso líquido somado de todos os pedidos da carteira.</div></div>
+      <div class="bars">${Object.entries(fams).sort((a,b)=>b[1]-a[1]).map(([f,kg])=>`<div class="row"><span>${famName(f)}</span><div class="track"><span style="width:${kg/maxF*100}%;background:${famColor(f)}"></span></div><span class="num" style="text-align:right">${fmtPT(kg/1000,1)} t</span></div>`).join("")||'<span class="label">Sem pedidos no recorte.</span>'}</div>
+      <div class="label">Peso líquido somado dos pedidos no recorte.</div></div>
   </div>
+  <div class="card"><div class="card-pad p-head" style="padding-bottom:8px"><h3 style="font-size:18px">Clientes no recorte</h3><button class="link" data-view="clients">Ver cadastro ${SVG.arrow}</button></div>
+    <div class="tbl-wrap"><table class="data"><thead><tr><th>Cliente</th><th>Destino</th><th class="r">Pedidos</th><th class="r">Valor</th><th class="r">Volume</th><th class="r">Ocupação média</th><th class="r">Certos na primeira</th></tr></thead><tbody>
+    ${rank.map(([k,x])=>{const c=CLIENTS[k],f1=firstPass(x.list);return `<tr><td><button class="rowlink" data-csel="${k}" data-view="clients">${esc(c.name)}<span class="code">Cód. ${c.code}</span></button></td><td>${esc(c.dest)}</td><td class="r num">${x.n}</td><td class="r num">${money(x.val,"pt-BR")}</td><td class="r num">${fmtPT(x.kg/1000,1)} t</td><td class="r num">${fmtPT(x.occ/x.n*100,0)}%</td><td class="r num">${f1==null?"-":fmtPT(f1*100,0)+"%"}</td></tr>`}).join("")||'<tr><td colspan="7"><span class="label">Sem pedidos no recorte.</span></td></tr>'}
+    </tbody></table></div></div>
   <div class="card card-pad" style="display:grid;gap:14px"><h3 style="font-size:18px">Pedidos por etapa</h3>
-    <div class="funnel">${Object.entries(ST).map(([k,[l]])=>`<div><span class="label">${l}</span><b class="num">${S.orders.filter(o=>o.status===k).length}</b></div>`).join("")}</div></div>`;
+    <div class="funnel">${Object.entries(ST).map(([k,[l]])=>`<div><span class="label">${l}</span><b class="num">${ORD.filter(o=>o.status===k).length}</b></div>`).join("")}</div></div>`;
 }
 
 /* ---------- Distribuidor ---------- */
@@ -1651,8 +1930,8 @@ function confirmOrder(btn){
 }
 
 /* ---------- Exportação ---------- */
-const ST={analise:["Em análise","warn"],aprovado:["Aprovado","ok"],sap:["Arquivo SAP gerado","neutral"]};
-const QF=[["all","Todos"],["analise","Em análise"],["aprovado","Aprovados"],["sap","No SAP"]];
+const ST={analise:["Em análise","warn"],aprovado:["Aprovado","ok"],sap:["Arquivo gerado","neutral"]};
+const QF=[["all","Todos"],["analise","Em análise"],["aprovado","Aprovados"],["sap","Arquivo gerado"]];
 function renderExp(){
   const el=document.getElementById("v-exp");
   if(!S.sel&&S.orders.length)S.sel=S.orders[0].id;
@@ -1663,20 +1942,26 @@ function renderExp(){
   const fp=firstPass(S.orders);
   const nEx=rs.filter(x=>x.r.status==="excess").length, nPart=rs.filter(x=>x.r.status==="partial").length;
   const q=S.qs.trim().toLowerCase();
-  const list=rs.filter(({o,r})=>qfMatch(o,r)&&(!q||[o.id,CLIENTS[o.client].name,o.ref||""].some(s=>String(s).toLowerCase().includes(q))));
+  const SO={analise:0,aprovado:1,sap:2}, prio=(a,b)=>SO[a.o.status]-SO[b.o.status]||(a.o.status==="analise"?((b.r.blocking?1:0)-(a.r.blocking?1:0))||((a.o.createdMs||0)-(b.o.createdMs||0)):(b.o.createdMs||0)-(a.o.createdMs||0));
+  const srt={prio,recent:(a,b)=>(b.o.createdMs||0)-(a.o.createdMs||0),old:(a,b)=>(a.o.createdMs||0)-(b.o.createdMs||0),value:(a,b)=>b.r.tot.value-a.r.tot.value}[S.osort||"prio"];
+  const list=rs.filter(({o,r})=>qfMatch(o,r)&&(!q||[o.id,CLIENTS[o.client].name,CLIENTS[o.client].code,o.ref||""].some(s=>String(s).toLowerCase().includes(q)))).sort(srt);
   const cnt=k=>k==="all"?S.orders.length:S.orders.filter(o=>o.status===k).length;
   const cur=rs.find(x=>x.o.id===S.sel);
   el.innerHTML=`
-  <div class="hero"><div><div class="eyebrow">Exportação · Pedidos</div><h1>Pedidos recebidos</h1><p>Todo pedido chega validado pelo mesmo motor de cálculo. A Exportação revisa, aprova e gera o arquivo para o SAP, sem redigitar.</p></div></div>
+  <div class="hero"><div><div class="eyebrow">Exportação · Pedidos</div><h1>Pedidos recebidos</h1><p>Todo pedido chega validado pelo mesmo motor de cálculo. A Exportação revisa, aprova e gera o arquivo para o Sirius/SAP, sem redigitar.</p></div></div>
   ${attnHTML(rs)}
+  <div class="card xbar">
+    <label class="search">${SVG.search}<input id="oSearch" value="${esc(S.qs)}" placeholder="Buscar por pedido, cliente, código ou referência" aria-label="Buscar pedidos" autocomplete="off"></label>
+    <div class="qtabs" role="group" aria-label="Filtrar por status">${QF.map(([k,l])=>`<button data-qf="${k}" aria-pressed="${S.qf===k}">${l}<span class="n">${cnt(k)}</span></button>`).join("")}${QFX[S.qf]?`<button data-qf="all" aria-pressed="true" class="qx">${QFX[S.qf]} ✕</button>`:""}</div>
+    <label class="xsort"><span class="label">Ordenar</span><select id="oSort" aria-label="Ordenar pedidos"><option value="prio" ${(S.osort||"prio")==="prio"?"selected":""}>Prioridade</option><option value="recent" ${S.osort==="recent"?"selected":""}>Mais recentes</option><option value="old" ${S.osort==="old"?"selected":""}>Mais antigos</option><option value="value" ${S.osort==="value"?"selected":""}>Maior valor</option></select></label>
+  </div>
   <div class="exp">
-    <div class="card olist">
-      <div class="qbar"><label class="search">${SVG.search}<input id="oSearch" value="${esc(S.qs)}" placeholder="Buscar pedido, cliente ou referência" aria-label="Buscar pedidos" autocomplete="off"></label>
-        <div class="qtabs" role="group" aria-label="Filtrar por status">${QF.map(([k,l])=>`<button data-qf="${k}" aria-pressed="${S.qf===k}">${l}<span class="n">${cnt(k)}</span></button>`).join("")}${QFX[S.qf]?`<button data-qf="all" aria-pressed="true">${QFX[S.qf]} ✕</button>`:""}</div></div>
-      ${list.length?list.map(({o,r})=>`<button class="orow" data-sel="${o.id}" aria-pressed="${o.id===S.sel}">
+    <div class="card olist xlist">
+      <div class="xl-h"><b>${list.length} ${list.length===1?"pedido":"pedidos"}</b><span class="label">${S.qf==="all"&&!q?"na carteira":"no filtro"}</span></div>
+      <div class="xl-b">${list.length?list.map(({o,r})=>`<button class="orow" data-sel="${o.id}" aria-pressed="${o.id===S.sel}">
         <div class="r1"><span class="id num">${o.id}</span><span class="chip ${ST[o.status][1]}">${ST[o.status][0]}${o.auto?" · auto":""}</span></div>
-        <div>${esc(CLIENTS[o.client].name)}</div>
-        <div class="r3"><span>${o.origin} · ${o.created}</span><span class="num" style="${r.status==="excess"?"color:var(--err);font-weight:700":""}">${VEH[o.veh].pt} ${fmtPT(r.maxU*100,0)}%</span></div></button>`).join(""):`<div class="card-pad label">Nenhum pedido neste filtro.</div>`}
+        <div class="r2">${esc(CLIENTS[o.client].name)}</div>
+        <div class="r3"><span>${o.origin==="Order Basis"?"Planilha":"Portal"} · ${o.created}</span><span class="num" style="${r.status==="excess"?"color:var(--err);font-weight:700":""}">${VEH[o.veh].pt} ${fmtPT(r.maxU*100,0)}%</span></div></button>`).join(""):`<div class="xl-empty">${XICA.full("pensando",64)}<b>Nenhum pedido neste filtro</b><span class="label">Limpe a busca ou escolha outro status.</span></div>`}</div>
     </div>
     ${cur?expDetail(cur.o,cur.r):`<div class="card empty-card"><div class="xempty">${XICA.full("feliz",92)}</div><h3>Nenhum pedido na carteira</h3><p>Os pedidos enviados pelo portal do cliente aparecem aqui, já validados.</p></div>`}
   </div>`;
@@ -1690,8 +1975,8 @@ function expDetail(o,r){
   const warns=r.lines.filter(l=>l.frac>EPS&&o.mode==="pal").map(l=>`${l.p.pt}: pallet incompleto, faltam ${l.missing} cx`);
   const csv=S.csvFor===o.id?(S.csvKind==="ob"?buildOB(o,r):buildCSV(o,r)):"";
   const stat=(k,val,u,show=true)=>`<div><span class="label">${k}</span><b class="num" style="${u>1+EPS?"color:var(--err)":""}">${val}</b>${show&&u!=null?`<span class="label num" style="display:block">${fmtPT(u*100,0)}% da capacidade</span>`:""}</div>`;
-  const action=o.status==="analise"?`<button class="btn sm" data-approve ${r.blocking?'disabled title="Resolva os bloqueios para aprovar"':""}>Aprovar pedido</button>`:`<button class="btn sm dark" data-csv>${o.status==="sap"?"Ver arquivo para o SAP":"Gerar arquivo para o SAP"}</button>`;
-  return `<div class="card card-pad" style="display:grid;gap:22px">
+  const action=o.status==="analise"?`<button class="btn sm" data-approve ${r.blocking?'disabled title="Resolva os bloqueios para aprovar"':""}>Aprovar pedido</button>`:`<button class="btn sm dark" data-csv>${o.status==="sap"?"Ver arquivo Sirius/SAP":"Gerar arquivo Sirius/SAP"}</button>`;
+  return `<div class="card card-pad xdet">
     <div class="d-head"><div style="min-width:0"><span class="label">${o.origin==="Order Basis"?"Importado da planilha Order Basis":"Recebido pelo portal"}</span><h3>${o.id} · ${esc(cl.name)}</h3>
       <div class="label" style="margin-top:2px">Cód. ${cl.code} · ${cl.inc} · ${cl.pay} · Lista ${cl.list} · ${cl.filial}${o.ref?` · Ref. ${esc(o.ref)}`:""}${o.date?` · Carregamento ${o.date.split("-").reverse().join("/")}`:""}</div></div>
       <div class="d-actions"><span class="chip ${ST[o.status][1]}">${ST[o.status][0]}</span><span class="ver">versão ${o.v||1}</span>${action}</div></div>
@@ -1713,13 +1998,18 @@ function expDetail(o,r){
           ${splitHTML(r,true)}
         </div>
       </div></div>
-    <div style="display:grid;gap:8px"><div class="tbl-wrap"><table class="data"><thead><tr><th>Produto</th><th class="r">Caixas</th><th class="r">Pallets</th><th class="r">Peso bruto</th><th class="r">Cubagem</th><th class="r">Preço/cx</th><th class="r">Total</th></tr></thead>
+    <div style="display:grid;gap:10px"><div class="sec-title" style="margin:0">Itens do pedido <span class="label">· ${r.lines.length} ${r.lines.length===1?"produto":"produtos"}</span></div><div class="tbl-wrap"><table class="data"><thead><tr><th>Produto</th><th class="r">Caixas</th><th class="r">Pallets</th><th class="r">Peso bruto</th><th class="r">Cubagem</th><th class="r">Preço/cx</th><th class="r">Total</th></tr></thead>
       <tbody>${r.lines.map(l=>`<tr><td><div style="display:flex;gap:10px;align-items:center"><span class="dot" style="background:${famColor(l.p.fam)}"></span><div>${esc(l.p.pt)}<div class="code">${l.p.code}</div></div></div></td><td class="r"><input class="mini-in" id="e-${o.id}-${l.p.code}" data-edit="${l.p.code}" value="${l.cx}" inputmode="numeric" ${o.status!=="analise"?"disabled":""} aria-label="Caixas ${esc(l.p.pt)}"></td><td class="r num">${fmtPT(l.pallets)}</td><td class="r num">${fmtPT(l.gross,0)} kg</td><td class="r num">${fmtPT(l.m3,2)} m³</td><td class="r num">${money(l.price,"pt-BR")}</td><td class="r num">${money(l.value,"pt-BR")}</td></tr>`).join("")}</tbody>
       <tfoot><tr><td>Total</td><td class="r num">${fmtPT(r.tot.cx,0)}</td><td class="r num">${fmtPT(r.tot.pallets)}</td><td class="r num">${fmtPT(r.tot.gross,0)} kg</td><td class="r num">${fmtPT(r.tot.m3,2)} m³</td><td></td><td class="r num">${money(r.tot.value,"pt-BR")}</td></tr></tfoot></table></div>
       ${o.status==="analise"?`<span class="label">${r.blocking?"Ajuste as quantidades na tabela para liberar a aprovação. ":""}Cada alteração recalcula o pedido e fica registrada na auditoria.</span>`:""}</div>
-    ${csv?`<div style="display:grid;gap:8px"><div class="p-head"><div style="display:grid;gap:6px"><div class="seg sm" role="group" aria-label="Formato"><button data-csvkind="sap" aria-pressed="${S.csvKind!=="ob"}">Arquivo SAP</button><button data-csvkind="ob" aria-pressed="${S.csvKind==="ob"}">Pedido completo · padrão Order Basis</button></div><span class="label">${S.csvKind==="ob"?"Todos os campos da Order Basis por item: códigos, EAN, DUN, pesos, cubagem, medidas, NCM, linha e totais":"Layout sugerido, a substituir pelo layout oficial de importação do SAP"}</span></div><span style="display:flex;gap:8px"><button class="btn-soft" data-copy>Copiar CSV</button><button class="btn sm" data-download>Baixar CSV</button></span></div><pre class="csv" id="csvBox">${esc(csv)}</pre></div>`:""}
+    ${csv?`<div style="display:grid;gap:8px"><div class="p-head"><div style="display:grid;gap:6px"><div class="seg sm" role="group" aria-label="Formato"><button data-csvkind="sap" aria-pressed="${S.csvKind!=="ob"}">Arquivo Sirius/SAP</button><button data-csvkind="ob" aria-pressed="${S.csvKind==="ob"}">Pedido completo · padrão Order Basis</button></div><span class="label">${S.csvKind==="ob"?"Todos os campos da Order Basis por item: códigos, EAN, DUN, pesos, cubagem, medidas, NCM, linha e totais":"Pronto para o analista fazer o upload no Sirius. Layout sugerido, a trocar pelo layout oficial de importação"}</span></div><div class="csv-acts"><button class="btn-soft" data-copy>Copiar</button><button class="btn sm" data-csvdl="${o.id}">Baixar .csv</button></div></div><pre class="csv" id="csvBox">${esc(csv)}</pre></div>`:""}
     <div><div class="sec-title">Trilha de auditoria</div><div class="audit">${o.audit.map(a=>`<div><time>${a.at}</time><span><b>${esc(a.who)}</b> · ${esc(a.what)}</span></div>`).join("")}</div></div>
   </div>`;
+}
+async function saveFile(name,text){
+  try{if(window.claude&&typeof window.claude.use==="function"){const d=await window.claude.use("downloads");if(d){await d.save({filename:name,data:text});toast("Arquivo salvo: "+name);return}}}
+  catch(e){if(e&&e.code==="declined")return;if(e&&e.code&&!["unavailable","not_granted","capability_disabled","capability_removed"].includes(e.code)){toast("Não foi possível baixar o arquivo","err");return}}
+  try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+text],{type:"text/csv;charset=utf-8"}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},800);toast("Arquivo baixado: "+name)}catch(_){toast("Use Copiar e cole no Sirius","err")}
 }
 function buildOB(o,r){
   const n=(v,d)=>Number(v).toFixed(d).replace(".",",");
@@ -1734,45 +2024,70 @@ function buildCSV(o,r){
 
 /* ---------- Base e regras ---------- */
 function renderBase(){
-  const el=document.getElementById("v-base");
-  let nDiv=0; const d=(a,b,tol=0.011)=>{const x=Math.abs(a-b)>tol;if(x)nDiv++;return x};
+  const el=document.getElementById("v-base"), tab=S.btab||"prod", qi=qualityIssues(), qprods=new Set(qi.map(x=>x.p.code)).size, act=P.filter(p=>!p.off).length, last=IMP.log[0];
+  el.innerHTML=`
+  <div class="hero"><div><div class="eyebrow">Exportação · Catálogo e dados</div><h1>Catálogo e dados</h1><p>O SAP é a fonte única do catálogo. Aqui ficam a ficha técnica de cada produto, a qualidade do cadastro e a importação das extrações do SAP.</p></div></div>
+  <div class="kpis mini">
+    <div class="kpi"><span class="label">Produtos no catálogo</span><b class="num">${act}</b><small>${P.length-act?`${P.length-act} fora de linha`:"todos ativos"}</small></div>
+    <div class="kpi"><span class="label">Pendências no cadastro</span><b class="num" style="${qi.length?"color:var(--err)":""}">${qi.length}</b><small>em ${qprods} produto${qprods===1?"":"s"} · SAP × Order Basis</small></div>
+    <div class="kpi"><span class="label">Sem preço no SAP</span><b class="num">${P.filter(p=>p.priceSrc!=="sap").length}</b><small>usando preço manual</small></div>
+    <div class="kpi"><span class="label">Última carga do SAP</span><b class="num">${last?esc(last.at.split(" ")[0]):"09/10"}</b><small>${last?`${last.n} produtos importados`:"carga inicial do catálogo"}</small></div>
+  </div>
+  <nav class="ptabs" role="tablist" aria-label="Seções">${[["prod","Produtos",P.length],["qual","Qualidade do cadastro",qi.length],["imp","Importar do SAP",0]].map(([k,l,n])=>`<button role="tab" aria-selected="${tab===k}" data-btab="${k}">${l}${n?`<span class="count">${n}</span>`:""}</button>`).join("")}</nav>
+  ${tab==="qual"?qualityHTML(qi):tab==="imp"?importHTML():catProdHTML(qi)}`;
+}
+function catProdHTML(qi){
+  const st=tbState("cat"), q=st.q.trim().toLowerCase(), ff=st.f.fam||"", fs=st.f.sit||"", by={};
+  qi.forEach(x=>(by[x.p.code]=by[x.p.code]||[]).push(x));
+  const sit=p=>p.off?"off":p.priceSrc==="missing"?"noprice":by[p.code]?"issue":"ok";
+  const rows=P.filter(p=>(!q||[p.pt,p.code,p.sap,p.ean,p.dun].some(x=>String(x||"").toLowerCase().includes(q)))&&(!ff||p.fam===ff)&&(!fs||sit(p)===fs));
+  const chip=p=>{const s=sit(p);return s==="off"?'<span class="chip neutral">Fora de linha</span>':s==="noprice"?'<span class="chip err">Sem preço</span>':s==="issue"?`<span class="chip warn">${by[p.code].length} pendência${by[p.code].length>1?"s":""}</span>`:'<span class="chip ok">Em dia</span>'};
+  const withImg=P.filter(p=>IMG[p.code]).length;
+  return `<div class="card">
+    <div class="tb-tools">${tbSearch("cat","Buscar por nome, código 3C, EAN ou DUN")}
+      <div class="tb-f">${tbSelect("cat","fam","Família",[["","Todas as famílias"],...famOpts()])}${tbSelect("cat","sit","Situação",[["","Todas as situações"],["ok","Em dia"],["issue","Com pendência"],["noprice","Sem preço"],["off","Fora de linha"]])}</div></div>
+    <div class="tbl-wrap"><table class="data cat2"><thead><tr><th></th><th>Produto</th><th>Família</th><th class="r">Paletização</th><th class="r">Peso bruto/cx</th><th class="r">Preço/cx (lista US)</th><th>Situação</th><th></th></tr></thead><tbody>
+    ${tbSlice("cat",rows).map(p=>{const open=S.pexp===p.code;return `<tr class="${open?"open":""}"><td class="ph">${IMG[p.code]?`<img src="${IMG[p.code]}" alt="">`:`<span class="dot" style="background:${famColor(p.fam)}"></span>`}</td>
+      <td><button class="rowlink" data-pexp="${p.code}" aria-expanded="${open}">${esc(p.pt)}<span class="code">${p.code} · ${esc(p.sap)}</span></button></td><td>${famName(p.fam)}</td>
+      <td class="r num">${p.lastro} × ${p.alt} = <b>${p.cxPal}</b></td><td class="r num">${fmtPT(p.gross,2)} kg</td><td class="r num">${p.price==null?'<span class="label">sem preço</span>':money(listPrice(p,"US"),"pt-BR")}</td><td>${chip(p)}</td>
+      <td class="r"><button class="pg-b ${open?"rot":""}" data-pexp="${p.code}" aria-label="${open?"Fechar":"Abrir"} ficha técnica">${CHEV}</button></td></tr>
+      ${open?`<tr class="cat-x"><td colspan="8">${fichaHTML(p,by[p.code]||[])}</td></tr>`:""}`}).join("")||`<tr><td colspan="8"><span class="label">Nenhum produto neste filtro.</span></td></tr>`}
+    </tbody></table></div>
+    ${pager("cat",rows.length)}
+    <div class="card-pad label" style="padding-top:4px">Ficha técnica no padrão da Order Basis. ${withImg} de ${P.length} produtos com foto. Clique em um produto para ver todos os campos ou trocar a foto.</div>
+  </div>`;
+}
+function fichaHTML(p,iss){
+  const f=(l,v)=>`<div><span class="label">${l}</span><b>${v==null||v===""?"-":v}</b></div>`;
+  return `<div class="ficha"><div class="fi-ph">${IMG[p.code]?`<img src="${IMG[p.code]}" alt="${esc(p.pt)}">`:`<span class="dot" style="background:${famColor(p.fam)};width:18px;height:18px"></span>`}<label class="link" style="cursor:pointer">Trocar foto<input type="file" accept="image/*" data-photo="${p.code}" hidden></label></div>
+    <div class="fi-grid">${f("Código 3C",p.code)}${f("Descrição SAP",esc(p.sap))}${f("Marca",esc(p.brand||""))}${f("Linha",esc(p.linha||""))}${f("Unidades por caixa",esc(p.unLbl))}${f("EAN",p.ean)}${f("DUN",p.dun)}${f("NCM",p.ncm)}${f("Peso líquido/cx",fmtPT(p.net,3)+" kg")}${f("Peso bruto/cx",fmtPT(p.gross,3)+" kg")}${f("Cubagem/cx",fmtPT(p.m3,4)+" m³")}${f("Dimensões (CxLxA)",p.dims?p.dims+" mm":"")}${f("Lastro × camadas",p.lastro+" × "+p.alt)}${f("Caixas por pallet",p.cxPal)}${f("Lote mínimo",fmtPT(p.loteMin,p.loteMin%1?2:0)+" pallet"+(p.loteMin>1?"s":""))}${f("Validade",p.shelf?p.shelf+" dias":"")}</div>
+    ${iss.length?`<div class="fi-iss"><b>${iss.length} pendência${iss.length>1?"s":""} no cadastro</b>${iss.map(x=>`<span>${x.t}</span>`).join("")}<button class="link" data-view="base" data-btab="qual">Ver em Qualidade do cadastro ${SVG.arrow}</button></div>`:""}</div>`;
+}
+function qualityHTML(qi){
+  const cat=S.qcat||"all", cnt=k=>k==="all"?qi.length:qi.filter(x=>x.cat===k).length, list=qi.filter(x=>cat==="all"||x.cat===cat), groups={};
+  list.forEach(x=>(groups[x.p.code]=groups[x.p.code]||{p:x.p,items:[]}).items.push(x));
+  const nCarga=qi.filter(x=>x.imp==="carga").length;
+  return `<div class="card card-pad qa-intro">${xav("pensando",44)}<div><b>Como ler esta tela</b><p>O 3C Conecta sempre usa o valor do SAP. Aqui aparecem os pontos em que a planilha Order Basis, usada hoje, diverge do SAP, e o efeito de cada um. ${nCarga} das ${qi.length} divergências mudam o cálculo da carga, como o pedido teste que a planilha aprovou e não cabia na carreta.</p></div></div>
+  <div class="qcats" role="group" aria-label="Filtrar por tipo">${[["all","Todas"],...Object.entries(QCAT)].map(([k,l])=>`<button data-qcat="${k}" aria-pressed="${cat===k}">${l}<span class="n">${cnt(k)}</span></button>`).join("")}</div>
+  <div class="qlist">${Object.values(groups).map(g=>`<article class="card qitem"><div class="qi-h">${prodCell(g.p)}<span class="label">${g.items.length} divergência${g.items.length>1?"s":""}</span></div>
+    <ul>${g.items.map(x=>`<li><span class="qtag ${x.cat}">${QCAT[x.cat]}</span><div><p>${x.t}</p><div class="qi-m"><span class="chip ${x.imp==="carga"?"err":"warn"}">${x.imp==="carga"?"Muda o cálculo da carga":"Muda o valor do pedido"}</span><span class="label">O 3C Conecta usa <b>${x.use}</b></span></div></div></li>`).join("")}</ul></article>`).join("")||`<div class="card card-pad label">Nenhuma divergência neste filtro.</div>`}</div>
+  <details class="card qa-raw"><summary>Ver a comparação completa SAP × Order Basis</summary>${qaRawTable()}</details>`;
+}
+function qaRawTable(){
+  const d=(a,b,tol=0.011)=>Math.abs(a-b)>tol;
   const rows=P.map(p=>{
-    if(!p.ob) return `<tr><td><div style="display:flex;gap:10px;align-items:center"><span class="dot" style="background:${famColor(p.fam)}"></span><div>${esc(p.pt)} <span class="chip neutral" style="font-size:10.5px;padding:1px 7px">importado</span><div class="code">${p.code} · ${p.lastro} × ${p.alt} camadas</div></div></div></td><td class="r num">${p.cxPal}</td><td class="r label">—</td><td class="r label">—</td><td class="r num">${p.price==null?"sem preço":fmtPT(p.price)}</td><td class="r label">—</td><td class="r num">${fmtPT(p.loteMin,0)}</td><td class="r label">—</td><td class="r num">${fmtPT(p.gross,2)}</td><td class="r label">—</td></tr>`;
+    if(!p.ob) return `<tr><td>${prodCell(p,p.code+" · importado do SAP")}</td><td class="r num">${p.cxPal}</td><td class="r label">-</td><td class="r label">-</td><td class="r num">${p.price==null?"sem preço":fmtPT(p.price)}</td><td class="r label">-</td><td class="r num">${fmtPT(p.loteMin,0)}</td><td class="r label">-</td><td class="r num">${fmtPT(p.gross,2)}</td><td class="r label">-</td></tr>`;
     const c1=d(p.ob.cxPal,p.cxPal), c2=d(p.ob.palz,p.cxPal), manual=p.priceSrc==="manual", pr=manual||d(p.ob.price,p.price), lo=d(p.ob.lote,p.loteMin), gw=d(p.ob.grossCx,p.gross,0.05);
-    if(manual)nDiv++;
-    return `<tr><td><div style="display:flex;gap:10px;align-items:center"><span class="dot" style="background:${famColor(p.fam)}"></span><div>${esc(p.pt)}<div class="code">${p.code} · ${p.lastro} × ${p.alt} camadas · pallet ≈ ${fmtPT(p.alt*parseInt(p.dims.split("×")[2])/1000+0.15,2)} m de altura</div></div></div></td>
+    return `<tr><td>${prodCell(p,`${p.code} · ${p.lastro} × ${p.alt} camadas`)}</td>
     <td class="r num">${p.cxPal}</td><td class="r num ${c1?"div":""}">${fmtPT(p.ob.cxPal,0)}</td><td class="r num ${c2?"div":""}">${fmtPT(p.ob.palz,p.ob.palz%1?2:0)}</td>
     <td class="r num ${pr?"div":""}">${manual?"sem preço":fmtPT(p.price)}</td><td class="r num">${fmtPT(p.ob.price)}</td>
     <td class="r num">${fmtPT(p.loteMin,0)}</td><td class="r num ${lo?"div":""}">${fmtPT(p.ob.lote,p.ob.lote%1?2:0)}</td>
     <td class="r num">${fmtPT(p.gross,2)}</td><td class="r num ${gw?"div":""}">${fmtPT(p.ob.grossCx,2)}</td></tr>`}).join("");
-  el.innerHTML=`
-  <div class="hero"><div><div class="eyebrow">Exportação · Catálogo e dados</div><h1>Catálogo, fontes e qualidade de dados</h1>
-  <p>O SAP é a fonte única do catálogo. Onde a Order Basis diverge do SAP, o valor aparece em vermelho, e a Exportação só confirma as exceções.</p></div></div>
-  <div class="kpis"><div class="kpi"><span class="label">Produtos no catálogo</span><b class="num">${P.length}</b></div><div class="kpi"><span class="label">Divergências encontradas</span><b class="num" style="color:var(--err)">${nDiv}</b></div><div class="kpi"><span class="label">Sem preço no SAP</span><b class="num">${P.filter(p=>p.priceSrc!=="sap").length}</b></div><div class="kpi"><span class="label">Veículos cadastrados</span><b class="num">${Object.keys(VEH).length}</b></div></div>
-  ${importHTML()}
-  ${catalogHTML()}
-  <div class="card card-pad" style="display:grid;gap:16px"><div class="tbl-wrap"><table class="data">
+  return `<div class="tbl-wrap"><table class="data">
     <thead><tr><th rowspan="2" style="vertical-align:bottom">Produto</th><th class="r" colspan="3">Caixas por pallet</th><th class="r" colspan="2">Preço USD/cx</th><th class="r" colspan="2">Lote mínimo</th><th class="r" colspan="2">Peso bruto/cx (kg)</th></tr>
-    <tr><th class="r">SAP</th><th class="r">Order Basis</th><th class="r">Aba Paletiz.</th><th class="r">SAP</th><th class="r">Order Basis</th><th class="r">LONT</th><th class="r">Order Basis</th><th class="r">SAP</th><th class="r">Order Basis</th></tr></thead>
+    <tr><th class="r">SAP</th><th class="r">Order Basis</th><th class="r">Aba Paletiz.</th><th class="r">SAP</th><th class="r">Order Basis</th><th class="r">SAP</th><th class="r">Order Basis</th><th class="r">SAP</th><th class="r">Order Basis</th></tr></thead>
     <tbody>${rows}</tbody></table></div>
-    <div class="rules" style="font-size:13px;color:var(--muted)">
-      <div><span><b style="color:var(--ink)">Fontes.</b> SAP = Materiais (lastro × altura), Conferência de produtos (peso e volume da caixa) e Registros (preço). Order Basis = valores que a planilha usa hoje.</span></div>
-      <div><span><b style="color:var(--ink)">Peso.</b> A Order Basis multiplica o peso da unidade pela quantidade por caixa e ignora a caixa de papelão. No stick de solúvel, a unidade cadastrada é o display de 10, então o peso fica quase 10 vezes maior.</span></div>
-      <div><span><b style="color:var(--ink)">Lote mínimo.</b> A planilha pega o primeiro valor que encontra (filial BHO), mesmo quando o pedido sai de Londrina.</span></div>
-    </div></div>
-  <div class="card card-pad" style="display:grid;gap:14px"><div class="p-head"><h3 style="font-size:18px">Veículos e regras em vigor</h3><button class="btn-soft" data-view="params">Editar em Parâmetros ${SVG.arrow}</button></div>
-    <div class="grid2" style="gap:20px;align-items:start">
-      <div class="tbl-wrap"><table class="data"><thead><tr><th>Veículo</th><th class="r">Cubagem</th><th class="r">Peso</th><th class="r">Posições</th></tr></thead><tbody>
-        ${Object.entries(VEH).map(([k,x])=>`<tr><td>${esc(x.pt)}${vehOn(k)?"":' <span class="chip neutral">fora de uso</span>'}</td><td class="r num">${fmtPT(x.m3,2)} m³</td><td class="r num">${fmtPT(x.kg,0)} kg</td><td class="r num">${x.pos}</td></tr>`).join("")}</tbody></table></div>
-      <div class="rules">
-        <div>Pallets = caixas ÷ (lastro × camadas)</div>
-        <div>Carga completa a partir de ${nf(RULES.fullAt*100)}% do recurso limitante (peso, cubagem ou posições)</div>
-        <div>Lote mínimo ${RULES.minLotBlock?"bloqueia o envio":"gera só alerta"}; pallet incompleto ${RULES.fullPalBlock?"bloqueia o envio":"gera alerta"}</div>
-        <div>Sem pallet misto, cada pallet incompleto ocupa uma posição inteira</div>
-        <div>Restrição por destino bloqueia o produto no catálogo do cliente</div>
-        <div>Carregamento a partir de ${RULES.leadDays} dias · alerta de fila após ${nf(RULES.lateH)} h</div>
-      </div></div></div>
-  `;
+    <div class="label" style="padding:12px 20px 18px">Em vermelho, os valores da planilha que divergem do SAP. Fontes do SAP: Materiais (lastro × camadas), Conferência de produtos (peso e volume da caixa) e Registros (preço).</div>`;
 }
 
 /* ============ PARÂMETROS DO NEGÓCIO (painel 3corações) ============ */
@@ -1899,8 +2214,9 @@ function pRules(){
       <div class="prow"><div><b>Pallet incompleto</b><span class="label">Quando a quantidade não fecha o último pallet do produto.</span></div>${seg("rules.fullPalBlock",{label:"Pallet incompleto",o:[[false,"Só alerta"],[true,"Bloqueia o envio"]]})}</div>
     </section>
     <section class="card card-pad pcard"><div class="sec-h">${NI.clients.replace("<svg ",'<svg width="16" height="16" ')}Regras por cliente</div>
-      ${Object.entries(CLIENTS).map(([k,c])=>`<div class="prow"><div><b>${esc(c.name)}</b><span class="label">${esc(c.dest)} · lista ${c.list} · ${c.inc}</span></div><div class="pcl"><label class="switch"><input type="checkbox" data-mixclient="${k}" ${c.mixed?"checked":""} aria-label="Pallet misto para ${esc(c.name)}"> Pallet misto</label><label class="switch"><input type="checkbox" data-autoclient="${k}" ${c.autoApprove?"checked":""} aria-label="Aprovação automática para ${esc(c.name)}"> Aprovação automática</label></div></div>`).join("")}
-      <div class="label">Estas duas valem na hora e ficam no histórico.</div>
+      ${(()=>{const cls=Object.values(CLIENTS),nm=cls.filter(c=>c.mixed).length,na=cls.filter(c=>c.autoApprove).length;return `<div class="prow"><div><b>Pallet misto</b><span class="label">Liberado para ${nm} de ${cls.length} cliente${cls.length>1?"s":""}.</span></div><span class="chip ${nm?"ok":"neutral"}">${nm} de ${cls.length}</span></div>
+      <div class="prow"><div><b>Aprovação automática</b><span class="label">Ativa para ${na} de ${cls.length} cliente${cls.length>1?"s":""}. Pedido sem bloqueio e com carga completa entra aprovado.</span></div><span class="chip ${na?"ok":"neutral"}">${na} de ${cls.length}</span></div>`})()}
+      <div class="prow"><span class="label" style="max-width:none">As regras são definidas na ficha de cada cliente e valem na hora.</span><button class="btn-soft" data-view="clients" data-ctab="clients">Gerenciar clientes ${SVG.arrow}</button></div>
     </section>
   </div>`;
 }
@@ -1935,22 +2251,32 @@ function pVeh(){
   return `<p class="label" style="margin:0">A capacidade entra no cálculo de ocupação, na recomendação de veículo, na divisão em embarques e no plano 3D. Pedidos aprovados mantêm a capacidade da data de aprovação.</p><div class="vgrid">${cards}${nv}</div>`;
 }
 function pProd(){
-  return `<div class="card"><div class="card-pad p-head" style="padding-bottom:8px"><h3 style="font-size:18px">Paletização e lote por produto</h3><span class="label">Caixas por pallet = lastro × camadas</span></div>
+  const st=tbState("pprod"), q=st.q.trim().toLowerCase(), ff=st.f.fam||"", fs=st.f.on||"";
+  const rows=P.filter(p=>{const off=pv("prod."+p.code+".off",!!p.off);return (!q||[p.pt,p.code,p.sap].some(x=>String(x||"").toLowerCase().includes(q)))&&(!ff||p.fam===ff)&&(!fs||(fs==="off"?off:!off))});
+  return `<div class="card"><div class="tb-tools">${tbSearch("pprod","Buscar produto ou código")}<div class="tb-f">${tbSelect("pprod","fam","Família",[["","Todas as famílias"],...famOpts()])}${tbSelect("pprod","on","Situação",[["","Ativos e fora de linha"],["on","Só ativos"],["off","Só fora de linha"]])}</div><span class="label tb-note">Caixas por pallet = lastro × camadas</span></div>
     <div class="tbl-wrap"><table class="data ptbl"><thead><tr><th>Produto</th><th class="r">Lastro<small>cx por camada</small></th><th class="r">Camadas</th><th class="r">Cx/pallet</th><th class="r">Lote mínimo<small>pallets</small></th><th class="r">Peso bruto<small>por caixa</small></th><th>No catálogo</th></tr></thead>
-    <tbody>${P.map(p=>{const off=pv("prod."+p.code+".off",!!p.off),cx=pv("prod."+p.code+".lastro",p.lastro)*pv("prod."+p.code+".alt",p.alt);
+    <tbody>${tbSlice("pprod",rows).map(p=>{const off=pv("prod."+p.code+".off",!!p.off),cx=pv("prod."+p.code+".lastro",p.lastro)*pv("prod."+p.code+".alt",p.alt);
       return `<tr class="${off?"off":""}"><td><div style="display:flex;gap:10px;align-items:center"><span class="dot" style="background:${famColor(p.fam)}"></span><div>${esc(p.pt)}<div class="code">${p.code} · ${esc(p.unLbl)}</div></div></div></td>
       <td class="r">${pin("prod."+p.code+".lastro",p.lastro,{label:"Lastro: "+p.pt})}</td><td class="r">${pin("prod."+p.code+".alt",p.alt,{label:"Camadas: "+p.pt})}</td>
       <td class="r num"><b id="cxp-${p.code}">${fmtPT(cx,0)}</b></td>
       <td class="r">${pin("prod."+p.code+".loteMin",p.loteMin,{label:"Lote mínimo: "+p.pt})}</td><td class="r">${pin("prod."+p.code+".gross",p.gross,{suffix:"kg",label:"Peso bruto por caixa: "+p.pt})}</td>
-      <td>${sw("prod."+p.code+".off",!off,"Ativo","Fora de linha",true,"No catálogo: "+p.pt)}</td></tr>`}).join("")}</tbody></table></div>
-    <div class="card-pad label" style="padding-top:12px">Os valores de fábrica vêm do SAP (Materiais e Conferência de produtos). Um ajuste aqui vale para o portal até a próxima carga do SAP; divergências com a Order Basis continuam em Catálogo e dados. Produto fora de linha some do catálogo do cliente e bloqueia pedidos que ainda o tenham.</div></div>`;
+      <td>${sw("prod."+p.code+".off",!off,"Ativo","Fora de linha",true,"No catálogo: "+p.pt)}</td></tr>`}).join("")||`<tr><td colspan="7"><span class="label">Nenhum produto neste filtro.</span></td></tr>`}</tbody></table></div>
+    ${pager("pprod",rows.length)}
+    <div class="card-pad label" style="padding-top:4px">Os valores de fábrica vêm do SAP (Materiais e Conferência de produtos). Um ajuste aqui vale para o portal até a próxima carga do SAP; divergências com a Order Basis continuam em Catálogo e dados. Produto fora de linha some do catálogo do cliente e bloqueia pedidos que ainda o tenham.</div></div>`;
 }
 function pDest(){
-  const cls=Object.entries(CLIENTS);
-  return `<div class="card"><div class="card-pad p-head" style="padding-bottom:8px"><h3 style="font-size:18px">Produtos liberados por cliente e destino</h3><span class="label">Desligue para bloquear o produto naquele destino</span></div>
-    <div class="tbl-wrap"><table class="data"><thead><tr><th>Produto</th>${cls.map(([k,c])=>`<th>${esc(c.name)}<small>${esc(c.dest)} · lista ${c.list}</small></th>`).join("")}</tr></thead>
-    <tbody>${P.map(p=>`<tr><td><div style="display:flex;gap:10px;align-items:center"><span class="dot" style="background:${famColor(p.fam)}"></span><div>${esc(p.pt)}<div class="code">${p.code}</div></div></div></td>${cls.map(([k,c])=>{const path=`block.${k}.${p.code}`,blk=pv(path,c.blocked.includes(p.code));return `<td><div class="pcl">${sw(path,!blk,"Liberado","Bloqueado",true,p.pt+" para "+c.name)}${hasPrice(p,c)?"":'<span class="note warn">sem preço na lista</span>'}</div></td>`}).join("")}</tr>`).join("")}</tbody></table></div>
-    <div class="card-pad label" style="padding-top:12px">O bloqueio vale na hora para o catálogo, o pedido sugerido, a importação por Excel e a validação do pedido.</div></div>`;
+  const cls=Object.entries(CLIENTS); if(!S.pdc||!CLIENTS[S.pdc])S.pdc=cls[0][0];
+  const k=S.pdc, c=CLIENTS[k], st=tbState("pdest"), q=st.q.trim().toLowerCase(), fv=st.f.v||"";
+  const isB=p=>pv(`block.${k}.${p.code}`,c.blocked.includes(p.code));
+  const rows=P.filter(p=>(!q||[p.pt,p.code].some(x=>String(x).toLowerCase().includes(q)))&&(!fv||(fv==="blk"?isB(p):!isB(p))));
+  const nb=P.filter(isB).length;
+  return `<div class="card"><div class="tb-tools"><label class="tb-sel"><span class="label">Cliente</span><select id="pdcSel" aria-label="Cliente">${cls.map(([kk,cc])=>`<option value="${kk}" ${kk===k?"selected":""}>${esc(cc.name)} · ${esc(cc.dest)}</option>`).join("")}</select></label>
+      ${tbSearch("pdest","Buscar produto ou código")}<div class="tb-f">${tbSelect("pdest","v","Situação",[["","Todos os produtos"],["blk","Só bloqueados"],["ok","Só liberados"]])}</div></div>
+    <div class="pl-info"><span class="chip ${nb?"err":"ok"}">${nb} bloqueado${nb===1?"":"s"}</span><span class="label">${esc(c.name)} · ${esc(c.dest)} · lista ${c.list}. Desligue para bloquear o produto neste destino.</span></div>
+    <div class="tbl-wrap"><table class="data"><thead><tr><th>Produto</th><th>Família</th><th>No destino</th><th class="r">Preço na lista</th></tr></thead>
+    <tbody>${tbSlice("pdest",rows).map(p=>{const path=`block.${k}.${p.code}`;return `<tr><td>${prodCell(p)}</td><td>${famName(p.fam)}</td><td>${sw(path,!isB(p),"Liberado","Bloqueado",true,p.pt+" para "+c.name)}</td><td class="r num">${hasPrice(p,c)?money(priceFor(p,k),"pt-BR"):'<span class="note warn">sem preço na lista</span>'}</td></tr>`}).join("")||`<tr><td colspan="4"><span class="label">Nenhum produto neste filtro.</span></td></tr>`}</tbody></table></div>
+    ${pager("pdest",rows.length)}
+    <div class="card-pad label" style="padding-top:4px">O bloqueio vale na hora para o catálogo do cliente, o pedido sugerido, a importação por Excel e a validação do pedido.</div></div>`;
 }
 function pLog(){
   return `<div class="card card-pad" style="display:grid;gap:10px"><div class="p-head"><h3 style="font-size:18px">Histórico de alterações</h3><span class="label">${RLOG.length} registro${RLOG.length===1?"":"s"} · quem, quando e o que mudou</span></div>
@@ -2055,7 +2381,7 @@ function importHTML(){
   const cnt=k=>pv?pv.items.filter(i=>i.status===k).length:0;
   const nAl=pv?pv.items.reduce((a,i)=>a+i.alerts.length,0):0;
   return `<div class="card card-pad" style="display:grid;gap:16px">
-    <div class="p-head"><div><h3 style="font-size:18px">Importar do SAP</h3><div class="label">Arraste as extrações Conferência de produtos, Materiais e Registros, no formato em que saem do SAP. Nada muda no catálogo antes da sua confirmação.</div></div></div>
+    <div class="p-head"><div><h3 style="font-size:18px">Importar extrações do SAP</h3><div class="label">Arraste as extrações Conferência de produtos, Materiais e Registros, no formato em que saem do SAP. Nada muda no catálogo antes da sua confirmação.</div></div></div>
     <label class="drop" id="drop"><input type="file" id="sapFiles" multiple accept=".xlsx,.xls,.csv" hidden>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5"/><path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg>
       <b>Arraste as planilhas aqui</b><span class="label">ou clique para escolher · .xlsx, .xls ou .csv</span></label>
@@ -2258,7 +2584,7 @@ function qfMatch(o,r){
   if(S.qf==="late")return o.status==="analise"&&Date.now()-(o.createdMs||0)>lateMs(); if(S.qf==="partial")return r.status==="partial";
   return o.status===S.qf;
 }
-function dataIssues(){let n=0;const d=(a,b,tol)=>Math.abs(a-b)>(tol||0.011);P.forEach(p=>{if(!p.ob)return;if(d(p.ob.cxPal,p.cxPal))n++;if(d(p.ob.palz,p.cxPal))n++;if(p.priceSrc==="manual"||d(p.ob.price,p.price))n++;if(d(p.ob.lote,p.loteMin))n++;if(d(p.ob.grossCx,p.gross,0.05))n++});return {div:n,noPrice:P.filter(p=>p.priceSrc!=="sap").length}}
+function dataIssues(){const q=qualityIssues();return {div:q.length,prods:new Set(q.map(x=>x.p.code)).size,noPrice:P.filter(p=>p.priceSrc!=="sap").length}}
 function attnHTML(rs){
   const blk=rs.filter(({o,r})=>o.status==="analise"&&r.blocking).length, late=rs.filter(({o})=>o.status==="analise"&&Date.now()-(o.createdMs||0)>lateMs()).length;
   const part=rs.filter(({r})=>r.status==="partial"), free=part.reduce((a,{r})=>a+Math.max(0,r.v.pos-r.tot.positions),0), di=dataIssues();
@@ -2266,7 +2592,7 @@ function attnHTML(rs){
     <button class="att ${blk?"err":"ok"}" data-qf="blk" aria-pressed="${S.qf==="blk"}"><span class="lbl">Bloqueados</span><b class="num">${blk}</b><span class="s">${blk?"pedidos que precisam de ajuste antes de aprovar":"nenhum pedido travado"}</span></button>
     <button class="att ${late?"warn":"ok"}" data-qf="late" aria-pressed="${S.qf==="late"}"><span class="lbl">${QFX.late}</span><b class="num">${late}</b><span class="s">${late?"fora do prazo de resposta ao cliente":"fila dentro do prazo"}</span></button>
     <button class="att info" data-qf="partial" aria-pressed="${S.qf==="partial"}"><span class="lbl">Cargas incompletas</span><b class="num">${part.length}</b><span class="s">${free} posições livres para completar</span></button>
-    <button class="att ${di.div?"warn":"ok"}" data-view="base"><span class="lbl">Qualidade de dados</span><b class="num">${di.div}</b><span class="s">divergências SAP × Order Basis · ${di.noPrice} sem preço no SAP</span></button>
+    <button class="att ${di.div?"warn":"ok"}" data-view="base" data-btab="qual"><span class="lbl">Qualidade do cadastro</span><b class="num">${di.div}</b><span class="s">divergências em ${di.prods} produtos · ${di.noPrice} sem preço no SAP</span></button>
   </div></div>`;
 }
 function adminInsightsHTML(rs){
@@ -2274,7 +2600,10 @@ function adminInsightsHTML(rs){
 }
 
 /* ============ RECOMENDAÇÃO DE VEÍCULO E DIVISÃO EM EMBARQUES ============ */
-function bestVehicle(d){let best=null,bu=-1;activeVeh().forEach(k=>{const rr=calc(d.qty,{...d,veh:k});if(rr.lines.length&&rr.maxU<=1+EPS&&rr.maxU>bu){bu=rr.maxU;best=k}});return best}
+function bestVehicle(d){let best=null,bu=-1;activeVeh().forEach(k=>{const rr=calc(d.qty,{...d,veh:k});if(rr.lines.length&&rr.maxU<=1+EPS&&rr.maxU>bu){bu=rr.maxU;best=k}});
+  /* só troca de veículo quando o ganho de ocupação for de pelo menos 3 pontos */
+  if(best&&d.veh&&best!==d.veh&&vehOn(d.veh)){const cur=calc(d.qty,{...d,veh:d.veh});if(cur.lines.length&&cur.maxU<=1+EPS&&bu-cur.maxU<0.03)return d.veh}
+  return best}
 function vehPicker(){
   const d=draft(), best=bestVehicle(d);
   return `<div class="vehs" role="radiogroup" aria-label="${t("vehicle")}">${Object.entries(VEH).filter(([k])=>vehOn(k)||k===S.veh).map(([k,x])=>{const rr=calc(d.qty,{...d,veh:k}),pct=rr.maxU*100,c=!rr.lines.length?"var(--surface-3)":rr.status==="excess"?"var(--err)":rr.status==="full"?"var(--ok)":"var(--warn)";
@@ -3022,7 +3351,7 @@ function adminAnswer(q){
     return A(`<p>${d.late.length} pedido${d.late.length>1?"s":""} esperando há mais de ${nf(RULES.lateH)} h:</p><ul>${d.late.map(admLine).join("")}</ul>`,d.late.slice(0,3).map(x=>openAct(x.o.id)),"alerta")}
   /* arquivo SAP */
   if(has(/\bsap\b|arquivo|csv|ordem de venda/)){
-    return A(`<p>O arquivo para o SAP sai do detalhe do pedido: aprove e clique em <b>Gerar arquivo para o SAP</b>. Também dá para baixar o pedido no padrão Order Basis.</p>${d.noSap.length?`<p>Aprovados sem arquivo:</p><ul>${d.noSap.map(admLine).join("")}</ul>`:"<p>Todos os aprovados já têm arquivo gerado.</p>"}`,d.noSap.slice(0,3).map(x=>openAct(x.o.id)))}
+    return A(`<p>O arquivo sai do detalhe do pedido: aprove e clique em <b>Gerar arquivo Sirius/SAP</b>, depois em <b>Baixar .csv</b> para fazer o upload no Sirius. Também dá para baixar o pedido no padrão Order Basis.</p>${d.noSap.length?`<p>Aprovados sem arquivo:</p><ul>${d.noSap.map(admLine).join("")}</ul>`:"<p>Todos os aprovados já têm arquivo gerado.</p>"}`,d.noSap.slice(0,3).map(x=>openAct(x.o.id)))}
   /* insights */
   if(has(/insight\w*|sugest\w*|oportunidad\w*|melhor\w*|recomend\w*|dica\w*|otimiz\w*|frete|aproveit\w*/)){
     return A(`<ul>${adminInsightsList(d.rs).map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`,[["Ver Indicadores",'data-view="kpi"']])}
@@ -3031,7 +3360,7 @@ function adminAnswer(q){
     return A(`<ul>${Object.entries(CLIENTS).map(([k,c])=>{const n=S.orders.filter(o=>o.client===k).length;return `<li><b>${esc(c.name)}</b> · ${esc(c.dest)} · lista ${c.list} · ${n} pedido${n===1?"":"s"} · pallet misto ${c.mixed?"aceito":"não aceito"} · aprovação automática ${c.autoApprove?"ativa":"desligada"}${c.blocked.length?` · ${c.blocked.length} restrição${c.blocked.length>1?"ões":""}`:""}</li>`}).join("")}</ul>`,[["Abrir Clientes e preços",'data-view="clients"']])}
   /* qualidade de dados */
   if(has(/divergen\w*|qualidade|order basis|sem preco|dados do sap|catalogo/)){
-    const di=dataIssues();return A(`<p>${di.div} divergência${di.div===1?"":"s"} entre SAP e Order Basis e ${di.noPrice} produto${di.noPrice===1?"":"s"} sem preço no SAP.</p><p>Os valores divergentes aparecem em vermelho em Catálogo e dados.</p>`,[["Abrir Catálogo e dados",'data-view="base"']],di.div?"alerta":"feliz")}
+    const di=dataIssues();return A(`<p>${di.div} divergência${di.div===1?"":"s"} entre SAP e Order Basis e ${di.noPrice} produto${di.noPrice===1?"":"s"} sem preço no SAP.</p><p>Cada divergência aparece explicada em Catálogo e dados, na aba Qualidade do cadastro, com o valor que o 3C Conecta usa.</p>`,[["Abrir Qualidade do cadastro",'data-view="base" data-btab="qual"']],di.div?"alerta":"feliz")}
   /* regras e veículos */
   if(has(/parametr\w*|regra\w*|veicul\w*|carreta|conteiner|container|capacidade|posic\w*|lote minimo|prazo/)){
     return A(`<ul>${activeVeh().map(k=>`<li><b>${esc(VEH[k].pt)}</b>: ${VEH[k].pos} posições · ${fmtPT(VEH[k].kg,0)} kg · ${fmtPT(VEH[k].m3,2)} m³</li>`).join("")}</ul><p>Carga completa a partir de ${nf(RULES.fullAt*100)}% · prazo mínimo de ${RULES.leadDays} dias · lote mínimo ${RULES.minLotBlock?"bloqueia":"só alerta"} · pallet incompleto ${RULES.fullPalBlock?"bloqueia":"só alerta"}.</p>`,[["Abrir Parâmetros",'data-view="params"']])}
@@ -3128,7 +3457,7 @@ const API={
   /* POST /api/v1/orders/:id/sap-export */
   exportSap(id){
     const o=API.get(id); if(!FLOW[o.status].includes("sap"))throw new ApiError(409,"Aprove o pedido antes de gerar o arquivo para o SAP");
-    if(o.status!=="sap"){o.status="sap";o.sapAt=nowStamp();o.v=(o.v||1)+1;o.audit.push({...stamp(),who:ACTOR_EXP,what:"Arquivo de importação para o SAP gerado"})}
+    if(o.status!=="sap"){o.status="sap";o.sapAt=nowStamp();o.v=(o.v||1)+1;o.audit.push({...stamp(),who:ACTOR_EXP,what:"Arquivo para upload no Sirius/SAP gerado"})}
     save(); return o;
   },
   /* PUT /api/v1/clients/:id/rules */
@@ -3213,7 +3542,7 @@ function resetDemo(){try{localStorage.removeItem(STORE_KEY)}catch(_){}location.r
 S.orders.push({id:"3CC-2026-0001",client:"minoil",veh:"carreta",mode:"pal",mixed:false,qty:{"12031189":3528,"12034103":300,"12037417":250,"12144012":300},ref:"PEDIDO TESTE",date:"",status:"analise",created:"09/10 17:53",createdMs:new Date(2026,9,9,17,53).getTime(),origin:"Order Basis",
   audit:[{at:"09/10 17:53",who:"Lucas (Exportação)",what:"Pedido importado da planilha Order Basis para comparação. A planilha indicava embarque OK."},{at:"09/10 17:54",who:"Motor de validação",what:"30 pallets para 28 posições na carreta: excesso de 2 posições."}]});
 S.orders.push({id:"3CC-2026-0002",client:"minoil",veh:"carreta",mode:"pal",mixed:false,v:4,qty:{"12031189":2688,"12034103":405,"12142146":600,"12037417":182},ref:"OC-2026-097",date:"2026-10-24",status:"sap",created:"11/10 09:12",createdMs:new Date(2026,9,11,9,12).getTime(),approved:"11/10 11:40",approvedMs:new Date(2026,9,11,11,40).getTime(),sapAt:"11/10 11:52",origin:"Portal",
-  audit:[{at:"11/10 09:12",who:"Martín (MINOIL S.A.)",what:"Pedido criado no portal com 4 itens e validado automaticamente (carga incompleta, 96%)"},{at:"11/10 11:31",who:"Lucas (Exportação)",kind:"edit",code:"12034103",old:324,nv:405,what:"Alterou 12034103 (Cappuccino Clássico sachê 20 g) de 324 para 405 cx para completar a carreta"},{at:"11/10 11:40",who:"Lucas (Exportação)",what:"Pedido aprovado após 1 ajuste"},{at:"11/10 11:52",who:"Lucas (Exportação)",what:"Arquivo de importação para o SAP gerado"}]});
+  audit:[{at:"11/10 09:12",who:"Martín (MINOIL S.A.)",what:"Pedido criado no portal com 4 itens e validado automaticamente (carga incompleta, 96%)"},{at:"11/10 11:31",who:"Lucas (Exportação)",kind:"edit",code:"12034103",old:324,nv:405,what:"Alterou 12034103 (Cappuccino Clássico sachê 20 g) de 324 para 405 cx para completar a carreta"},{at:"11/10 11:40",who:"Lucas (Exportação)",what:"Pedido aprovado após 1 ajuste"},{at:"11/10 11:52",who:"Lucas (Exportação)",what:"Arquivo para upload no Sirius/SAP gerado"}]});
 S.orders.push({id:"3CC-2026-0003",client:"rioclaro",veh:"c40",mode:"pal",mixed:false,qty:{"12031291":1176,"12034109":140,"12142501":1400,"12147801":540},ref:"OC-4471",date:"2026-11-03",status:"aprovado",created:"12/10 10:21",createdMs:new Date(2026,9,12,10,21).getTime(),approved:"12/10 14:05",approvedMs:new Date(2026,9,12,14,5).getTime(),origin:"Portal",
   audit:[{at:"12/10 10:21",who:"Sofía (Distribuidora Río Claro S.R.L.)",what:"Pedido criado no portal e validado automaticamente."},{at:"12/10 14:05",who:"Lucas (Exportação)",what:"Pedido aprovado sem alterações."}]});
 S.sel="3CC-2026-0001";
@@ -3236,6 +3565,9 @@ function act(a){
   render();toast(t("tApplied"));
 }
 try{const th=localStorage.getItem("3cc-theme");if(th==="light"||th==="dark")S.theme=th}catch(_){}
+S.sidePin=true;S.sidePeek=false;try{if(localStorage.getItem("3cc-side")==="mini")S.sidePin=false}catch(_){}
+{const sd=document.getElementById("side");sd.addEventListener("mouseleave",()=>{if(S.sidePeek){S.sidePeek=false;sideSync()}})}
+document.addEventListener("click",e=>{if(S.sidePeek&&!e.target.closest("#side")){S.sidePeek=false;sideSync()}},true);
 applyTheme();
 try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{if(!S.theme)render()})}catch(_){}
 document.addEventListener("click",e=>{
@@ -3260,6 +3592,7 @@ document.addEventListener("click",e=>{
   if(b.dataset.preset){if(!S.presetArm){S.presetArm=true;render();setTimeout(()=>{if(S.presetArm){S.presetArm=false;render()}},4000);return}S.presetArm=false;try{const done=API.resetSettings(b.dataset.preset);S.pd={};S.pbad={};S.praw={};render();toast(done.length?`Padrão restaurado (${done.length} ${done.length>1?"valores":"valor"})`:"Já estava no padrão")}catch(err){toast(err.message,"err")}return}
   if(b.hasAttribute("data-vadd")){const g=id=>{const el=document.getElementById(id);return el?String(el.value).trim():""},n=id=>/\d/.test(g(id))?parseNum(g(id)):NaN;try{const k=API.addVehicle({pt:g("nv-pt"),es:g("nv-es"),en:g("nv-en"),kind:g("nv-kind"),pos:n("nv-pos"),kg:n("nv-kg"),m3:n("nv-m3")});render();toast(`Veículo cadastrado: ${VEH[k].pt}`)}catch(err){toast(err.message,"err")}return}
   if(b.dataset.vdel){const k=b.dataset.vdel;if(S.vdelArm!==k){S.vdelArm=k;render();setTimeout(()=>{if(S.vdelArm===k){S.vdelArm=null;render()}},4000);return}S.vdelArm=null;try{const nm=VEH[k].pt;API.removeVehicle(k);render();toast(`Veículo excluído: ${nm}`)}catch(err){toast(err.message,"err")}return}
+  if(b.dataset.side){sideSet(b.dataset.side);return}
   if(b.hasAttribute("data-theme-toggle")){S.theme=isDark()?"light":"dark";applyTheme();try{localStorage.setItem("3cc-theme",S.theme)}catch(_){}render();return}
   if(b.hasAttribute("data-reset")){if(!S.resetArm){S.resetArm=true;render();setTimeout(()=>{if(S.resetArm){S.resetArm=false;render()}},4000);return}resetDemo();return}
   if(b.dataset.view3d){S.view3d=b.dataset.view3d;render();return}
@@ -3274,7 +3607,19 @@ document.addEventListener("click",e=>{
   if(b.dataset.qf){S.qf=b.classList.contains("att")&&S.qf===b.dataset.qf?"all":b.dataset.qf;render();return}
   if(b.dataset.enter){const fromEntry=S.view==="entry";S.resetArm=false;S.area=b.dataset.enter;S.view=S.area==="client"?"home":"exp";render();window.scrollTo(0,0);if(fromEntry){const c=CLIENTS[S.client];toast(S.area==="client"?tr(`Conectado como ${c.contact} · ${c.name}`,`Conectado como ${c.contact} · ${c.name}`,`Signed in as ${c.contact} · ${c.name}`):"Conectado como Lucas · Analista de Exportação")}return}
   if(b.hasAttribute("data-logout")){S.area=null;S.view="entry";render();window.scrollTo(0,0);return}
-  if(b.dataset.view){S.view=b.dataset.view;render();window.scrollTo(0,0);return}
+  if(b.dataset.view){if(b.dataset.btab)S.btab=b.dataset.btab;if(b.dataset.ctab)S.ctab=b.dataset.ctab;if(b.dataset.csel){S.csel=b.dataset.csel;S.ctab="clients"}S.view=b.dataset.view;S.sidePeek=false;render();window.scrollTo(0,0);return}
+  if(b.dataset.csvdl){const o=S.orders.find(x=>x.id===b.dataset.csvdl);if(o){const r=calc(o.qty,o),ob=S.csvKind==="ob";saveFile(`${o.id}${ob?"_order_basis":"_sirius_sap"}.csv`,ob?buildOB(o,r):buildCSV(o,r))}return}
+  if(b.dataset.tbpage){const [id,n]=b.dataset.tbpage.split(":");tbState(id).page=Math.max(1,+n);render();return}
+  if(b.dataset.ctab){S.ctab=b.dataset.ctab;render();return}
+  if(b.dataset.btab){S.btab=b.dataset.btab;render();return}
+  if(b.dataset.csel){S.csel=b.dataset.csel;render();return}
+  if(b.dataset.plist){S.plist=b.dataset.plist;tbState("pl").page=1;render();return}
+  if(b.dataset.pexp){S.pexp=S.pexp===b.dataset.pexp?null:b.dataset.pexp;render();return}
+  if(b.dataset.qcat){S.qcat=b.dataset.qcat;render();return}
+  if(b.dataset.kper){S.kper=+b.dataset.kper;render();return}
+  if(b.dataset.cgo){const c=CLIENTS[b.dataset.cgo];S.view="exp";S.qs=c.code;S.qf="all";render();window.scrollTo(0,0);return}
+  if(b.dataset.osel){S.view="exp";S.sel=b.dataset.osel;S.qs="";S.qf="all";S.csvFor=null;render();window.scrollTo(0,0);return}
+  if(b.dataset.pdest){S.view="params";S.ptab="dest";S.pdc=b.dataset.pdest;tbState("pdest").page=1;render();window.scrollTo(0,0);return}
   if(b.dataset.lang){S.lang=b.dataset.lang;render();return}
   if(b.dataset.fam){S.fam=b.dataset.fam;render();return}
   if(b.dataset.inc){const p=BY[b.dataset.inc];const q=S.qty[p.code]||0;setQty(p.code,(Math.floor(q/p.cxPal+EPS)+1)*p.cxPal);render();return}
@@ -3298,8 +3643,7 @@ document.addEventListener("click",e=>{
   if(b.hasAttribute("data-neworder")){document.getElementById("overlay").hidden=true;S.qty={};render();return}
   if(b.dataset.sel){S.sel=b.dataset.sel;S.csvFor=null;render();return}
   if(b.hasAttribute("data-approve")){try{const o=API.approve(S.sel);render();toast(`Pedido ${o.id} aprovado`)}catch(e){toast(e.message,"err")}return}
-  if(b.hasAttribute("data-csv")){try{const o=API.exportSap(S.sel);const first=S.csvFor!==o.id;S.csvFor=o.id;render();if(first)toast("Arquivo para o SAP gerado");const box=document.getElementById("csvBox");if(box)box.scrollIntoView({behavior:"smooth",block:"center"})}catch(e){toast(e.message,"err")}return}
-  if(b.hasAttribute("data-download")){const o=S.orders.find(x=>x.id===S.sel);const txt=document.getElementById("csvBox").textContent;const url=URL.createObjectURL(new Blob(["\ufeff"+txt],{type:"text/csv;charset=utf-8"}));const a=document.createElement("a");a.href=url;a.download=o.id+(S.csvKind==="ob"?"-order-basis":"-sap")+".csv";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast("CSV baixado");return}
+  if(b.hasAttribute("data-csv")){try{const o=API.exportSap(S.sel);const first=S.csvFor!==o.id;S.csvFor=o.id;render();if(first)toast("Arquivo Sirius/SAP gerado");const box=document.getElementById("csvBox");if(box)box.scrollIntoView({behavior:"smooth",block:"center"})}catch(e){toast(e.message,"err")}return}
   if(b.hasAttribute("data-copy")){const txt=document.getElementById("csvBox").textContent;try{navigator.clipboard.writeText(txt).then(()=>{b.textContent="Copiado";toast("CSV copiado")}).catch(selectPre)}catch(_){selectPre()}return}
 });
 function selectPre(){const r=document.createRange();r.selectNodeContents(document.getElementById("csvBox"));const s=getSelection();s.removeAllRanges();s.addRange(r)}
@@ -3309,12 +3653,18 @@ new MutationObserver(()=>{if(document.getElementById("overlay").hidden)mount3D()
 document.addEventListener("input",e=>{
   if(e.target.id==="search"){S.q=e.target.value;const pos=e.target.selectionStart;render();const s=document.getElementById("search");s.focus();s.setSelectionRange(pos,pos)}
   if(e.target.id==="impText"){IMPO.text=e.target.value;clearTimeout(impTimer);impTimer=setTimeout(impFromText,250)}
+  if(e.target.id==="oSort"){S.osort=e.target.value;render();return}
+  if(e.target.dataset&&e.target.dataset.tbq!=null){const id=e.target.dataset.tbq,st=tbState(id);st.q=e.target.value;st.page=1;const pos=e.target.selectionStart;render();const el=document.querySelector(`[data-tbq="${id}"]`);if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}return}
   if(e.target.id==="oSearch"){S.qs=e.target.value;const pos=e.target.selectionStart;render();const s=document.getElementById("oSearch");s.focus();s.setSelectionRange(pos,pos)}
 });
 document.addEventListener("dragover",e=>{const d=e.target.closest&&e.target.closest("#drop,#impDrop");if(d){e.preventDefault();d.classList.add("over")}});
 document.addEventListener("dragleave",e=>{const d=e.target.closest&&e.target.closest("#drop,#impDrop");if(d)d.classList.remove("over")});
 document.addEventListener("drop",e=>{const d=e.target.closest&&e.target.closest("#drop,#impDrop");if(d){e.preventDefault();if(d.id==="impDrop"){const f=e.dataTransfer.files[0];if(f)readOrderFile(f)}else readFiles([...e.dataTransfer.files])}});
 document.addEventListener("change",e=>{
+  if(e.target.dataset&&e.target.dataset.tbf){const [id,k]=e.target.dataset.tbf.split(":"),st=tbState(id);st.f[k]=e.target.value;st.page=1;render();return}
+  if(e.target.dataset&&e.target.dataset.tbsize){const st=tbState(e.target.dataset.tbsize);st.size=+e.target.value;st.page=1;render();return}
+  if(e.target.id==="pdcSel"){S.pdc=e.target.value;tbState("pdest").page=1;render();return}
+  if(e.target.id==="kCli"){S.kcli=e.target.value;render();return}
   if(e.target.dataset&&e.target.dataset.pset){pChanged(e.target);return}
   if(e.target.id==="sapFiles"){readFiles([...e.target.files]);return}
   if(e.target.id==="impFile"){const f=e.target.files&&e.target.files[0];if(f)readOrderFile(f);return}
