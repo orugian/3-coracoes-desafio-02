@@ -50,13 +50,16 @@ export function sessionMiddleware(cfg: SessionConfig, isPublic: (c: Context) => 
     let auth = null;
     if (token) {
       try {
-        const payload = await verify(token, cfg.secret, 'HS256');
-        const user = typeof payload.sid === 'string' && typeof payload.sub === 'string'
+        // Assinatura e algoritmo pelo hono/jwt; exp e iat pelo relógio da aplicação (o mesmo da sessão no banco).
+        const payload = await verify(token, cfg.secret, { alg: 'HS256', exp: false, iat: false, nbf: false });
+        const nowSec = Math.floor(cfg.now().getTime() / 1000);
+        const timeOk = typeof payload.exp === 'number' && payload.exp > nowSec && typeof payload.iat === 'number' && payload.iat <= nowSec + 60;
+        const user = timeOk && typeof payload.sid === 'string' && typeof payload.sub === 'string'
           ? await loadSessionUser(cfg.db, payload.sid, cfg.now())
           : null;
         if (user && String(user.userId) === payload.sub) auth = { ...user, sessionId: payload.sid as string };
       } catch {
-        auth = null; // assinatura, algoritmo ou exp inválidos
+        auth = null; // assinatura ou algoritmo inválidos
       }
     }
     if (!auth) {
