@@ -1070,6 +1070,74 @@ main.wrap{position:relative}
 .or-cap em{font-style:normal;font-size:12px;font-weight:600;color:var(--muted);min-width:32px;text-align:right}
 @media (max-width:640px){.or-h .or-st{grid-column:2;grid-row:2;justify-self:start;gap:10px}.or-cap i{width:48px}.or-cap em{min-width:0}.hc-h{padding:16px 16px 12px}.hx-main{padding:18px 16px}.hx-tips{padding:14px 16px 16px}.hx-stats{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.hx-stats > div:last-child{grid-column:1 / -1;border-left:0;border-top:1px solid var(--line)}.or-t small{white-space:normal}}
 
+
+/* ===== celular ===== */
+.mbar-x{display:none;border:0;background:transparent;padding:0;border-radius:50%;flex:none}
+.mbar > div:first-child{margin-right:auto;min-width:0}
+@media (max-width:1099px){
+  .top.admin .top-in{padding:8px 12px;row-gap:8px;column-gap:8px}
+  .top.admin .top-in .brand{margin-right:auto}
+  .top.admin .top-in .themebtn{order:2;margin-left:0;width:34px;height:34px}
+  .top.admin .top-in .out{order:3}
+  .top.admin .top-in > .seg{order:4;flex:1 1 100%;max-width:100%;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  .top.admin .top-in > .seg::-webkit-scrollbar{display:none}
+  .top.admin .top-in > .seg button{flex:1 0 auto;white-space:nowrap}
+}
+@media (max-width:860px){
+  .login-brand{padding:20px 20px 0}
+  .login-brand .lb-feats{display:none}
+  .login-brand .lb-mid h1,.login-brand.has3d .lb-mid h1{font-size:28px}
+  .login-brand .lb-mid p{font-size:14.5px;margin-top:8px}
+  .login-brand .lb-3d{flex:none!important;height:150px;min-height:150px!important;margin:6px -20px 0!important}
+  .login-form{padding:18px 20px 24px;gap:16px}
+}
+@media (max-width:640px){
+  .top-in.cl{padding:8px 12px 6px;row-gap:6px;column-gap:8px}
+  .top-in.cl .lang{order:2;margin-left:auto}
+  .top-in.cl .lang button{padding:4px 7px;font-size:11.5px}
+  .top-in.cl .themebtn{order:3;width:34px;height:34px}
+  .top-in.cl .acct{order:4;padding:0}
+  .top-in.cl .acct .av{display:none}
+  .top-in.cl .br{order:5}
+  .top-in.cl .tabs{order:6;width:100%;margin:0;gap:2px}
+  .top-in.cl .tabs button{flex:1 1 0;justify-content:center;padding:8px 4px;font-size:13px}
+  .top.admin .top-in .out{font-size:0;gap:0;padding:8px}
+  .top.admin .top-in .out svg{width:18px;height:18px}
+  .top.admin .area{font-size:11px;padding:2px 8px}
+  main.wrap{padding-block:20px 96px}
+  .hero h1{font-size:26px}
+  .prod{grid-template-columns:52px minmax(0,1fr) auto;grid-template-areas:"img info info" "price price qty" "foot foot foot";gap:10px 12px;padding:14px 16px;align-items:start}
+  .prod > .tile{grid-area:img;width:52px;height:52px}
+  .prod > div:nth-child(2){grid-area:info}
+  .prod > .price{grid-area:price;align-self:center;text-align:left}
+  .prod > .qcol{grid-area:qty;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+  .prod > .prod-foot{grid-area:foot;margin-top:0}
+  .prod .stepper input{width:56px}
+  .prod .sub span:nth-child(4){display:none}
+  .prod .build span.num:nth-of-type(1){display:none}
+  .filters{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:12px}
+  .filters::-webkit-scrollbar{display:none}
+  .filters .pill{flex:none}
+  body.on-dist .chat-fab{display:none}
+  .mbar-x{display:grid}
+  .kpis .kpi{padding:14px 16px}
+  .kpis .kpi b{font-size:21px}
+  .rowlink .sapd{display:none}
+  .attn .att b{font-size:24px}
+}
+
+.nw{white-space:nowrap}
+@media (max-width:1099px){.top.admin .top-in > .seg{-webkit-mask-image:linear-gradient(90deg,#000 82%,transparent);mask-image:linear-gradient(90deg,#000 82%,transparent)}.top.admin .top-in > .seg{padding-right:28px}}
+@media (max-width:640px){.kpis .kpi{padding:12px 14px}.kpis .kpi b{font-size:19px}.or-t b{white-space:normal}}
+
+@media (max-width:1099px){.top.admin .top-in > .seg{scroll-padding-inline:44px}}
+@media (max-width:640px){
+  .mbar{gap:10px;padding-inline:12px}
+  .mbar > div:first-child .label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mbar b{white-space:nowrap}
+  .mbar .btn{white-space:nowrap;padding:10px 14px}
+  table.ptbl td:first-child{min-width:210px}
+}
 </style>
 </head>
 <body>
@@ -1382,7 +1450,7 @@ function ensureDraft(){
 /* grava a cópia de trabalho no rascunho de origem quando a conta muda */
 function syncDraftTo(d){d.qty={...S.qty};d.unit={...S.unit};d.veh=S.veh;d.mode=S.mode}
 function consumeDraft(){const i=S.drafts.findIndex(d=>d.id===S.draftId);if(i>=0)S.drafts.splice(i,1);S.draftId=null;createDraft()}
-function ago(ms){const m=Math.max(0,Math.round((Date.now()-(ms||Date.now()))/60000));if(m<1)return tr("agora","ahora","just now");if(m<60)return tr(`há ${m} min`,`hace ${m} min`,`${m} min ago`);const h=Math.round(m/60);if(h<24)return tr(`há ${h} h`,`hace ${h} h`,`${h} h ago`);const d=Math.round(h/24);return tr(`há ${d} dia${d>1?"s":""}`,`hace ${d} día${d>1?"s":""}`,`${d} day${d>1?"s":""} ago`)}
+function ago(ms){const m=Math.max(0,Math.round((Date.now()-(ms||Date.now()))/60000));if(m<1)return tr("agora","ahora","just now");if(m<60)return tr(`há ${m}\u00a0min`,`hace ${m}\u00a0min`,`${m}\u00a0min ago`);const h=Math.round(m/60);if(h<24)return tr(`há ${h}\u00a0h`,`hace ${h}\u00a0h`,`${h}\u00a0h ago`);const d=Math.round(h/24);return tr(`há ${d} dia${d>1?"s":""}`,`hace ${d} día${d>1?"s":""}`,`${d} day${d>1?"s":""} ago`)}
 
 /* ============ RENDER ============ */
 const VIEWS=["entry","home","dist","myorders","exp","clients","base","kpi","params"];
@@ -1428,6 +1496,7 @@ const SIDEI={
   close:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/><path d="M16 10l-2 2 2 2"/></svg>',
   pin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 3h6l-1 6 3 3v2H7v-2l3-3z"/></svg>'};
 /* menu lateral: fixo (padrão) ou recolhido em ícones; recolhido, abre ao passar o mouse ou ao clicar em Mostrar menu */
+function scrollToEl(sel){requestAnimationFrame(()=>{const d=document.querySelector(sel);if(!d)return;const top=document.getElementById("topbar"),off=(top&&getComputedStyle(top).display!=="none"?top.getBoundingClientRect().height:0)+12;window.scrollTo({top:d.getBoundingClientRect().top+scrollY-off,behavior:"smooth"})})}
 function sideSync(){const mini=S.area==="admin"&&!S.sidePin;document.body.classList.toggle("side-mini",mini);const sd=document.getElementById("side");if(sd)sd.classList.toggle("peek",mini&&!!S.sidePeek)}
 function sideSet(mode){
   if(mode==="peek"){S.sidePeek=!S.sidePeek}
@@ -1477,6 +1546,7 @@ function render(){
   top.className="top"+(S.area==="admin"?" admin":"");
   top.innerHTML=headerHTML();
   document.getElementById("admTop").innerHTML=S.area==="admin"?themeBtn():"";
+  if(innerWidth<1100){const ab=top.querySelector('.seg [aria-pressed="true"]');if(ab)try{ab.scrollIntoView({inline:"nearest",block:"nearest"})}catch(_){}}
   sideSync();
   document.documentElement.lang=(S.area==="client"||!S.area)&&S.lang!=="pt"?S.lang:"pt-BR";
   const keep=[...document.querySelectorAll("[data-keepscroll]")].map(el=>[el.id,el.scrollTop]);
@@ -1737,7 +1807,7 @@ function renderDist(){
     </div>
     <aside class="card panel" id="panel" data-keepscroll aria-label="${t("shipment")}">${panelHTML(r)}</aside>
   </div>
-  <div class="mbar"><div><span class="label">${r.v[S.lang]} · ${t("st_"+r.status)}</span><b class="num" style="${r.status==="excess"?"color:var(--err)":""}">${fmt(r.tot.pallets)} ${t("pallets")} · ${fmt(r.maxU*100,0)}%</b></div><button class="btn sm" data-seeship>${t("seeShip")}</button></div>`;
+  <div class="mbar"><div><span class="label">${r.v[S.lang]} · ${t("st_"+r.status)}</span><b class="num" style="${r.status==="excess"?"color:var(--err)":""}">${fmt(r.tot.pallets)} ${t("pallets")} · ${fmt(r.maxU*100,0)}%</b></div><button class="mbar-x" data-chatopen aria-label="${tr("Fale com a Xica","Habla con Xica","Chat with Xica")}">${xav("feliz",42)}</button><button class="btn sm" data-seeship>${t("seeShip")}</button></div>`;
 }
 
 function itemHTML(p,r,cl){
@@ -2052,7 +2122,7 @@ function catProdHTML(qi){
       <div class="tb-f">${tbSelect("cat","fam","Família",[["","Todas as famílias"],...famOpts()])}${tbSelect("cat","sit","Situação",[["","Todas as situações"],["ok","Em dia"],["issue","Com pendência"],["noprice","Sem preço"],["off","Fora de linha"]])}</div></div>
     <div class="tbl-wrap"><table class="data cat2"><thead><tr><th></th><th>Produto</th><th>Família</th><th class="r">Paletização</th><th class="r">Peso bruto/cx</th><th class="r">Preço/cx (lista US)</th><th>Situação</th><th></th></tr></thead><tbody>
     ${tbSlice("cat",rows).map(p=>{const open=S.pexp===p.code;return `<tr class="${open?"open":""}"><td class="ph">${IMG[p.code]?`<img src="${IMG[p.code]}" alt="">`:`<span class="dot" style="background:${famColor(p.fam)}"></span>`}</td>
-      <td><button class="rowlink" data-pexp="${p.code}" aria-expanded="${open}">${esc(p.pt)}<span class="code">${p.code} · ${esc(p.sap)}</span></button></td><td>${famName(p.fam)}</td>
+      <td><button class="rowlink" data-pexp="${p.code}" aria-expanded="${open}">${esc(p.pt)}<span class="code">${p.code}<span class="sapd"> · ${esc(p.sap)}</span></span></button></td><td>${famName(p.fam)}</td>
       <td class="r num">${p.lastro} × ${p.alt} = <b>${p.cxPal}</b></td><td class="r num">${fmtPT(p.gross,2)} kg</td><td class="r num">${p.price==null?'<span class="label">sem preço</span>':money(listPrice(p,"US"),"pt-BR")}</td><td>${chip(p)}</td>
       <td class="r"><button class="pg-b ${open?"rot":""}" data-pexp="${p.code}" aria-label="${open?"Fechar":"Abrir"} ficha técnica">${CHEV}</button></td></tr>
       ${open?`<tr class="cat-x"><td colspan="8">${fichaHTML(p,by[p.code]||[])}</td></tr>`:""}`}).join("")||`<tr><td colspan="8"><span class="label">Nenhum produto neste filtro.</span></td></tr>`}
@@ -2539,7 +2609,7 @@ function homeDraftRow(d){
   const badge=ne?`<span class="chip err">${ne} ${tr(ne>1?"pendências":"pendência",ne>1?"pendientes":"pendiente",ne>1?"issues":"issue")}</span>`:nw?`<span class="chip warn">${tr("Carga incompleta","Carga incompleta","Partial load")}</span>`:`<span class="chip ok">${tr("Pronto para enviar","Listo para enviar","Ready to send")}</span>`;
   return `<div class="orow2 ${open?"open":""}"><div class="or-hw"><button class="or-h" data-hopen="d:${d.id}" aria-expanded="${open}">
     <span class="or-ic draft">${HI.draft}</span>
-    <span class="or-t"><b>${esc(d.name)}${act?` <span class="or-tag">${tr("aberto","abierto","open")}</span>`:""}</b><small>${tr("Rascunho","Borrador","Draft")} · ${pallF(r.tot.pallets)} ${t("pallets")} · ${esc(r.v[S.lang]||r.v.pt)} · ${tr("editado","editado","edited")} ${ago(d.updated)}</small></span>
+    <span class="or-t"><b>${esc(d.name)}${act?` <span class="or-tag">${tr("aberto","abierto","open")}</span>`:""}</b><small>${tr("Rascunho","Borrador","Draft")} · ${pallF(r.tot.pallets)}&nbsp;${t("pallets")} · ${esc(r.v[S.lang]||r.v.pt)} · <span class="nw">${tr("editado","editado","edited")} ${ago(d.updated)}</span></small></span>
     <span class="or-st">${capBar(r)}${badge}</span><span class="chev" aria-hidden="true">›</span></button></div>
     ${open?`<div class="or-b">
       <ul class="or-al">${al.map(a=>`<li class="${a.lv}">${esc(a.t)}</li>`).join("")}</ul>
@@ -2556,7 +2626,7 @@ function orderRow(o,opt){
   const al=!opt.alerts||o.status!=="analise"?[]:[ed.length?{lv:"warn",t:t("adjusted")(ed.length)}:{lv:"info",t:tr("Aguardando a revisão da Exportação 3corações.","Esperando la revisión de Exportación de 3corações.","Waiting for the 3corações Export team to review.")}];
   return `<div class="orow2 ${open?"open":""}"><div class="or-hw"><button class="or-h" data-hopen="o:${o.id}" aria-expanded="${open}">
     <span class="or-ic ${o.status!=="analise"?"done":""}">${o.status!=="analise"?HI.done:HI.sent}</span>
-    <span class="or-t"><b class="num">${o.id}${o.ref?` <span class="or-tag">${esc(o.ref)}</span>`:""}</b><small>${t("ordered")} ${esc(o.created)} · ${pallF(r.tot.pallets)} ${t("pallets")} · ${esc(r.v[S.lang]||r.v.pt)}${bar||opt.mine?"":" "+fmt(r.maxU*100,0)+"%"} · ${money(r.tot.value)}</small></span>
+    <span class="or-t"><b class="num">${o.id}${o.ref?` <span class="or-tag">${esc(o.ref)}</span>`:""}</b><small>${t("ordered")} ${esc(o.created)} · ${pallF(r.tot.pallets)}&nbsp;${t("pallets")} · ${esc(r.v[S.lang]||r.v.pt)}${bar||opt.mine?"":" "+fmt(r.maxU*100,0)+"%"} · ${money(r.tot.value)}</small></span>
     <span class="or-st">${bar?capBar(r):""}${chip}</span><span class="chev" aria-hidden="true">›</span></button>${recent?`<button class="btn-soft or-rep" data-repeat="${o.id}">${ICO.repeat}<span>${t("repeat")}</span></button>`:""}</div>
     ${open?`<div class="or-b">
       ${al.length?`<ul class="or-al">${al.map(a=>`<li class="${a.lv}">${esc(a.t)}</li>`).join("")}</ul>`:""}
@@ -2582,7 +2652,7 @@ function assistHTML(r,sug){
 }
 
 /* ============ EXPORTAÇÃO: ATENÇÃO AGORA E INSIGHTS AUTOMÁTICOS ============ */
-const QFX={blk:"Bloqueados",get late(){return `Aguardando há mais de ${nf(RULES.lateH)} h`},partial:"Cargas incompletas"};
+const QFX={blk:"Bloqueados",get late(){return `Aguardando há mais de ${nf(RULES.lateH)}\u00a0h`},partial:"Cargas incompletas"};
 function qfMatch(o,r){
   if(S.qf==="all")return true; if(S.qf==="blk")return o.status==="analise"&&r.blocking;
   if(S.qf==="late")return o.status==="analise"&&Date.now()-(o.createdMs||0)>lateMs(); if(S.qf==="partial")return r.status==="partial";
@@ -3581,6 +3651,7 @@ document.addEventListener("click",e=>{
   const b=e.target.closest("button"); if(!b) return;
   if(b.classList.contains("chat-act")&&!b.dataset.chatq&&innerWidth<=640)chatOpen(false,true);
   if(b.id==="chatFab"){chatOpen(!CHAT.open);return}
+  if(b.hasAttribute("data-chatopen")){chatOpen(true);return}
   if(b.id==="chatClose"){chatOpen(false);return}
   if(b.dataset.chatq){chatAsk(b.dataset.chatq,true);return}
   if(b.dataset.tips!=null){S.tipsAll=!S.tipsAll;render();return}
@@ -3619,7 +3690,7 @@ document.addEventListener("click",e=>{
   if(b.dataset.tbpage){const [id,n]=b.dataset.tbpage.split(":");tbState(id).page=Math.max(1,+n);render();return}
   if(b.dataset.ctab){S.ctab=b.dataset.ctab;render();return}
   if(b.dataset.btab){S.btab=b.dataset.btab;render();return}
-  if(b.dataset.csel){S.csel=b.dataset.csel;render();return}
+  if(b.dataset.csel){S.csel=b.dataset.csel;render();if(innerWidth<=980)scrollToEl("#v-clients .cl-det");return}
   if(b.dataset.plist){S.plist=b.dataset.plist;tbState("pl").page=1;render();return}
   if(b.dataset.pexp){S.pexp=S.pexp===b.dataset.pexp?null:b.dataset.pexp;render();return}
   if(b.dataset.qcat){S.qcat=b.dataset.qcat;render();return}
@@ -3648,7 +3719,7 @@ document.addEventListener("click",e=>{
   if(b.hasAttribute("data-goexp")){document.getElementById("overlay").hidden=true;S.area="admin";S.view="exp";render();window.scrollTo(0,0);return}
   if(b.hasAttribute("data-gomine")){document.getElementById("overlay").hidden=true;S.view="myorders";S.qty={};render();window.scrollTo(0,0);return}
   if(b.hasAttribute("data-neworder")){document.getElementById("overlay").hidden=true;S.qty={};render();return}
-  if(b.dataset.sel){S.sel=b.dataset.sel;S.csvFor=null;render();return}
+  if(b.dataset.sel){S.sel=b.dataset.sel;S.csvFor=null;render();if(innerWidth<=920)scrollToEl("#v-exp .xdet");return}
   if(b.hasAttribute("data-approve")){try{const o=API.approve(S.sel);render();toast(`Pedido ${o.id} aprovado`)}catch(e){toast(e.message,"err")}return}
   if(b.hasAttribute("data-csv")){try{const o=API.exportSap(S.sel);const first=S.csvFor!==o.id;S.csvFor=o.id;render();if(first)toast("Arquivo Sirius/SAP gerado");const box=document.getElementById("csvBox");if(box)box.scrollIntoView({behavior:"smooth",block:"center"})}catch(e){toast(e.message,"err")}return}
   if(b.hasAttribute("data-copy")){const txt=document.getElementById("csvBox").textContent;try{navigator.clipboard.writeText(txt).then(()=>{b.textContent="Copiado";toast("CSV copiado")}).catch(selectPre)}catch(_){selectPre()}return}
