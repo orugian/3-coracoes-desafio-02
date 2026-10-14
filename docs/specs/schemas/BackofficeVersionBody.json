@@ -1,0 +1,44 @@
+{
+  "title": "BackofficeVersionBody",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "expectedVersion": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "changes": {
+      "minItems": 1,
+      "maxItems": 50,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "material": {
+            "type": "string",
+            "pattern": "^\\d{8}$"
+          },
+          "boxes": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000
+          }
+        },
+        "required": [
+          "material",
+          "boxes"
+        ]
+      }
+    },
+    "reason": {
+      "type": "string",
+      "maxLength": 200,
+      "pattern": "^[^\\p{Cc}]*$"
+    }
+  },
+  "required": [
+    "expectedVersion",
+    "changes"
+  ]
+}

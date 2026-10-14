@@ -489,10 +489,11 @@ async function insertOrder(q: Queryable, o: D.SeedOrder, ctx: OrderContext): Pro
     if (approver.id === creator.id || authors.has(approver.id)) throw new SeedError(`${where}: ${approver.username} criou o pedido ou uma versão`);
     if (current.result.blocking) throw new SeedError(`${where}: versão atual com bloqueio`);
     const built = await buildEngineInput(q, o.customer, header, lines, saoPauloDate(new Date(o.approval.at)));
+    built.input.mixedPallet = current.mixedPallet; // recálculo da mesma entrada: pallet misto congelado na versão (04)
     const recalculated = calculate(built.input);
     if (recalculated.blocking) throw new SeedError(`${where}: o recálculo com os dados de agora tem bloqueio`);
     const recalculatedHash = orderContentHash({
-      header: { ...header, mixedPallet: built.input.mixedPallet, reference, loadingDate: o.loadingDate },
+      header: { ...header, mixedPallet: current.mixedPallet, reference, loadingDate: o.loadingDate },
       lines, engineVersion: 1, dataBatches: built.dataBatches, overrides: built.overrides,
     });
     const resultChanged = canonicalJson(recalculated) !== canonicalJson(current.result);

@@ -1,8 +1,8 @@
-// Isolamento entre distribuidores (docs/specs/04-api.md, "Testes do servidor", itens 1, 2 e 4; §6 da arquitetura).
+// Isolamento entre distribuidores e entre áreas (docs/specs/04-api.md, "Testes do servidor", itens 1 a 4; §6 da arquitetura).
 // Toda negação tem o controle positivo na mesma rota: o mesmo usuário acessando o que é dele.
 import { test, describe, before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { EngineResult, PortalCatalog, PortalOrderView } from '#contracts';
+import { BackofficeOrderView, EngineResult, PortalCatalog, PortalOrderView } from '#contracts';
 import type { Db } from '#server/ports/db.ts';
 import { Client, createUser, errorCode, keyPaths, newKey, seededDb, strictJson, testApp, type TestApp } from './helpers/api.ts';
 
@@ -96,6 +96,27 @@ describe('item 2: cliente fora do escopo → 404', () => {
       const res = await two.get(`/v1/portal/catalog?customer=${code}`);
       assert.equal(res.status, 200);
       assert.equal((await strictJson(res, PortalCatalog)).customer.code, code);
+    }
+  });
+});
+
+describe('item 3: papel errado no prefixo → 403', () => {
+  test('Martín em /v1/backoffice/orders → 403; Lucas em /v1/portal/catalog → 403; Lucas em /v1/backoffice/orders → 200 (controle)', async () => {
+    const lucas = await Client.login(t.app, 'lucas.exportacao');
+    const toBackoffice = await martin.get('/v1/backoffice/orders');
+    assert.equal(toBackoffice.status, 403);
+    assert.equal(await errorCode(toBackoffice), 'FORBIDDEN');
+    const toPortal = await lucas.get('/v1/portal/catalog');
+    assert.equal(toPortal.status, 403);
+    assert.equal(await errorCode(toPortal), 'FORBIDDEN');
+    const own = await lucas.get('/v1/backoffice/orders');
+    assert.equal(own.status, 200);
+    assert.ok(BackofficeOrderView.array().parse(await own.json()).length >= 3);
+    // Controle do outro lado: Martín no próprio prefixo.
+    assert.equal((await martin.get('/v1/portal/orders')).status, 200);
+    // Escrita do backoffice por distribuidor também para na guarda do prefixo.
+    for (const p of ['/v1/backoffice/orders/3CC-2026-0001/versions', '/v1/backoffice/orders/3CC-2026-0001/approve']) {
+      assert.equal((await martin.post(p, { expectedVersion: 1, changes: [{ material: '12031189', boxes: 1 }] })).status, 403, p);
     }
   });
 });

@@ -19,7 +19,7 @@
     "db:seed": "node --env-file-if-exists=.env scripts/db_seed.ts",
     "extract": "node scripts/extract.ts",
     "fixtures:piloto": "node scripts/extrair_piloto.ts",
-    "contracts:schema": "node scripts/pendente.ts S6 contracts:schema",
+    "contracts:schema": "node scripts/contracts_schema.ts",
     "user:unlock": "node --env-file-if-exists=.env scripts/user_unlock.ts"
   },
   "dependencies": {

@@ -1,0 +1,130 @@
+{
+  "title": "Me",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "user": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "username": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "ext_distribuidor",
+            "int_exportacao",
+            "int_admin"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "username",
+        "displayName",
+        "role"
+      ],
+      "additionalProperties": false
+    },
+    "area": {
+      "type": "string",
+      "enum": [
+        "portal",
+        "backoffice"
+      ]
+    },
+    "customers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "destinationLabel": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "incoterm": {
+            "type": "string"
+          },
+          "paymentCode": {
+            "type": "string"
+          },
+          "paymentTerms": {
+            "type": "string"
+          },
+          "priceList": {
+            "type": "string"
+          },
+          "plant": {
+            "type": "string"
+          },
+          "plantName": {
+            "type": "string"
+          },
+          "branch": {
+            "type": "string"
+          },
+          "contactName": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "pt",
+              "es",
+              "en"
+            ]
+          },
+          "mixedPallet": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "code",
+          "slug",
+          "name",
+          "destinationLabel",
+          "currency",
+          "incoterm",
+          "paymentCode",
+          "paymentTerms",
+          "priceList",
+          "plant",
+          "plantName",
+          "branch",
+          "contactName",
+          "language",
+          "mixedPallet"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "user",
+    "area",
+    "customers"
+  ],
+  "additionalProperties": false
+}

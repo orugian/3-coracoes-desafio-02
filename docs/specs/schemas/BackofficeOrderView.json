@@ -1,0 +1,996 @@
+{
+  "title": "BackofficeOrderView",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "customerCode": {
+      "type": "string"
+    },
+    "customerName": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "SUBMITTED",
+        "CHANGES_REQUESTED",
+        "APPROVED",
+        "EXPORTED"
+      ]
+    },
+    "origin": {
+      "type": "string",
+      "enum": [
+        "PORTAL",
+        "ORDER_BASIS",
+        "BACKOFFICE"
+      ]
+    },
+    "currentVersion": {
+      "type": "integer",
+      "minimum": -9007199254740991,
+      "maximum": 9007199254740991
+    },
+    "createdAt": {
+      "type": "string"
+    },
+    "createdByLabel": {
+      "type": "string"
+    },
+    "submittedAt": {
+      "type": "string"
+    },
+    "approvedAt": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "approvedByLabel": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "permissions": {
+      "type": "object",
+      "properties": {
+        "canEdit": {
+          "type": "boolean"
+        },
+        "canApprove": {
+          "type": "boolean"
+        },
+        "canReturn": {
+          "type": "boolean"
+        },
+        "canResubmit": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "canEdit",
+        "canApprove",
+        "canReturn",
+        "canResubmit"
+      ],
+      "additionalProperties": false
+    },
+    "current": {
+      "type": "object",
+      "properties": {
+        "versionNo": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "header": {
+          "type": "object",
+          "properties": {
+            "vehicleId": {
+              "type": "string",
+              "enum": [
+                "carreta_padrao",
+                "container_40",
+                "container_20"
+              ]
+            },
+            "loadMode": {
+              "type": "string",
+              "enum": [
+                "PALLETIZED",
+                "FLOOR"
+              ]
+            },
+            "reference": {
+              "type": "string"
+            },
+            "loadingDate": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "mixedPallet": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "vehicleId",
+            "loadMode",
+            "reference",
+            "loadingDate",
+            "mixedPallet"
+          ],
+          "additionalProperties": false
+        },
+        "lines": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "material": {
+                "type": "string"
+              },
+              "boxes": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "material",
+              "boxes"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "result": {
+          "type": "object",
+          "properties": {
+            "engineVersion": {
+              "type": "number",
+              "const": 1
+            },
+            "lines": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "material": {
+                    "type": "string"
+                  },
+                  "requestedBoxes": {
+                    "type": "number"
+                  },
+                  "boxes": {
+                    "type": "number"
+                  },
+                  "pallets": {
+                    "type": "number"
+                  },
+                  "fullPallets": {
+                    "type": "number"
+                  },
+                  "boxesToNextPallet": {
+                    "type": "number"
+                  },
+                  "netKg": {
+                    "type": "number"
+                  },
+                  "grossKg": {
+                    "type": "number"
+                  },
+                  "m3": {
+                    "type": "number"
+                  },
+                  "priceCents": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "valueCents": {
+                    "type": "number"
+                  },
+                  "alerts": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "QTY_NOT_MULTIPLE",
+                            "BELOW_MIN_LOT",
+                            "NO_PRICE",
+                            "COUNTRY_RESTRICTED",
+                            "VEHICLE_EXCEEDED",
+                            "PALLET_INCOMPLETE",
+                            "VEHICLE_UNDERFILLED"
+                          ]
+                        },
+                        "severity": {
+                          "type": "string",
+                          "enum": [
+                            "BLOCK",
+                            "WARN"
+                          ]
+                        },
+                        "material": {
+                          "type": "string"
+                        },
+                        "params": {
+                          "type": "object",
+                          "propertyNames": {
+                            "type": "string"
+                          },
+                          "additionalProperties": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "severity"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "material",
+                  "requestedBoxes",
+                  "boxes",
+                  "pallets",
+                  "fullPallets",
+                  "boxesToNextPallet",
+                  "netKg",
+                  "grossKg",
+                  "m3",
+                  "priceCents",
+                  "valueCents",
+                  "alerts"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "totals": {
+              "type": "object",
+              "properties": {
+                "boxes": {
+                  "type": "number"
+                },
+                "pallets": {
+                  "type": "number"
+                },
+                "positions": {
+                  "type": "number"
+                },
+                "netKg": {
+                  "type": "number"
+                },
+                "grossKg": {
+                  "type": "number"
+                },
+                "m3": {
+                  "type": "number"
+                },
+                "valueCents": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "boxes",
+                "pallets",
+                "positions",
+                "netKg",
+                "grossKg",
+                "m3",
+                "valueCents"
+              ],
+              "additionalProperties": false
+            },
+            "utilization": {
+              "type": "object",
+              "properties": {
+                "kg": {
+                  "type": "number"
+                },
+                "m3": {
+                  "type": "number"
+                },
+                "positions": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "kg",
+                "m3",
+                "positions"
+              ],
+              "additionalProperties": false
+            },
+            "binding": {
+              "type": "string",
+              "enum": [
+                "kg",
+                "m3",
+                "positions"
+              ]
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "EMPTY",
+                "PARTIAL",
+                "FULL",
+                "EXCEEDED"
+              ]
+            },
+            "over": {
+              "type": "object",
+              "properties": {
+                "positions": {
+                  "type": "number"
+                },
+                "kg": {
+                  "type": "number"
+                },
+                "m3": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "positions",
+                "kg",
+                "m3"
+              ],
+              "additionalProperties": false
+            },
+            "alerts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "enum": [
+                      "QTY_NOT_MULTIPLE",
+                      "BELOW_MIN_LOT",
+                      "NO_PRICE",
+                      "COUNTRY_RESTRICTED",
+                      "VEHICLE_EXCEEDED",
+                      "PALLET_INCOMPLETE",
+                      "VEHICLE_UNDERFILLED"
+                    ]
+                  },
+                  "severity": {
+                    "type": "string",
+                    "enum": [
+                      "BLOCK",
+                      "WARN"
+                    ]
+                  },
+                  "material": {
+                    "type": "string"
+                  },
+                  "params": {
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string"
+                    },
+                    "additionalProperties": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "required": [
+                  "code",
+                  "severity"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "blocking": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "engineVersion",
+            "lines",
+            "totals",
+            "utilization",
+            "binding",
+            "status",
+            "over",
+            "alerts",
+            "blocking"
+          ],
+          "additionalProperties": false
+        },
+        "authorLabel": {
+          "type": "string"
+        },
+        "reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "internal": {
+          "type": "object",
+          "properties": {
+            "dataBatches": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              }
+            },
+            "overrides": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              }
+            },
+            "contentHash": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "dataBatches",
+            "overrides",
+            "contentHash"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "versionNo",
+        "header",
+        "lines",
+        "result",
+        "authorLabel",
+        "reason",
+        "createdAt",
+        "internal"
+      ],
+      "additionalProperties": false
+    },
+    "versions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "versionNo": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "header": {
+            "type": "object",
+            "properties": {
+              "vehicleId": {
+                "type": "string",
+                "enum": [
+                  "carreta_padrao",
+                  "container_40",
+                  "container_20"
+                ]
+              },
+              "loadMode": {
+                "type": "string",
+                "enum": [
+                  "PALLETIZED",
+                  "FLOOR"
+                ]
+              },
+              "reference": {
+                "type": "string"
+              },
+              "loadingDate": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "mixedPallet": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "vehicleId",
+              "loadMode",
+              "reference",
+              "loadingDate",
+              "mixedPallet"
+            ],
+            "additionalProperties": false
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "material": {
+                  "type": "string"
+                },
+                "boxes": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "material",
+                "boxes"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "result": {
+            "type": "object",
+            "properties": {
+              "engineVersion": {
+                "type": "number",
+                "const": 1
+              },
+              "lines": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "material": {
+                      "type": "string"
+                    },
+                    "requestedBoxes": {
+                      "type": "number"
+                    },
+                    "boxes": {
+                      "type": "number"
+                    },
+                    "pallets": {
+                      "type": "number"
+                    },
+                    "fullPallets": {
+                      "type": "number"
+                    },
+                    "boxesToNextPallet": {
+                      "type": "number"
+                    },
+                    "netKg": {
+                      "type": "number"
+                    },
+                    "grossKg": {
+                      "type": "number"
+                    },
+                    "m3": {
+                      "type": "number"
+                    },
+                    "priceCents": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "valueCents": {
+                      "type": "number"
+                    },
+                    "alerts": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "code": {
+                            "type": "string",
+                            "enum": [
+                              "QTY_NOT_MULTIPLE",
+                              "BELOW_MIN_LOT",
+                              "NO_PRICE",
+                              "COUNTRY_RESTRICTED",
+                              "VEHICLE_EXCEEDED",
+                              "PALLET_INCOMPLETE",
+                              "VEHICLE_UNDERFILLED"
+                            ]
+                          },
+                          "severity": {
+                            "type": "string",
+                            "enum": [
+                              "BLOCK",
+                              "WARN"
+                            ]
+                          },
+                          "material": {
+                            "type": "string"
+                          },
+                          "params": {
+                            "type": "object",
+                            "propertyNames": {
+                              "type": "string"
+                            },
+                            "additionalProperties": {
+                              "type": "number"
+                            }
+                          }
+                        },
+                        "required": [
+                          "code",
+                          "severity"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "material",
+                    "requestedBoxes",
+                    "boxes",
+                    "pallets",
+                    "fullPallets",
+                    "boxesToNextPallet",
+                    "netKg",
+                    "grossKg",
+                    "m3",
+                    "priceCents",
+                    "valueCents",
+                    "alerts"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "totals": {
+                "type": "object",
+                "properties": {
+                  "boxes": {
+                    "type": "number"
+                  },
+                  "pallets": {
+                    "type": "number"
+                  },
+                  "positions": {
+                    "type": "number"
+                  },
+                  "netKg": {
+                    "type": "number"
+                  },
+                  "grossKg": {
+                    "type": "number"
+                  },
+                  "m3": {
+                    "type": "number"
+                  },
+                  "valueCents": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "boxes",
+                  "pallets",
+                  "positions",
+                  "netKg",
+                  "grossKg",
+                  "m3",
+                  "valueCents"
+                ],
+                "additionalProperties": false
+              },
+              "utilization": {
+                "type": "object",
+                "properties": {
+                  "kg": {
+                    "type": "number"
+                  },
+                  "m3": {
+                    "type": "number"
+                  },
+                  "positions": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "kg",
+                  "m3",
+                  "positions"
+                ],
+                "additionalProperties": false
+              },
+              "binding": {
+                "type": "string",
+                "enum": [
+                  "kg",
+                  "m3",
+                  "positions"
+                ]
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "EMPTY",
+                  "PARTIAL",
+                  "FULL",
+                  "EXCEEDED"
+                ]
+              },
+              "over": {
+                "type": "object",
+                "properties": {
+                  "positions": {
+                    "type": "number"
+                  },
+                  "kg": {
+                    "type": "number"
+                  },
+                  "m3": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "positions",
+                  "kg",
+                  "m3"
+                ],
+                "additionalProperties": false
+              },
+              "alerts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "enum": [
+                        "QTY_NOT_MULTIPLE",
+                        "BELOW_MIN_LOT",
+                        "NO_PRICE",
+                        "COUNTRY_RESTRICTED",
+                        "VEHICLE_EXCEEDED",
+                        "PALLET_INCOMPLETE",
+                        "VEHICLE_UNDERFILLED"
+                      ]
+                    },
+                    "severity": {
+                      "type": "string",
+                      "enum": [
+                        "BLOCK",
+                        "WARN"
+                      ]
+                    },
+                    "material": {
+                      "type": "string"
+                    },
+                    "params": {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "severity"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "blocking": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "engineVersion",
+              "lines",
+              "totals",
+              "utilization",
+              "binding",
+              "status",
+              "over",
+              "alerts",
+              "blocking"
+            ],
+            "additionalProperties": false
+          },
+          "authorLabel": {
+            "type": "string"
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "internal": {
+            "type": "object",
+            "properties": {
+              "dataBatches": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                }
+              },
+              "overrides": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                }
+              },
+              "contentHash": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "dataBatches",
+              "overrides",
+              "contentHash"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "versionNo",
+          "header",
+          "lines",
+          "result",
+          "authorLabel",
+          "reason",
+          "createdAt",
+          "internal"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "at": {
+            "type": "string"
+          },
+          "actorLabel": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "SUBMITTED",
+              "VERSION_CREATED",
+              "APPROVED",
+              "AUTO_APPROVED",
+              "CHANGES_REQUESTED",
+              "RESUBMITTED"
+            ]
+          },
+          "fromStatus": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "toStatus": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "versionNo": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "payload": {
+            "type": "object",
+            "properties": {
+              "changes": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "material": {
+                      "type": "string"
+                    },
+                    "old": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "new": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "material",
+                    "old",
+                    "new"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "reason": {
+                "type": "string"
+              },
+              "internal": {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {}
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "at",
+          "actorLabel",
+          "type",
+          "fromStatus",
+          "toStatus",
+          "versionNo",
+          "payload"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "id",
+    "customerCode",
+    "customerName",
+    "status",
+    "origin",
+    "currentVersion",
+    "createdAt",
+    "createdByLabel",
+    "submittedAt",
+    "approvedAt",
+    "approvedByLabel",
+    "permissions",
+    "current"
+  ],
+  "additionalProperties": false
+}

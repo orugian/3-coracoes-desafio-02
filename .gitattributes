@@ -2,6 +2,7 @@
 dados/*.json -text
 db/seed/fontes/*.json -text
 packages/engine/test/fixtures/*.json -text
+docs/specs/schemas/*.json -text
 *.xlsx binary
 *.xlsm binary
 *.png binary

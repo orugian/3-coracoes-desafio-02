@@ -5,3 +5,4 @@ export * from './auth.ts';
 export * from './engine.ts';
 export * from './catalog.ts';
 export * from './order.ts';
+export * from './backoffice.ts';

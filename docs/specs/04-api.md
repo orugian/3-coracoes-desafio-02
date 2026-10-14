@@ -1,6 +1,6 @@
 # 04 · API
 
-Servidor Hono 4.13.13 em `@hono/node-server` 2.1.5, um processo (`npm run dev`), mesma origem para a UI e a API (§5). Contratos em zod 4.6.7 em `packages/contracts` (importado como `#contracts`); `npm run contracts:schema` grava o JSON Schema de cada contrato com `z.toJSONSchema` em `docs/specs/schemas/` para quem integra o front. Base: §6, §7.2 e §11 da arquitetura.
+Servidor Hono 4.13.13 em `@hono/node-server` 2.1.5, um processo (`npm run dev`), mesma origem para a UI e a API (§5). Contratos em zod 4.6.7 em `packages/contracts` (importado como `#contracts`); `npm run contracts:schema` grava o JSON Schema de cada contrato com `z.toJSONSchema` em `docs/specs/schemas/` para quem integra o front: um arquivo por contrato (corpos de requisição no modo `input`, em que campo com padrão é opcional; respostas no modo `output`, com `additionalProperties: false`), lista em `packages/contracts/src/json-schema.ts`. O teste dos contratos falha se os arquivos versionados não baterem com o zod. Base: §6, §7.2 e §11 da arquitetura.
 
 ## Configuração
 
@@ -167,6 +167,14 @@ Detalhes de implementação dos contratos:
 
 Não há rota de exportação no corte.
 
+Detalhes do backoffice (S6):
+- `GET /backoffice/customers`: `ruleChanges` mais recentes primeiro, com `field` no nome da API (`mixedPallet`, `autoApprove`, como no `PUT`) e `actorLabel` do usuário.
+- `GET /backoffice/products`: um item por material do catálogo efetivo do centro (no corte há um só, 2612; com mais de um, o contrato ganha o centro). `prices` = linhas de lista (`customer_code` nulo) do canal 13 no centro, de todas as listas, em ordem de lista e vigência; `sap` = valores do SAP sem override (`grossKgPerBox` da UM CX); `overrides` = os `ACTIVE`, com `field` no nome de `CatalogItem` (`grossKgPerBox`, `layerBoxes`, `layers`) e os nomes de quem propôs e confirmou; `ob` de `material_ob_reference` (`boxesPerPallet` = TAB, `palletizationBoxes` = PALETIZAÇÃO ÷ un/cx, `price` = TAB, `minLot`, `grossKgPerBox` = linha da ORDEM), com os números como estão no banco.
+- `GET /backoffice/orders`: `q` aparado, de 1 a 64 caracteres, sem diferenciar maiúsculas, com `%` e `_` como texto; `status` fora da lista ou `q` longo: 422. `int_admin` lê tudo, com `permissions` todas falsas.
+- `POST .../versions`: `changes` de 1 a 50 materiais únicos (`DUPLICATE_MATERIAL`), caixas inteiras; material novo entra com `old` 0 e precisa existir no catálogo do cliente (`UNKNOWN_MATERIAL`); sem linha depois de aplicar, 422 com detalhe `NO_LINES`; `reason` aparado, até 200 caracteres, sem caracteres de controle (vazio = nulo). Cabeçalho copiado da versão atual; pallet misto do cliente agora; sem a regra da data (vale só no envio e no reenvio). Resposta 200 com o detalhe.
+- `POST .../approve`: resposta 200 com o detalhe. O 409 `ORDER_BLOCKED` traz em `details` os BLOCK da versão gravada ou, se ela estiver limpa, os do recálculo (com mensagem própria). Material da versão que saiu do catálogo depois dela (inativo ou sem paletização): a mesma entrada já não roda, e a resposta é 409 `ORDER_BLOCKED` com detalhe `UNKNOWN_MATERIAL`.
+- Ordem das recusas nas duas ações: 403 do papel (`int_admin`), 422 do corpo (inclusive material repetido), 404, 409 `INVALID_TRANSITION`, 403 `SELF_APPROVAL_FORBIDDEN` (só na aprovação), 409 `VERSION_CONFLICT`, depois 422 das mudanças (nova versão) ou 409 `ORDER_BLOCKED` (aprovação). Violação da PK de `order_version` dentro da transação (gravação concorrente que passou pela trava): 409 `VERSION_CONFLICT` com a versão atual, nada gravado.
+
 ## Máquina de estados do corte
 
 | De | Para | Ação | Quem e condições | Evento |
@@ -179,7 +187,7 @@ Não há rota de exportação no corte.
 | `CHANGES_REQUESTED` | `SUBMITTED`, versão + 1 | `POST /portal/.../versions` | ext no escopo; sem BLOCK; mesma regra de data de carregamento do envio. Não dispara aprovação automática (o pedido já passou por uma pessoa) | `RESUBMITTED` |
 | `APPROVED` | `EXPORTED` | — | Fase futura | — |
 
-Semântica da aprovação: o que se aprova é a **versão atual, como gravada** (linhas, preços e resultado que o distribuidor e a Exportação viram). O recálculo serve só de guarda: se, com os dados ativos de agora, a mesma entrada passar a ter BLOCK (por exemplo, um override revogado ou uma regra de país nova), a aprovação é recusada com 409 `ORDER_BLOCKED` e a Exportação cria uma nova versão. Se o recálculo mudar sem BLOCK (outro preço vigente, por exemplo), a aprovação segue, `resultChanged` fica verdadeiro no evento e a tela de detalhe mostra o aviso "os dados mudaram desde esta versão". No corte, sem importador, os dados só mudam pelo seed e pelas regras do cliente, então o caso é raro, mas a regra já vale para a F3.
+Semântica da aprovação: o que se aprova é a **versão atual, como gravada** (linhas, preços e resultado que o distribuidor e a Exportação viram). O recálculo (linhas e cabeçalho da versão, inclusive o pallet misto congelado nela, com os dados e o preço vigentes na data da aprovação) serve só de guarda: se, com os dados ativos de agora, a mesma entrada passar a ter BLOCK (por exemplo, um override revogado ou uma regra de país nova), a aprovação é recusada com 409 `ORDER_BLOCKED` e a Exportação cria uma nova versão. Se o recálculo mudar sem BLOCK (outro preço vigente, por exemplo), a aprovação segue, `resultChanged` fica verdadeiro no evento e a tela de detalhe mostra o aviso "os dados mudaram desde esta versão". No corte, sem importador, os dados só mudam pelo seed e pelas regras do cliente, então o caso é raro, mas a regra já vale para a F3.
 
 A aprovação automática é a exceção à aprovação por segunda pessoa: é uma regra por cliente, desligada por padrão, ligada por uma pessoa identificada (`customer_rule_change`) e registrada no evento.
 

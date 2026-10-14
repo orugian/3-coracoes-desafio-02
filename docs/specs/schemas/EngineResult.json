@@ -1,0 +1,269 @@
+{
+  "title": "EngineResult",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "engineVersion": {
+      "type": "number",
+      "const": 1
+    },
+    "lines": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "material": {
+            "type": "string"
+          },
+          "requestedBoxes": {
+            "type": "number"
+          },
+          "boxes": {
+            "type": "number"
+          },
+          "pallets": {
+            "type": "number"
+          },
+          "fullPallets": {
+            "type": "number"
+          },
+          "boxesToNextPallet": {
+            "type": "number"
+          },
+          "netKg": {
+            "type": "number"
+          },
+          "grossKg": {
+            "type": "number"
+          },
+          "m3": {
+            "type": "number"
+          },
+          "priceCents": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "valueCents": {
+            "type": "number"
+          },
+          "alerts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string",
+                  "enum": [
+                    "QTY_NOT_MULTIPLE",
+                    "BELOW_MIN_LOT",
+                    "NO_PRICE",
+                    "COUNTRY_RESTRICTED",
+                    "VEHICLE_EXCEEDED",
+                    "PALLET_INCOMPLETE",
+                    "VEHICLE_UNDERFILLED"
+                  ]
+                },
+                "severity": {
+                  "type": "string",
+                  "enum": [
+                    "BLOCK",
+                    "WARN"
+                  ]
+                },
+                "material": {
+                  "type": "string"
+                },
+                "params": {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string"
+                  },
+                  "additionalProperties": {
+                    "type": "number"
+                  }
+                }
+              },
+              "required": [
+                "code",
+                "severity"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "material",
+          "requestedBoxes",
+          "boxes",
+          "pallets",
+          "fullPallets",
+          "boxesToNextPallet",
+          "netKg",
+          "grossKg",
+          "m3",
+          "priceCents",
+          "valueCents",
+          "alerts"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "totals": {
+      "type": "object",
+      "properties": {
+        "boxes": {
+          "type": "number"
+        },
+        "pallets": {
+          "type": "number"
+        },
+        "positions": {
+          "type": "number"
+        },
+        "netKg": {
+          "type": "number"
+        },
+        "grossKg": {
+          "type": "number"
+        },
+        "m3": {
+          "type": "number"
+        },
+        "valueCents": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "boxes",
+        "pallets",
+        "positions",
+        "netKg",
+        "grossKg",
+        "m3",
+        "valueCents"
+      ],
+      "additionalProperties": false
+    },
+    "utilization": {
+      "type": "object",
+      "properties": {
+        "kg": {
+          "type": "number"
+        },
+        "m3": {
+          "type": "number"
+        },
+        "positions": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "kg",
+        "m3",
+        "positions"
+      ],
+      "additionalProperties": false
+    },
+    "binding": {
+      "type": "string",
+      "enum": [
+        "kg",
+        "m3",
+        "positions"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "EMPTY",
+        "PARTIAL",
+        "FULL",
+        "EXCEEDED"
+      ]
+    },
+    "over": {
+      "type": "object",
+      "properties": {
+        "positions": {
+          "type": "number"
+        },
+        "kg": {
+          "type": "number"
+        },
+        "m3": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "positions",
+        "kg",
+        "m3"
+      ],
+      "additionalProperties": false
+    },
+    "alerts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "QTY_NOT_MULTIPLE",
+              "BELOW_MIN_LOT",
+              "NO_PRICE",
+              "COUNTRY_RESTRICTED",
+              "VEHICLE_EXCEEDED",
+              "PALLET_INCOMPLETE",
+              "VEHICLE_UNDERFILLED"
+            ]
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "BLOCK",
+              "WARN"
+            ]
+          },
+          "material": {
+            "type": "string"
+          },
+          "params": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "code",
+          "severity"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "blocking": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "engineVersion",
+    "lines",
+    "totals",
+    "utilization",
+    "binding",
+    "status",
+    "over",
+    "alerts",
+    "blocking"
+  ],
+  "additionalProperties": false
+}
