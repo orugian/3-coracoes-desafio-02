@@ -242,6 +242,7 @@ table.data tfoot td{font-weight:600;border-top:1px solid var(--line);border-bott
 .mini-in{width:80px;border:0;background:var(--surface-2);border-radius:8px;padding:6px 8px;text-align:right;font-weight:600;font-variant-numeric:tabular-nums}
 .mini-in:disabled{background:transparent}
 pre.csv{background:var(--surface-2);border-radius:8px;padding:14px;font-family:var(--mono);font-size:13px;overflow-x:auto;margin:0;white-space:pre;line-height:1.6}
+pre.csv.json{max-height:480px;overflow:auto;font-size:12.5px;line-height:1.5}
 .audit{display:grid}
 .audit div{display:grid;grid-template-columns:92px minmax(0,1fr);gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
 .audit div:last-child{border-bottom:0}
@@ -938,6 +939,7 @@ footer > div{justify-content:flex-start;padding-right:230px}
 </div>
 <footer><div><span>© 2026 <b>3C Conecta</b> · Plataforma de pedidos de exportação da 3corações</span></div></footer>
 
+<script src="assets/sap-export.js"></script>
 <script>
 /* ============ DADOS (extraídos das planilhas da 3corações) ============ */
 // Peso/volume por caixa: Conferência de produtos (SAP). Cx/pallet: lastro x altura (Materiais, SAP).
@@ -951,10 +953,12 @@ const ICON = {
   OUTROS:'<path d="M3 7.5L12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5l9 4.5 9-4.5M12 12v9"/>',
   PORTA:'<path d="M4.5 6h15l-3.2 8H7.7z"/><path d="M10 14v3.5h4V14"/><path d="M7 20.5h10"/><path d="M19.5 8H21"/>'
 };
+/* sap = código da família no SAP (campo ProdutoFamilia do arquivo para o SAP), da extração Registros: "CAFES (15)".
+   Filtros e porta filtros não têm preço nem família na extração; ficam sem código até o cadastro trazer. */
 const FAM = {
-  CAFES:{pt:"Cafés",es:"Cafés",en:"Ground coffee",c:"--f-cafe"},
-  CAPPUCCINO:{pt:"Cappuccino",es:"Cappuccino",en:"Cappuccino",c:"--f-capp"},
-  SOLUVEIS:{pt:"Solúveis",es:"Solubles",en:"Instant coffee",c:"--f-sol"},
+  CAFES:{pt:"Cafés",es:"Cafés",en:"Ground coffee",c:"--f-cafe",sap:"15"},
+  CAPPUCCINO:{pt:"Cappuccino",es:"Cappuccino",en:"Cappuccino",c:"--f-capp",sap:"16"},
+  SOLUVEIS:{pt:"Solúveis",es:"Solubles",en:"Instant coffee",c:"--f-sol",sap:"25"},
   FILTROS:{pt:"Filtros",es:"Filtros de papel",en:"Paper filters",c:"--f-filtro"},
   PORTA:{pt:"Porta filtros",es:"Porta filtros",en:"Filter holders",c:"--f-porta"}
 };
@@ -988,10 +992,12 @@ P.forEach(p=>{p.cxPal=p.lastro*p.alt;p.m3=p.dm3/1000});
 const BY = Object.fromEntries(P.map(p=>[p.code,p]));
 const P_DEF=Object.fromEntries(P.map(p=>[p.code,{lastro:p.lastro,alt:p.alt,loteMin:p.loteMin,gross:p.gross}]));
 
+/* sap/modal = equipamentoComex e modalTransporteExportacao do arquivo para o SAP. "CARRETA-CARRETA" vem do layout oficial;
+   os códigos dos contêineres seguem o mesmo padrão TIPO-NOME e precisam ser confirmados no cadastro do Sirius. */
 const VEH = {
-  carreta:{pt:"Carreta",es:"Camión",en:"Truck",pos:28,m3:72,kg:26500,cols:14,cab:true,kind:"trailer",active:true},
-  c40:{pt:"Contêiner 40'",es:"Contenedor 40'",en:"40' container",pos:20,m3:60.84,kg:25000,cols:10,cab:false,kind:"container",active:true},
-  c20:{pt:"Contêiner 20'",es:"Contenedor 20'",en:"20' container",pos:10,m3:29.7,kg:25000,cols:5,cab:false,kind:"container",active:true}
+  carreta:{pt:"Carreta",es:"Camión",en:"Truck",pos:28,m3:72,kg:26500,cols:14,cab:true,kind:"trailer",active:true,sap:"CARRETA-CARRETA",modal:"Rodoviario"},
+  c40:{pt:"Contêiner 40'",es:"Contenedor 40'",en:"40' container",pos:20,m3:60.84,kg:25000,cols:10,cab:false,kind:"container",active:true,sap:"CONTAINER-40",modal:"Maritimo"},
+  c20:{pt:"Contêiner 20'",es:"Contenedor 20'",en:"20' container",pos:10,m3:29.7,kg:25000,cols:5,cab:false,kind:"container",active:true,sap:"CONTAINER-20",modal:"Maritimo"}
 };
 /* Regras do negócio. Valores de fábrica; a Exportação ajusta tudo na aba Parâmetros, com validação e histórico.
    fullAt: carga completa só em 100% do recurso limitante (abaixo é carga incompleta e pode ser enviada).
@@ -1012,8 +1018,8 @@ const nf=x=>fmtPT(x,Number.isInteger(Math.round(x*1000)/1000)?0:2);
 const dmy=iso=>String(iso||"").split("-").reverse().join("/");
 
 const CLIENTS = {
-  minoil:{name:"MINOIL S.A.",code:"11131",dest:"Mercosul",cur:"USD",inc:"FCA",pay:"Standby irrevogável 60 dias",payCode:"2304",list:"US",factor:1,blocked:[],filial:"CD Londrina (2612)",contact:"Martín",mixed:false,autoApprove:false},
-  rioclaro:{name:"Distribuidora Río Claro S.R.L.",code:"11999",dest:"Argentina",cur:"USD",inc:"FCA",pay:"Antecipado 30 dias",payCode:"0030",list:"AR",factor:1.06,blocked:["20908885"],filial:"CD Londrina (2612)",contact:"Sofía",lang:"es",mixed:false,autoApprove:false}
+  minoil:{name:"MINOIL S.A.",code:"11131",dest:"Mercosul",cur:"USD",inc:"FCA",pay:"Standby irrevogável 60 dias",payCode:"2304",list:"US",factor:1,blocked:[],filial:"CD Londrina (2612)",centro:"2612",contact:"Martín",mixed:false,autoApprove:false},
+  rioclaro:{name:"Distribuidora Río Claro S.R.L.",code:"11999",dest:"Argentina",cur:"USD",inc:"FCA",pay:"Antecipado 30 dias",payCode:"0030",list:"AR",factor:1.06,blocked:["20908885"],filial:"CD Londrina (2612)",centro:"2612",contact:"Sofía",lang:"es",mixed:false,autoApprove:false}
 };
 const BLOCK_DEF=Object.fromEntries(Object.entries(CLIENTS).map(([k,c])=>[k,[...c.blocked]]));
 
@@ -1349,7 +1355,7 @@ function palletHTML(p,lastro,alt,pt){
 /* Credenciais de demonstração (protótipo sem servidor). Único lugar onde existem senhas. */
 const MOCK_USERS={
   client:[{email:"martin@minoil.com.ar",pw:"minoil2026",client:"minoil",who:"Martín · MINOIL S.A."},{email:"sofia@rioclaro.com.ar",pw:"rioclaro2026",client:"rioclaro",who:"Sofía · Distribuidora Río Claro"}],
-  admin:[{email:"lucas@3coracoes.com.br",pw:"export2026",who:"Lucas · Analista de Exportação"}]
+  admin:[{email:"lucas@3coracoes.com.br",pw:"export2026",who:"Lucas · Analista de Exportação",sirius:"10427",siriusName:"LUCAS"}]
 };
 const LOGIN_HASH={client:"#/login/distribuidor",admin:"#/login/3coracoes"};
 function routeOf(h){h=h==null?location.hash:h;return h==="#/login/distribuidor"?"client":h==="#/login/3coracoes"?"admin":"entry"}
@@ -1862,7 +1868,8 @@ function expDetail(o,r){
   r.lines.forEach(l=>l.issues.forEach(i=>{if(i.lv==="err")issues.push(`${l.p.pt}: ${i.k==="blocked"?"não liberado para o destino":i.k==="noPrice"?"sem preço na lista do cliente":i.k==="boxMult"?"quantidade não fecha caixa":"abaixo do lote mínimo ("+fmtPT(i.v,0)+" pallets)"}`)}));
   if(!r.lines.length)issues.push("Pedido sem itens: inclua ao menos um produto antes de aprovar");
   const warns=r.lines.filter(l=>l.frac>EPS&&o.mode==="pal").map(l=>`${l.p.pt}: pallet incompleto, faltam ${l.missing} cx`);
-  const csv=S.csvFor===o.id?(S.csvKind==="ob"?buildOB(o,r):buildCSV(o,r)):"";
+  const sapF=S.csvFor===o.id&&S.csvKind!=="ob"?o.sapFile:null;
+  const csv=S.csvFor===o.id?(S.csvKind==="ob"?buildOB(o,r):sapF?SapExport.stringify(sapF.payload):""):"";
   const stat=(k,val,u,show=true)=>`<div><span class="label">${k}</span><b class="num" style="${u>1+EPS?"color:var(--err)":""}">${val}</b>${show&&u!=null?`<span class="label num" style="display:block">${fmtPT(u*100,0)}% da capacidade</span>`:""}</div>`;
   const action=o.status==="analise"?`<button class="btn sm" data-approve ${r.blocking?'disabled title="Resolva os bloqueios para aprovar"':""}>Aprovar pedido</button>`:`<button class="btn sm dark" data-csv>${o.status==="sap"?"Ver arquivo para o SAP":"Gerar arquivo para o SAP"}</button>`;
   return `<div class="card card-pad" style="display:grid;gap:22px">
@@ -1891,7 +1898,7 @@ function expDetail(o,r){
       <tbody>${r.lines.map(l=>`<tr><td><div style="display:flex;gap:10px;align-items:center"><span class="dot" style="background:${famColor(l.p.fam)}"></span><div>${esc(l.p.pt)}<div class="code">${l.p.code}</div></div></div></td><td class="r"><input class="mini-in" id="e-${o.id}-${l.p.code}" data-edit="${l.p.code}" value="${l.cx}" inputmode="numeric" ${o.status!=="analise"?"disabled":""} aria-label="Caixas ${esc(l.p.pt)}"></td><td class="r num">${fmtPT(l.pallets)}</td><td class="r num">${fmtPT(l.gross,0)} kg</td><td class="r num">${fmtPT(l.m3,2)} m³</td><td class="r num">${l.noPrice?'<span class="note warn">sem preço na tabela</span>':money(l.price,"pt-BR")}</td><td class="r num">${l.noPrice?"—":money(l.value,"pt-BR")}</td></tr>`).join("")}</tbody>
       <tfoot><tr><td>Total</td><td class="r num">${fmtPT(r.tot.cx,0)}</td><td class="r num">${fmtPT(r.tot.pallets)}</td><td class="r num">${fmtPT(r.tot.gross,0)} kg</td><td class="r num">${fmtPT(r.tot.m3,2)} m³</td><td></td><td class="r num">${money(r.tot.value,"pt-BR")}</td></tr></tfoot></table></div>
       ${o.status==="analise"?`<span class="label">${r.blocking?"Ajuste as quantidades na tabela para liberar a aprovação. ":""}Cada alteração recalcula o pedido e fica registrada na auditoria.</span>`:""}</div>
-    ${csv?`<div style="display:grid;gap:8px"><div class="p-head"><div style="display:grid;gap:6px"><div class="seg sm" role="group" aria-label="Formato"><button data-csvkind="sap" aria-pressed="${S.csvKind!=="ob"}">Arquivo SAP</button><button data-csvkind="ob" aria-pressed="${S.csvKind==="ob"}">Pedido completo · padrão Order Basis</button></div><span class="label">${S.csvKind==="ob"?"Todos os campos da Order Basis por item: códigos, EAN, DUN, pesos, cubagem, medidas, NCM, linha e totais":"Layout sugerido, a substituir pelo layout oficial de importação do SAP"}</span></div><span style="display:flex;gap:8px"><button class="btn-soft" data-copy>Copiar CSV</button><button class="btn sm" data-download>Baixar CSV</button></span></div><pre class="csv" id="csvBox">${esc(csv)}</pre></div>`:""}
+    ${csv?`<div style="display:grid;gap:8px"><div class="p-head"><div style="display:grid;gap:6px"><div class="seg sm" role="group" aria-label="Formato"><button data-csvkind="sap" aria-pressed="${S.csvKind!=="ob"}">Arquivo SAP</button><button data-csvkind="ob" aria-pressed="${S.csvKind==="ob"}">Pedido completo · padrão Order Basis</button></div><span class="label">${S.csvKind==="ob"?"Todos os campos da Order Basis por item: códigos, EAN, DUN, pesos, cubagem, medidas, NCM, linha e totais":`Pré-pedido de venda no layout do Sirius (JSON) · ${sapF.payload.listPedidoVendaItemPreEntity.length} ${sapF.payload.listPedidoVendaItemPreEntity.length===1?"item":"itens"} · ${money(sapF.payload.valor,"pt-BR")} · gerado em ${esc(sapF.at)}`}</span></div><span style="display:flex;gap:8px;white-space:nowrap"><button class="btn-soft" data-copy>Copiar ${S.csvKind==="ob"?"CSV":"JSON"}</button><button class="btn sm" data-download>Baixar ${S.csvKind==="ob"?"CSV":"JSON"}</button></span></div>${sapF&&sapF.warnings.length?`<div class="alerts">${sapF.warnings.map(w=>`<div class="alert warn">${SVG.x}<span>${esc(w.msg)}</span></div>`).join("")}</div>`:""}<pre class="csv${sapF?" json":""}" id="csvBox" tabindex="0" aria-label="${S.csvKind==="ob"?"Pedido no padrão Order Basis":"Arquivo para o SAP"}">${esc(csv)}</pre></div>`:""}
     <div><h4 class="sec-title">Trilha de auditoria</h4><div class="audit">${o.audit.map(a=>`<div><time>${a.at}</time><span><b>${esc(a.who)}</b> · ${esc(a.what)}</span></div>`).join("")}</div></div>
   </div>`;
 }
@@ -1900,11 +1907,23 @@ function buildOB(o,r){
   const h="CÓDIGO 3C;PRODUTO;FAMILIA;PREÇO / CAIXA (USD);N° UNIDAD/EMBALAGEM;EAN (CÓDIGO DE BARRA DO PRODUTO);DUN (CÓDIGO DE BARRA DA CAIXA MASTER);PESO BRUTO CX (KG);PESO LIQ CX (KG);CUBAGEM CX (M3);CxLxA (MM);NCM;LINHA;N° CAIXA/PALLET;QUANTIDADE DE CAIXA;QUANTIDADE DE PALLETS;PESO BRUTO (KG);PESO LIQ (KG);CUBAGEM TOTAL (M3);VALOR (USD)";
   return [h,...r.lines.map(l=>{const p=l.p;return [p.code,p.sap,FAM[p.fam]?FAM[p.fam].pt.toUpperCase():p.fam,n(l.price,2),p.un,p.ean||"",p.dun||"",n(p.gross,3),n(p.net,3),n(p.m3,4),p.dims.replace(/×/g,"X"),p.ncm||"",p.linha||"",p.cxPal,l.cx,n(l.pallets,2),n(l.gross,2),n(l.net,2),n(l.m3,3),n(l.value,2)].join(";")})].join("\n");
 }
-function buildCSV(o,r){
-  const cl=CLIENTS[o.client];
-  const h="PEDIDO_PORTAL;COD_CLIENTE;REF_CLIENTE;CANAL;CENTRO;LISTA_PRECO;MATERIAL;DESCRICAO_SAP;QTD;UM;PRECO_UNIT;MOEDA;VALOR_TOTAL;INCOTERM;COND_PAGTO;DATA_CARREGAMENTO";
-  return [h,...r.lines.map(l=>[o.id,cl.code,o.ref,"13","2612",cl.list,l.p.code,l.p.sap,l.cx,"CX",l.price.toFixed(2),cl.cur,l.value.toFixed(2),orderInc(o),cl.payCode,o.date||""].join(";"))].join("\n");
+/* Arquivo para o SAP: pré-pedido no layout do Sirius (assets/sap-export.js). Tudo sai do pedido calculado pelo motor,
+   do cadastro do cliente e do veículo; nada é redigitado. */
+const famCode=s=>{const m=String(s||"").match(/\((\d+)\)\s*$/);return m?m[1]:""};
+const famSap=p=>String(p.famSap||(FAM[p.fam]&&FAM[p.fam].sap)||"");
+function vehSap(k){const v=VEH[k]||{};if(v.sap)return v.sap;const n=nrm(v.pt||k).toUpperCase().replace(/[^A-Z0-9]+/g," ").trim();return (v.kind==="container"?"CONTAINER":"CARRETA")+"-"+n}
+function sapUser(){const u=MOCK_USERS.admin[0];return {codigo:u.sirius,email:u.email,nome:u.siriusName}}
+function sapInput(o,r){
+  const cl=CLIENTS[o.client], v=VEH[o.veh]||{};
+  return {
+    cliente:cl.code, condicaoPagamento:cl.payCode, incoTerm:orderInc(o), centro:cl.centro, pedidoCliente:o.ref||o.id,
+    itens:r.lines.map(l=>({material:l.p.code,descricao:l.p.sap,quantidade:l.cx,precoUnitario:l.price,familia:famSap(l.p),unidade:"CX",ean:l.p.ean})),
+    equipamento:{codigo:vehSap(o.veh),quantidade:1,cubagem:r.v.m3,modal:v.modal||"Rodoviario"},
+    comex:{dataEmbarque:o.date?dmy(o.date):"",paletes:o.mode==="pal"?r.tot.positions:""},
+    usuario:sapUser()
+  };
 }
+function buildSAP(o,r){const payload=SapExport.build(sapInput(o,r));return {payload,check:SapExport.validate(payload)}}
 
 /* ---------- Base e regras ---------- */
 function renderBase(){
@@ -2209,7 +2228,7 @@ function buildPreview(files){
     reg.body.forEach(r=>{const c=String(r[iM]).trim();if(!c)return;if(Number(r[iX])===1)return;const de=r[iDe] instanceof Date?r[iDe]:null,at=r[iAt] instanceof Date?r[iAt]:null;if((de&&de>now)||(at&&at<now))return;
       const x=get(c);x.sap=x.sap||String(r[iD]).trim();x.prices=x.prices||{};x.pdate=x.pdate||{};const l=String(r[iL]).trim(),pr=num(r[iP]);if(!ok(pr))return;
       if(!x.pdate[l]||(de&&de>x.pdate[l])){x.prices[l]=pr;x.pdate[l]=de||new Date(0)}
-      if(iMa>=0&&!x.brandRaw)x.brandRaw=String(r[iMa]);if(iFa>=0&&!x.famRaw)x.famRaw=String(r[iFa]).replace(/\s*\(\d+\)/,"")})}
+      if(iMa>=0&&!x.brandRaw)x.brandRaw=String(r[iMa]);if(iFa>=0&&!x.famSap)x.famSap=famCode(r[iFa]);if(iFa>=0&&!x.famRaw)x.famRaw=String(r[iFa]).replace(/\s*\(\d+\)/,"")})}
   const items=[]; let skipped=0;
   Object.values(R).forEach(x=>{
     const cur=BY[x.code]; const alerts=[];
@@ -2221,7 +2240,7 @@ function buildPreview(files){
     else if(cur&&cur.price!=null){price=cur.price;priceSrc=reg?"manual":cur.priceSrc;if(reg)alerts.push("Sem preço vigente no SAP. O preço digitado à mão não é usado: o item fica sem preço para o cliente até o cadastro.")}
     else{price=null;priceSrc="missing";alerts.push("Sem preço. Fica indisponível no catálogo até ter preço.")}
     if(!cur&&x.lote==null)alerts.push("Lote mínimo vem da planilha do Planejamento, não do SAP. Usado 1 pallet até a planilha ser importada.");
-    const p={code:x.code,fam:mapFam(x.famRaw)||(cur&&cur.fam)||"OUTROS",brand:mapBrand(x.brandRaw)||(cur&&cur.brand)||"3corações",sap:x.sap||(cur&&cur.sap),
+    const p={code:x.code,fam:mapFam(x.famRaw)||(cur&&cur.fam)||"OUTROS",famSap:x.famSap||(cur&&cur.famSap)||"",brand:mapBrand(x.brandRaw)||(cur&&cur.brand)||"3corações",sap:x.sap||(cur&&cur.sap),
       pt:cur?cur.pt:x.sap,es:cur?cur.es:x.sap,un:ok(x.un)?x.un:cur.un,unLbl:cur?cur.unLbl:unLabel(x.sap,x.un),net:ok(x.net)?x.net:cur.net,gross,dm3:ok(x.dm3)?x.dm3:cur.dm3,
       lastro:ok(x.lastro)?x.lastro:cur.lastro,alt:ok(x.alt)?x.alt:cur.alt,price,priceSrc,prices,loteMin:x.lote!=null?x.lote:cur?cur.loteMin:1,loteSrc:x.lote!=null?"planejamento":cur?cur.loteSrc:undefined,en:cur?cur.en:x.sap,ean:(cur&&cur.ean)||x.ean||"",dun:(cur&&cur.dun)||x.dun||"",linha:x.linha||(cur&&cur.linha)||"",shelf:ok(x.shelf)?x.shelf:cur&&cur.shelf,ncm:cur?cur.ncm:"",dims:x.dims||(cur&&cur.dims),ob:cur?cur.ob:null};
     p.cxPal=p.lastro*p.alt;p.m3=p.dm3/1000;
@@ -3267,7 +3286,7 @@ function adminAnswer(q){
     return A(`<p>${d.late.length} pedido${d.late.length>1?"s":""} esperando há mais de ${nf(RULES.lateH)} h:</p><ul>${d.late.map(admLine).join("")}</ul>`,d.late.slice(0,3).map(x=>openAct(x.o.id)),"alerta")}
   /* arquivo SAP */
   if(has(/\bsap\b|arquivo|csv|ordem de venda/)){
-    return A(`<p>O arquivo para o SAP sai do detalhe do pedido: aprove e clique em <b>Gerar arquivo para o SAP</b>. Também dá para baixar o pedido no padrão Order Basis.</p>${d.noSap.length?`<p>Aprovados sem arquivo:</p><ul>${d.noSap.map(admLine).join("")}</ul>`:"<p>Todos os aprovados já têm arquivo gerado.</p>"}`,d.noSap.slice(0,3).map(x=>openAct(x.o.id)))}
+    return A(`<p>O arquivo para o SAP sai do detalhe do pedido: aprove e clique em <b>Gerar arquivo para o SAP</b>. Ele vem no layout de pré-pedido do Sirius (JSON), pronto para copiar ou baixar. Também dá para baixar o pedido no padrão Order Basis.</p>${d.noSap.length?`<p>Aprovados sem arquivo:</p><ul>${d.noSap.map(admLine).join("")}</ul>`:"<p>Todos os aprovados já têm arquivo gerado.</p>"}`,d.noSap.slice(0,3).map(x=>openAct(x.o.id)))}
   /* insights */
   if(has(/insight\w*|sugest\w*|oportunidad\w*|melhor\w*|recomend\w*|dica\w*|otimiz\w*|frete|aproveit\w*/)){
     return A(`<ul>${adminInsightsList(d.rs).map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`,[["Ver Indicadores",'data-view="kpi"']])}
@@ -3380,10 +3399,16 @@ const API={
     const adj=adjCount(o); o.status="aprovado"; o.vsnap=vsnapOf(o.veh); o.incSnap=incOf(o.veh); o.priceSnap=priceSnapOf(o); o.approved=nowStamp(); o.approvedMs=Date.now(); o.v=(o.v||1)+1;
     o.audit.push({...stamp(),who:ACTOR_EXP,what:adj?`Pedido aprovado após ${adj} ajuste${adj>1?"s":""}`:"Pedido aprovado sem alterações"}); save(); return o;
   },
-  /* POST /api/v1/orders/:id/sap-export */
+  /* POST /api/v1/orders/:id/sap-export: monta o pré-pedido no layout do Sirius, valida e congela o arquivo no pedido.
+     "Ver arquivo" mostra sempre o mesmo arquivo gerado, mesmo que preço ou cadastro mudem depois. */
   exportSap(id){
     const o=API.get(id); if(!FLOW[o.status].includes("sap"))throw new ApiError(409,"Aprove o pedido antes de gerar o arquivo para o SAP");
-    if(o.status!=="sap"){o.status="sap";o.sapAt=nowStamp();o.v=(o.v||1)+1;o.audit.push({...stamp(),who:ACTOR_EXP,what:"Arquivo de importação para o SAP gerado"})}
+    if(!o.sapFile){
+      const {payload,check}=buildSAP(o,calc(o.qty,o)), n=check.errors.length;
+      if(n)throw new ApiError(422,`Arquivo não gerado: ${check.errors[0].msg}${n>1?` (e mais ${n-1} pendência${n>2?"s":""})`:""}`,check.errors);
+      o.sapFile={layout:"sirius-pre-pedido",payload,warnings:check.warnings,at:nowStamp()};
+    }
+    if(o.status!=="sap"){const p=o.sapFile.payload,n=p.listPedidoVendaItemPreEntity.length;o.status="sap";o.sapAt=nowStamp();o.v=(o.v||1)+1;o.audit.push({...stamp(),who:ACTOR_EXP,what:`Arquivo de importação para o SAP gerado (layout Sirius, ${n} ${n===1?"item":"itens"}, ${money(p.valor,"pt-BR")})`})}
     save(); return o;
   },
   /* PUT /api/v1/clients/:id/rules */
@@ -3572,8 +3597,8 @@ document.addEventListener("click",e=>{
   if(b.dataset.sel){S.sel=b.dataset.sel;S.csvFor=null;render();return}
   if(b.hasAttribute("data-approve")){try{const o=API.approve(S.sel);render();toast(`Pedido ${o.id} aprovado`)}catch(e){toast(e.message,"err")}return}
   if(b.hasAttribute("data-csv")){try{const o=API.exportSap(S.sel);const first=S.csvFor!==o.id;S.csvFor=o.id;render();if(first)toast("Arquivo para o SAP gerado");const box=document.getElementById("csvBox");if(box)box.scrollIntoView({behavior:"smooth",block:"center"})}catch(e){toast(e.message,"err")}return}
-  if(b.hasAttribute("data-download")){const o=S.orders.find(x=>x.id===S.sel);const txt=document.getElementById("csvBox").textContent;const url=URL.createObjectURL(new Blob(["\ufeff"+txt],{type:"text/csv;charset=utf-8"}));const a=document.createElement("a");a.href=url;a.download=o.id+(S.csvKind==="ob"?"-order-basis":"-sap")+".csv";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast("CSV baixado");return}
-  if(b.hasAttribute("data-copy")){const txt=document.getElementById("csvBox").textContent;try{navigator.clipboard.writeText(txt).then(()=>{b.textContent="Copiado";toast("CSV copiado")}).catch(selectPre)}catch(_){selectPre()}return}
+  if(b.hasAttribute("data-download")){const o=S.orders.find(x=>x.id===S.sel);const js=S.csvKind!=="ob"&&o.sapFile;const txt=js?SapExport.stringify(o.sapFile.payload):"\ufeff"+document.getElementById("csvBox").textContent;const url=URL.createObjectURL(new Blob([txt],{type:js?"application/json;charset=utf-8":"text/csv;charset=utf-8"}));const a=document.createElement("a");a.href=url;a.download=o.id+(js?"-sap.json":"-order-basis.csv");document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast(js?"JSON baixado":"CSV baixado");return}
+  if(b.hasAttribute("data-copy")){const txt=document.getElementById("csvBox").textContent,kind=S.csvKind==="ob"?"CSV":"JSON";try{navigator.clipboard.writeText(txt).then(()=>{b.textContent="Copiado";toast(kind+" copiado")}).catch(selectPre)}catch(_){selectPre()}return}
 });
 function selectPre(){const r=document.createRange();r.selectNodeContents(document.getElementById("csvBox"));const s=getSelection();s.removeAllRanges();s.addRange(r)}
 document.getElementById("overlay").addEventListener("click",e=>{if(e.target.id==="overlay")e.currentTarget.hidden=true});

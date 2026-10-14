@@ -4,6 +4,9 @@
   "private": true,
   "description": "3C Conecta: portal de pedidos de exportação da 3corações, com a Xica (assistente com IA via OpenRouter)",
   "type": "module",
+  "scripts": {
+    "test": "node --test \"test/**/*.test.js\""
+  },
   "engines": {
     "node": "22.x"
   }

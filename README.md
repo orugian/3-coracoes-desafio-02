@@ -52,6 +52,18 @@ navegador ── pergunta + retrato da conta ──▶ api/v1/xica/chat ── s
 * **Ferramentas** numa lista fechada por área (`lib/xica-tools.js`), com validação de argumentos: `ajustar_item`, `completar_carga`, `trocar_veiculo` (cliente) e `simular_parametros`, `abrir_pedido` (painel).
 * **Proteções** (`lib/xica.js`, `lib/http.js`): o navegador não manda instruções (papel `system` é recusado); dados e pergunta vão separados; resposta que vaza o prompt ou anuncia desconto é trocada por uma resposta segura; resposta no idioma errado é traduzida; só aceita chamadas da própria página; limites de tamanho e de frequência; erros da OpenRouter não chegam ao navegador com detalhes; as chamadas pedem provedores que não guardam dados (`data_collection: deny`).
 
+## Arquivo para o SAP
+
+Pedido aprovado vira, com um clique, o pré-pedido de venda no **layout do Sirius** (JSON com `listPedidoVendaItemPreEntity`), pronto para copiar ou baixar como `.json`. O gerador fica em `public/assets/sap-export.js` e reproduz byte a byte o exemplo oficial (`test/fixtures/sirius-exemplo.json`).
+
+* **De onde vem cada campo:** cliente e condição de pagamento do cadastro do cliente (ZSDR059A); Incoterm do pedido (FCA na carreta, FOB no contêiner; pedido aprovado mantém o da aprovação); centro 2612 (CD Londrina); material, descrição, quantidade em caixas (`CX`), preço da lista do cliente (o congelado na aprovação) e família (código da extração Registros: `CAFES (15)` → `15`) de cada item; equipamento, cubagem e modal do veículo (`Rodoviario` na carreta, `Maritimo` nos contêineres); data de embarque e paletes em `observacaoComex`; usuário do Sirius de quem gerou.
+* **Formato SAP:** cliente com 10 dígitos e material com 18 (zeros à esquerda), valores com 2 casas somados em centavos, o mesmo tipo de cada campo do exemplo (texto, número, `null`, booleano).
+* **Validação antes de gerar:** cliente, condição de pagamento, Incoterm, centro, usuário, referência (até 35 caracteres), descrição (até 40), quantidade inteira, preço, soma dos itens, equipamento e modal. Com pendência, o arquivo não sai e o pedido não muda de status. Item sem código de família (filtros e porta filtros não têm na extração) gera arquivo com aviso.
+* **Arquivo congelado:** o JSON gerado fica guardado no pedido e entra na trilha de auditoria; mudar preço ou cadastro depois não reescreve o que foi enviado.
+* **A confirmar com a 3corações:** `organizacao`, `vendedor`, `tipoPedido`, `prioridadeVenda` e `origemPedidoSirius` usam os valores do exemplo (`DEFAULTS` em `sap-export.js`); os códigos de equipamento dos contêineres (`CONTAINER-40`, `CONTAINER-20`), o valor exato do modal marítimo no Sirius (`Maritimo`), o código de usuário do Sirius e a `Faixa` (vai vazia) precisam vir do cadastro real.
+
+Testes do gerador: `npm test` (Node 22+, sem dependências).
+
 ## Estrutura
 
 ```
@@ -59,6 +71,7 @@ public/                     Site estático (único conteúdo publicado como arqu
   index.html                Plataforma completa: dados, regras, motor de cálculo e telas
   assets/taste.css          Estilos
   assets/pallet3d.js        Visão 3D do pallet
+  assets/sap-export.js      Arquivo para o SAP no layout do Sirius (gera e valida)
   assets/img-data.js        Fotos dos produtos (embutidas)
   assets/brand/             Logos do Grupo 3corações
   assets/produtos/          Fotos dos produtos (nome do arquivo = código SAP)
@@ -66,6 +79,7 @@ public/                     Site estático (único conteúdo publicado como arqu
 api/v1/xica/status.js       GET: diz à página se a IA está ligada
 api/v1/xica/chat.js         POST: um turno da conversa
 lib/                        Código das funções (não é publicado como arquivo)
+test/                       Testes do gerador (node:test) e o exemplo oficial do layout do Sirius
 vercel.json                 Configuração da Vercel
 .env.example                Variáveis de ambiente
 ```
