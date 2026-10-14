@@ -337,12 +337,12 @@ body.is-entry main.wrap{max-width:none;padding:0}
 .tile.photo img{width:100%;height:100%;object-fit:contain;display:block}
 .ficha{grid-column:1/-1;display:grid;grid-template-columns:auto minmax(0,1fr);gap:20px;background:var(--surface-2);border-radius:8px;padding:16px;margin-top:6px}
 .ficha .ph{width:120px;height:150px;background:#FFFFFF;border-radius:6px;display:grid;place-items:center;padding:8px;border:1px solid var(--line)}
-.ficha .ph img{max-width:100%;max-height:100%;object-fit:contain}
+.ficha .ph img{max-width:100%;max-height:var(--imh,134px);object-fit:contain}
 .ficha .ph small{display:block;font-size:10.5px;color:#6E6866;text-align:center}
 .fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px 20px;margin:0}
 .fgrid dt{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;line-height:1.3}
 .fgrid dd{margin:2px 0 0;font-weight:600;font-variant-numeric:tabular-nums;font-size:13.5px;overflow-wrap:anywhere}
-@media (max-width:640px){.ficha{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:640px){.ficha{grid-template-columns:minmax(0,1fr);gap:14px;padding:14px}.ficha .ph{width:92px;height:112px;overflow:hidden}.ficha .ph img{max-height:calc(var(--imh,134px) * .68)}.fgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px}.fgrid dd{font-size:13px}}
 .cat-tbl td{white-space:nowrap}
 .cat-tbl .mini{width:40px;height:40px;border-radius:6px;background:#FFFFFF;border:1px solid var(--line);display:grid;place-items:center;overflow:hidden}
 .cat-tbl .mini img{max-width:100%;max-height:100%;object-fit:contain}
@@ -924,8 +924,8 @@ table.cat2 td.ph{width:52px}
 table.cat2 td.ph img{width:40px;height:40px;object-fit:contain;border-radius:6px;background:var(--surface-2);display:block}
 table.cat2 tr.open > td{background:var(--sel)}
 tr.cat-x > td{background:var(--surface-2);padding:0!important}
-.ficha{display:grid;grid-template-columns:140px minmax(0,1fr);gap:20px;padding:18px 20px}
-@media (max-width:760px){.ficha{grid-template-columns:minmax(0,1fr)}}
+.afi{display:grid;grid-template-columns:140px minmax(0,1fr);gap:20px;padding:18px 20px}
+@media (max-width:760px){.afi{grid-template-columns:minmax(0,1fr)}}
 .fi-ph{display:grid;justify-items:center;align-content:start;gap:8px}
 .fi-ph img{width:120px;height:120px;object-fit:contain;background:var(--surface);border-radius:10px;padding:6px}
 .fi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 18px}
@@ -1138,6 +1138,15 @@ main.wrap{position:relative}
   .mbar .btn{white-space:nowrap;padding:10px 14px}
   table.ptbl td:first-child{min-width:210px}
 }
+
+/* rascunho no Novo pedido */
+.dline .dacts{display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px 14px;margin-left:6px}
+.dline .link{display:inline-flex;align-items:center;gap:4px;padding:3px 0}
+.dline .link svg{flex:none;width:14px;height:14px}
+.dline .link.armed{background:color-mix(in srgb,var(--err) 10%,transparent);padding:3px 8px;border-radius:6px}
+.dline .link.muted-l{color:var(--muted)}
+.dname-in{border:1px solid var(--accent);background:var(--surface);border-radius:6px;padding:4px 8px;font:inherit;font-weight:600;color:var(--ink);font-size:13px;min-width:0;width:220px;max-width:100%;outline:2px solid color-mix(in srgb,var(--accent) 25%,transparent)}
+@media (max-width:640px){.dline .dacts{margin-left:0;flex-basis:100%}.dname-in{flex:1 1 160px}}
 </style>
 </head>
 <body>
@@ -1289,12 +1298,14 @@ const SVG={
   bulb:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg>',
   ok:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></svg>',
   search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4-4"/></svg>',
+  pen:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>',
+  trash:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10 11v5.5M14 11v5.5"/></svg>',
   arrow:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>'
 };
 const tile = f => `<div class="tile" style="background:color-mix(in srgb,${famColor(f)} 14%,var(--surface));color:${famColor(f)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${ICON[f]||ICON.OUTROS}</svg></div>`;
 function thumb(p){const src=IMG[p.code];return src?`<div class="tile photo"><img src="${src}" alt="${esc(p[S.lang]||p.pt)}"></div>`:tile(p.fam)}
 function prodFields(p,clientId){return [["fCode",p.code],["fProduct",p.sap],["fFamily",FAM[p.fam]?(FAM[p.fam][S.lang]||FAM[p.fam].pt):p.fam],["fPrice",(p.price==null&&!(p.prices&&p.prices[CLIENTS[clientId].list]!=null))?"—":money(priceFor(p,clientId))],["fUnits",fmt(p.un,0)],["fEan",p.ean||"—"],["fDun",p.dun||"—"],["fGross",fmt(p.gross,3)+" kg"],["fNet",fmt(p.net,3)+" kg"],["fCube",fmt(p.m3,4)+" m³"],["fDims",(p.dims||"—")+" mm"],["fNcm",p.ncm||"—"],["fLine",p.linha||"—"],["fBoxPal",`${p.cxPal} (${p.lastro} × ${p.alt})`]]}
-function fichaHTML(p){const src=IMG[p.code];return `<div class="ficha">${src?`<div class="ph"><div style="display:grid;gap:4px;justify-items:center;height:100%"><img src="${src}" alt="${esc(p[S.lang]||p.pt)}" style="max-height:${IMGNOTE[p.code]?118:134}px">${IMGNOTE[p.code]?`<small>${t("illus")}</small>`:""}</div></div>`:`<div class="ph">${tile(p.fam)}</div>`}<dl class="fgrid">${prodFields(p,S.client).map(([k,v])=>`<div><dt>${t(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl></div>`}
+function fichaHTML(p){const src=IMG[p.code];return `<div class="ficha">${src?`<div class="ph"><div style="display:grid;gap:4px;justify-items:center;height:100%"><img src="${src}" alt="${esc(p[S.lang]||p.pt)}" style="--imh:${IMGNOTE[p.code]?118:134}px">${IMGNOTE[p.code]?`<small>${t("illus")}</small>`:""}</div></div>`:`<div class="ph">${tile(p.fam)}</div>`}<dl class="fgrid">${prodFields(p,S.client).map(([k,v])=>`<div><dt>${t(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl></div>`}
 function nowStamp(){const d=new Date();return d.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"})+" "+d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}
 function priceFor(p,clientId){const cl=CLIENTS[clientId];if(p.prices&&p.prices[cl.list]!=null)return p.prices[cl.list];if(p.price==null)return 0;return Math.round(p.price*cl.factor*100)/100}
 
@@ -1409,6 +1420,24 @@ function createDraft(name,qty,veh,mode){
   S.drafts=S.drafts.filter(d=>d.client!==S.client||hasItems(d)); /* não acumula rascunhos vazios */
   const d={id:newDraftId(),client:S.client,name:String(name||autoDraftName()).slice(0,40),qty:{...(qty||{})},unit:{},veh:vehOn(veh)?veh:bigVeh(),mode:mode==="est"?"est":"pal",created:Date.now(),updated:Date.now()};
   S.drafts.unshift(d); S.draftId=null; useDraft(d.id); return d;
+}
+function draftLineHTML(){
+  const cur=S.drafts.find(d=>d.id===S.draftId); if(!cur)return "";
+  const ren=S.dren===cur.id, arm=S.ddelArm===cur.id;
+  const canDel=hasItems(cur)||myDrafts().some(d=>d.id!==cur.id&&hasItems(d));
+  const field=ren
+    ?`<input class="dname-in" data-dnamein="${cur.id}" value="${esc(cur.name)}" maxlength="40" aria-label="${tr("Nome do rascunho","Nombre del borrador","Draft name")}">`
+    :`<select id="draftSel" aria-label="${tr("Rascunho","Borrador","Draft")}">${myDrafts().filter(d=>hasItems(d)||d.id===S.draftId).sort((a,b)=>b.updated-a.updated).map(d=>`<option value="${d.id}" ${d.id===S.draftId?"selected":""}>${esc(d.name)}${hasItems(d)?"":` (${tr("vazio","vacío","empty")})`}</option>`).join("")}</select>`;
+  const acts=ren
+    ?`<button class="link" data-drenok>${SVG.check} ${tr("Salvar nome","Guardar nombre","Save name")}</button><button class="link muted-l" data-drenx>${tr("Cancelar","Cancelar","Cancel")}</button>`
+    :`<button class="link" data-dren title="${tr("Renomear rascunho","Renombrar borrador","Rename draft")}">${SVG.pen} ${tr("Renomear","Renombrar","Rename")}</button>${canDel?`<button class="link danger${arm?" armed":""}" data-ddel="${cur.id}" title="${tr("Excluir rascunho","Eliminar borrador","Delete draft")}">${SVG.trash} ${arm?tr("Clique de novo para excluir","Haz clic de nuevo para eliminar","Click again to delete"):tr("Excluir","Eliminar","Delete")}</button>`:""}<button class="link" data-dnew>+ ${tr("Novo rascunho","Nuevo borrador","New draft")}</button>`;
+  return `<div class="acct-line dline"><span>${tr("Rascunho","Borrador","Draft")}</span>${field}<span class="dacts">${acts}</span></div>`;
+}
+function draftRenameCommit(inp){
+  const id=inp.dataset.dnamein; if(S.dren!==id)return;
+  const d=S.drafts.find(x=>x.id===id),v=String(inp.value).trim().slice(0,40);
+  S.dren=null;
+  if(d&&v&&v!==d.name){d.name=v;render();toast(tr("Nome do rascunho salvo","Nombre del borrador guardado","Draft name saved"))}else render();
 }
 function deleteDraft(id){
   const i=S.drafts.findIndex(x=>x.id===id); if(i<0)return;
@@ -1770,7 +1799,7 @@ function renderDist(){
   <div class="hero">
     <div><div class="eyebrow">${t("subPortal")} · ${t("ordersNav")}</div><h1>${t("navNew")}</h1>
       <div class="acct-line"><span>${t("account")}</span><select id="clientSel" aria-label="${t("account")}">${Object.entries(CLIENTS).map(([k,c])=>`<option value="${k}" ${k===S.client?"selected":""}>${esc(c.name)}</option>`).join("")}</select><span class="num">${t("code")} ${cl.code} · ${cl.dest} · ${cl.cur} · ${cl.inc} · ${cl.pay}</span></div>
-      <div class="acct-line"><span>${tr("Rascunho","Borrador","Draft")}</span><select id="draftSel" aria-label="${tr("Rascunho","Borrador","Draft")}">${myDrafts().filter(d=>hasItems(d)||d.id===S.draftId).sort((a,b)=>b.updated-a.updated).map(d=>`<option value="${d.id}" ${d.id===S.draftId?"selected":""}>${esc(d.name)}${hasItems(d)?"":` (${tr("vazio","vacío","empty")})`}</option>`).join("")}</select><button class="link" data-dnew>+ ${tr("Novo rascunho","Nuevo borrador","New draft")}</button></div></div>
+      ${draftLineHTML()}</div>
     <div class="ph-actions">${r.lines.length?`<span class="saved">${SVG.check} ${t("saved")}</span>`:""}<button class="btn-soft" data-import>${UPLOAD} ${t("impBtn")}</button></div>
   </div>
   <div class="cols">
@@ -2100,15 +2129,15 @@ function catProdHTML(qi){
       <td><button class="rowlink" data-pexp="${p.code}" aria-expanded="${open}">${esc(p.pt)}<span class="code">${p.code}<span class="sapd"> · ${esc(p.sap)}</span></span></button></td><td>${famName(p.fam)}</td>
       <td class="r num">${p.lastro} × ${p.alt} = <b>${p.cxPal}</b></td><td class="r num">${fmtPT(p.gross,2)} kg</td><td class="r num">${p.price==null?'<span class="label">sem preço</span>':money(listPrice(p,"US"),"pt-BR")}</td><td>${chip(p)}</td>
       <td class="r"><button class="pg-b ${open?"rot":""}" data-pexp="${p.code}" aria-label="${open?"Fechar":"Abrir"} ficha técnica">${CHEV}</button></td></tr>
-      ${open?`<tr class="cat-x"><td colspan="8">${fichaHTML(p,by[p.code]||[])}</td></tr>`:""}`}).join("")||`<tr><td colspan="8"><span class="label">Nenhum produto neste filtro.</span></td></tr>`}
+      ${open?`<tr class="cat-x"><td colspan="8">${fichaAdmHTML(p,by[p.code]||[])}</td></tr>`:""}`}).join("")||`<tr><td colspan="8"><span class="label">Nenhum produto neste filtro.</span></td></tr>`}
     </tbody></table></div>
     ${pager("cat",rows.length)}
     <div class="card-pad label" style="padding-top:4px">Ficha técnica no padrão da Order Basis. ${withImg} de ${P.length} produtos com foto. Clique em um produto para ver todos os campos ou trocar a foto.</div>
   </div>`;
 }
-function fichaHTML(p,iss){
+function fichaAdmHTML(p,iss){
   const f=(l,v)=>`<div><span class="label">${l}</span><b>${v==null||v===""?"-":v}</b></div>`;
-  return `<div class="ficha"><div class="fi-ph">${IMG[p.code]?`<img src="${IMG[p.code]}" alt="${esc(p.pt)}">`:`<span class="dot" style="background:${famColor(p.fam)};width:18px;height:18px"></span>`}<label class="link" style="cursor:pointer">Trocar foto<input type="file" accept="image/*" data-photo="${p.code}" hidden></label></div>
+  return `<div class="afi"><div class="fi-ph">${IMG[p.code]?`<img src="${IMG[p.code]}" alt="${esc(p.pt)}">`:`<span class="dot" style="background:${famColor(p.fam)};width:18px;height:18px"></span>`}<label class="link" style="cursor:pointer">Trocar foto<input type="file" accept="image/*" data-photo="${p.code}" hidden></label></div>
     <div class="fi-grid">${f("Código 3C",p.code)}${f("Descrição SAP",esc(p.sap))}${f("Marca",esc(p.brand||""))}${f("Linha",esc(p.linha||""))}${f("Unidades por caixa",esc(p.unLbl))}${f("EAN",p.ean)}${f("DUN",p.dun)}${f("NCM",p.ncm)}${f("Peso líquido/cx",fmtPT(p.net,3)+" kg")}${f("Peso bruto/cx",fmtPT(p.gross,3)+" kg")}${f("Cubagem/cx",fmtPT(p.m3,4)+" m³")}${f("Dimensões (CxLxA)",p.dims?p.dims+" mm":"")}${f("Lastro × camadas",p.lastro+" × "+p.alt)}${f("Caixas por pallet",p.cxPal)}${f("Lote mínimo",fmtPT(p.loteMin,p.loteMin%1?2:0)+" pallet"+(p.loteMin>1?"s":""))}${f("Validade",p.shelf?p.shelf+" dias":"")}</div>
     ${iss.length?`<div class="fi-iss"><b>${iss.length} pendência${iss.length>1?"s":""} no cadastro</b>${iss.map(x=>`<span>${x.t}</span>`).join("")}<button class="link" data-view="base" data-btab="qual">Ver em Qualidade do cadastro ${SVG.arrow}</button></div>`:""}</div>`;
 }
@@ -3635,7 +3664,10 @@ document.addEventListener("click",e=>{
   if(b.dataset.hopen){S.hopen=S.hopen===b.dataset.hopen?null:b.dataset.hopen;S.ddelArm=null;render();return}
   if(b.dataset.dopen){useDraft(b.dataset.dopen);S.view="dist";render();window.scrollTo(0,0);return}
   if(b.dataset.dfill){useDraft(b.dataset.dfill);const n=fillLoad();S.hopen="d:"+b.dataset.dfill;render();toast(t("tFilled")(n));return}
-  if(b.dataset.ddel){const id=b.dataset.ddel;if(S.ddelArm!==id){S.ddelArm=id;render();setTimeout(()=>{if(S.ddelArm===id){S.ddelArm=null;render()}},4000);return}S.ddelArm=null;deleteDraft(id);S.hopen=null;render();toast(tr("Rascunho excluído","Borrador eliminado","Draft deleted"));return}
+  if(b.hasAttribute("data-dren")){S.dren=S.draftId;S.ddelArm=null;render();const i=document.querySelector("[data-dnamein]");if(i){i.focus();i.select()}return}
+  if(b.hasAttribute("data-drenok")){const i=document.querySelector("[data-dnamein]");if(i)draftRenameCommit(i);return}
+  if(b.hasAttribute("data-drenx")){S.dren=null;render();return}
+  if(b.dataset.ddel){const id=b.dataset.ddel;if(S.ddelArm!==id){S.ddelArm=id;render();setTimeout(()=>{if(S.ddelArm===id){S.ddelArm=null;render()}},4000);return}const dn=(S.drafts.find(x=>x.id===id)||{}).name||"";S.ddelArm=null;deleteDraft(id);S.hopen=null;render();toast(dn?tr(`Rascunho “${dn}” excluído`,`Borrador “${dn}” eliminado`,`Draft “${dn}” deleted`):tr("Rascunho excluído","Borrador eliminado","Draft deleted"));return}
   if(b.hasAttribute("data-dnew")){createDraft();S.view="dist";render();window.scrollTo(0,0);toast(tr("Novo rascunho criado","Nuevo borrador creado","New draft created"));return}
   if(b.dataset.openorder){S.area="admin";S.view="exp";S.sel=b.dataset.openorder;S.qf="all";S.qs="";S.csvFor=null;render();window.scrollTo(0,0);return}
   if(b.dataset.pfill){try{const ch=JSON.parse(b.dataset.pfill);Object.entries(ch).forEach(([p,v])=>psetPending(p,v));const k=Object.keys(ch)[0]||"";S.view="params";S.ptab=k.startsWith("veh.")?"veh":k.startsWith("prod.")?"prod":k.startsWith("block.")?"dest":"rules";render();window.scrollTo(0,0)}catch(_){}return}
@@ -3732,7 +3764,9 @@ document.addEventListener("change",e=>{
   if(e.target.dataset.q){const c=e.target.dataset.q;const p=BY[c];setQty(c,parseNum(e.target.value)/UF[unitOf(c)](p));render();return}
   if(e.target.dataset.edit){const el=e.target,code=el.dataset.edit;const nv=parseInt(String(el.value).replace(/\D/g,""),10)||0;el.disabled=true;(async()=>{let changed=false;try{const o=API.get(S.sel);changed=(o.qty[code]||0)!==nv;await API.updateItem(S.sel,code,nv)}catch(err){toast(err.message,"err");changed=false}render();if(changed)toast("Alteração registrada na auditoria")})();return}
 });
-document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.dataset&&(e.target.dataset.q||e.target.dataset.edit||e.target.dataset.pset||e.target.dataset.dname))e.target.blur();if(e.key==="Escape"){const ov=document.getElementById("overlay");if(!ov.hidden)ov.hidden=true;else if(CHAT.open)chatOpen(false)}});
+document.addEventListener("focusout",e=>{if(e.target.dataset&&e.target.dataset.dnamein)draftRenameCommit(e.target)});
+document.addEventListener("mousedown",e=>{if(e.target.closest&&e.target.closest("[data-drenok],[data-drenx]"))e.preventDefault()});
+document.addEventListener("keydown",e=>{if(e.target.dataset&&e.target.dataset.dnamein){if(e.key==="Enter"){e.preventDefault();draftRenameCommit(e.target);return}if(e.key==="Escape"){S.dren=null;render();return}}if(e.key==="Enter"&&e.target.dataset&&(e.target.dataset.q||e.target.dataset.edit||e.target.dataset.pset||e.target.dataset.dname))e.target.blur();if(e.key==="Escape"){const ov=document.getElementById("overlay");if(!ov.hidden)ov.hidden=true;else if(CHAT.open)chatOpen(false)}});
 document.addEventListener("submit",e=>{if(e.target.id!=="chatForm")return;e.preventDefault();const i=document.getElementById("chatIn"),q=i.value.trim();if(!q||CHAT.busy)return;i.value="";chatAsk(q,false)});
 render();
 if(PSF.mode==="server")PSF.start();
