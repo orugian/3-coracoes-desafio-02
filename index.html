@@ -755,6 +755,23 @@ body.chat-open .chat-fab{display:none}
 @media (max-width:1040px){body.on-dist .chat-fab{bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
 @media (max-width:640px){.chat-fab{padding:14px;right:14px}.chat-fab span{display:none}.chat-panel{right:8px;left:8px;bottom:8px;width:auto;height:calc(100dvh - 24px);max-height:none}}
 @media (prefers-reduced-motion: reduce){.typing i{animation:none}.chat-panel,.psave-in{animation:none}}
+/* ---------- acesso v27 ---------- */
+.login-brand .lb-mid h1,.login-brand.has3d .lb-mid h1{font-size:clamp(30px,2.95vw,46px);max-width:none;line-height:1.1}
+.lb-mid h1 span{display:block}
+.lb-mid p{max-width:46ch}
+.lb-feats{list-style:none;margin:26px 0 0;padding:0;display:grid;gap:12px}
+.lb-feats li{display:flex;align-items:center;gap:12px;font-size:15px;color:rgba(255,255,255,.88)}
+.fi-ic{width:34px;height:34px;border-radius:9px;background:rgba(254,92,22,.16);color:#FF8A57;display:grid;place-items:center;flex:none}
+.fi-ic svg{width:18px;height:18px}
+.lb-3d{min-height:260px;margin:0 -36px -10px -20px}
+.lf-top{align-items:center;gap:10px}
+.acc .ic,.acc .ic.cli,.acc .ic.adm{width:48px;height:48px;border-radius:12px;background:var(--red-soft);color:var(--accent-text);transition:background .15s,color .15s}
+.acc .ic svg{width:24px;height:24px}
+.acc:hover .ic,.acc:focus-visible .ic{background:var(--red);color:#fff}
+.acc{padding:18px 20px}
+.acc small{font-size:13.5px}
+.lf-note{text-align:center;margin-top:8px}
+@media (max-width:860px){.login-brand .lb-mid h1,.login-brand.has3d .lb-mid h1{font-size:30px}.lb-3d{min-height:210px;margin:0 -20px}.lb-feats li{font-size:14px}}
 </style>
 </head>
 <body>
@@ -988,7 +1005,7 @@ const MARK='<div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="
 const SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/></svg>';
 const MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>';
 function isDark(){return S.theme?S.theme==="dark":!!(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)}
-function themeLabel(){const en=S.area==="client"&&S.lang==="en",es=S.area==="client"&&S.lang==="es";return isDark()?(en?"Light mode":"Modo claro"):(en?"Dark mode":es?"Modo oscuro":"Modo escuro")}
+function themeLabel(){const cl=S.area==="client"||!S.area,en=cl&&S.lang==="en",es=cl&&S.lang==="es";return isDark()?(en?"Light mode":"Modo claro"):(en?"Dark mode":es?"Modo oscuro":"Modo escuro")}
 function themeBtn(){return `<button class="themebtn" data-theme-toggle aria-label="${themeLabel()}" title="${themeLabel()}">${isDark()?SUN:MOON}</button>`}
 function applyTheme(){if(S.theme)document.documentElement.setAttribute("data-theme",S.theme);else document.documentElement.removeAttribute("data-theme")}
 function headerHTML(){
@@ -1056,7 +1073,7 @@ function render(){
   const top=document.getElementById("topbar");
   top.className="top"+(S.area==="admin"?" admin":"");
   top.innerHTML=headerHTML();
-  document.documentElement.lang=S.area==="client"&&S.lang!=="pt"?S.lang:"pt-BR";
+  document.documentElement.lang=(S.area==="client"||!S.area)&&S.lang!=="pt"?S.lang:"pt-BR";
   VIEWS.forEach(v=>{const el=document.getElementById("v-"+v);el.hidden=S.view!==v;if(el.hidden&&el.firstChild)el.innerHTML=""});
   ({entry:renderEntry,home:renderHome,dist:renderDist,myorders:renderMyOrders,exp:renderExp,clients:renderClients,base:renderBase,kpi:renderKpi,params:renderParams})[S.view]();
   mount3D(); save(); chatSync();
@@ -1065,24 +1082,36 @@ function render(){
 /* ---------- Entrada ---------- */
 function renderEntry(){
   const go='<svg class="go" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+  const sv=(d,w)=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w||1.8}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+  const IC={
+    globe:sv('<circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8"/><path d="M12 3c2.4 2.5 3.6 5.5 3.6 9s-1.2 6.5-3.6 9c-2.4-2.5-3.6-5.5-3.6-9S9.6 5.5 12 3z"/>'),
+    coffee:sv('<path d="M4 9.5h12.5v4.5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M16.5 11h1.75a2.25 2.25 0 0 1 0 4.5H16.4"/><path d="M8 3.5c-.7.9-.7 1.9 0 2.8M11.5 3.5c-.7.9-.7 1.9 0 2.8"/>'),
+    cube:sv('<path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/>',1.9),
+    shield:sv('<path d="M12 3l7 3v5.2c0 4.4-2.9 8.1-7 9.8-4.1-1.7-7-5.4-7-9.8V6z"/><path d="M9 12.2l2.1 2.1L15.2 10"/>',1.9),
+    spark:sv('<path d="M12 3.5l1.8 4.9 4.9 1.8-4.9 1.8L12 16.9l-1.8-4.9-4.9-1.8 4.9-1.8z"/><path d="M18.5 15.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/>',1.9)
+  };
   const has3d=v3Supported();
+  const feats=[[IC.cube,tr("Veja cada pallet no caminhão antes de enviar","Mira cada pallet en el camión antes de enviar","See every pallet in the truck before you send")],
+    [IC.shield,tr("Pedido validado na hora, sem retrabalho","Pedido validado al instante, sin retrabajo","Orders validated instantly, no rework")],
+    [IC.spark,tr("Assistente com IA para dúvidas e ajustes","Asistente con IA para dudas y ajustes","AI assistant for questions and changes")]];
   document.getElementById("v-entry").innerHTML=`<div class="login">
     <section class="login-brand ${has3d?"has3d":""}">
       <div class="lb-top">${MARK}<b>3C Conecta</b></div>
-      <div class="lb-mid"><h1>Pedidos de exportação, <span>do catálogo ao caminhão.</span></h1><p>O distribuidor monta o pedido vendo pallets e a ocupação do veículo. A Exportação recebe validado e pronto para o SAP.</p>
-        <div class="lb-proof"><span>Plano de carga em 3D</span><span>Validação automática</span><span>Arquivo pronto para o SAP</span></div></div>
+      <div class="lb-mid"><h1>${tr("Pedidos de exportação,","Pedidos de exportación,","Export orders,")} <span>${tr("do catálogo ao caminhão.","del catálogo al camión.","from catalog to truck.")}</span></h1>
+        <p>${tr("Distribuidores montam o pedido vendo cada pallet no veículo. A equipe de Exportação recebe tudo validado.","Los distribuidores arman el pedido viendo cada pallet en el vehículo. El equipo de Exportación lo recibe todo validado.","Distributors build orders seeing every pallet in the vehicle. The Export team receives everything validated.")}</p>
+        <ul class="lb-feats">${feats.map(([i,x])=>`<li><span class="fi-ic">${i}</span>${x}</li>`).join("")}</ul></div>
       ${has3d?'<div class="lb-3d" data-v3d="hero" aria-hidden="true"></div>':""}
-      <div class="lb-foot">Exportação 3corações · Mercosul</div>
     </section>
     <section class="login-form">
-      <div class="lf-top">${themeBtn()}</div>
+      <div class="lf-top"><div class="seg sm lang" role="group" aria-label="${tr("Idioma","Idioma","Language")}"><button data-lang="pt" aria-pressed="${S.lang==="pt"}">PT</button><button data-lang="es" aria-pressed="${S.lang==="es"}">ES</button><button data-lang="en" aria-pressed="${S.lang==="en"}">EN</button></div>${themeBtn()}</div>
       <div class="lf-box">
-        <h2>Acessar o 3C Conecta</h2>
-        <p>Como você vai acessar?</p>
-        <button class="acc" data-enter="client"><span class="ic cli"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5L5.5 4h13L20 9.5"/><path d="M4 9.5h16v1a3 3 0 0 1-5.3 1.9A3 3 0 0 1 12 13.5a3 3 0 0 1-2.7-1.1A3 3 0 0 1 4 10.5z"/><path d="M5.5 13v7h13v-7M10 20v-4h4v4"/></svg></span><span><b>Sou cliente</b><small>Distribuidor: monte e acompanhe seus pedidos de exportação</small></span>${go}</button>
-        <button class="acc" data-enter="admin"><span class="ic adm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 13h3M8 16h6M15 13h1"/></svg></span><span><b>Sou colaborador 3corações</b><small>Exportação: fila de pedidos, aprovação e parâmetros</small></span>${go}</button>
+        <h2>${tr("Acessar o 3C Conecta","Acceder a 3C Conecta","Sign in to 3C Conecta")}</h2>
+        <p>${tr("Como você vai acessar?","¿Cómo vas a acceder?","How will you sign in?")}</p>
+        <button class="acc" data-enter="client"><span class="ic">${IC.globe}</span><span><b>${tr("Sou cliente","Soy cliente","I'm a customer")}</b><small>${tr("Monte e acompanhe seus pedidos","Arma y sigue tus pedidos","Build and track your orders")}</small></span>${go}</button>
+        <button class="acc" data-enter="admin"><span class="ic">${IC.coffee}</span><span><b>${tr("Sou colaborador 3corações","Trabajo en 3corações","I work at 3corações")}</b><small>${tr("Fila de pedidos, aprovação e parâmetros","Cola de pedidos, aprobación y parámetros","Order queue, approval and settings")}</small></span>${go}</button>
+        <p class="lf-note">${tr("Primeiro acesso? Fale com a equipe de Exportação 3corações.","¿Primer acceso? Habla con el equipo de Exportación de 3corações.","First time here? Contact the 3corações Export team.")}</p>
       </div>
-      <div class="lf-foot">© 2026 3C Conecta · Exportação 3corações</div>
+      <div class="lf-foot">© 2026 3C Conecta · ${tr("Exportação 3corações","Exportación 3corações","3corações Export")}</div>
     </section>
   </div>`;
 }
@@ -2109,7 +2138,7 @@ function v3S(key,pos){
   return {...base,L,axles:L>9?[1.1,2.4,3.7]:L>5.5?[1.0,2.3]:[0.9],legs:L>7.5};
 }
 const HERO_QTY={"12031189":1680,"12031291":672,"12034103":324,"12142501":1400,"12037417":273};
-const V3P={persp:[1.02,1.06],side:[Math.PI/2,1.42],top:[Math.PI/2,0.16],front:[2.3,1.04]};
+const V3P={persp:[1.02,1.06],side:[Math.PI/2,1.42],top:[Math.PI/2,0.16],front:[2.3,1.04],hero:[2.02,1.12]};
 const V3={ok:null,R:null,scene:null,cam:null,veh:null,cargo:null,host:null,kind:"",vsig:"",csig:"",fsig:"",az:0.62,pol:1.0,dist:30,tgt:null,bbox:null,pad:0.9,anim:[],raf:0,spin:false,drag:null,ro:null,prevN:0,prevKey:"",mats:{},geo:null,cyl:null,hinted:false,idle:0};
 function v3Supported(){
   if(V3.ok!==null) return V3.ok;
@@ -2141,7 +2170,7 @@ function v3Init(){
   const end=()=>{if(!V3.drag)return;V3.drag=null;if(V3.kind==="hero"&&!reducedMotion()){clearTimeout(V3.idle);V3.idle=setTimeout(()=>{if(V3.kind==="hero"){V3.spin=true;v3Draw()}},2500)}};
   window.addEventListener("pointerup",end); window.addEventListener("pointercancel",end);
   el.addEventListener("wheel",e=>{if(!V3.host||!V3.host.classList.contains("big"))return;e.preventDefault();V3.dist=Math.min(V3.fit*2.4,Math.max(V3.fit*0.4,V3.dist*(1+Math.sign(e.deltaY)*0.08)));v3Cam();v3Draw()},{passive:false});
-  el.addEventListener("dblclick",()=>v3Preset(V3.kind==="hero"?"front":"persp"));
+  el.addEventListener("dblclick",()=>v3Preset(V3.kind==="hero"?"hero":"persp"));
   V3.ro=new ResizeObserver(()=>v3Size());
 }
 function v3Cam(){const c=V3.cam,t=V3.tgt||new THREE.Vector3(6,1.5,0),sp=Math.sin(V3.pol);c.position.set(t.x+V3.dist*sp*Math.cos(V3.az),t.y+V3.dist*Math.cos(V3.pol),t.z+V3.dist*sp*Math.sin(V3.az));c.lookAt(t)}
@@ -2163,7 +2192,7 @@ function v3Draw(){if(!V3.raf)V3.raf=requestAnimationFrame(v3Tick)}
 function v3Tick(now){
   V3.raf=0; if(!V3.host||!V3.host.isConnected||!V3.R)return; let more=false;
   if(V3.anim.length){V3.anim=V3.anim.filter(a=>{const k=Math.min(1,Math.max(0,(now-a.t0)/a.d)),e=1-Math.pow(1-k,3);a.o.position.y=a.from+(a.to-a.from)*e;return k<1});more=V3.anim.length>0}
-  if(V3.spin){V3.az+=0.0024;v3Cam();more=true}
+  if(V3.spin){if(V3.kind==="hero"){const p=V3P.hero,ta=p[0]+0.1*Math.sin(now/3400);V3.az+=(ta-V3.az)*0.035;V3.pol+=(p[1]-V3.pol)*0.035}else V3.az+=0.0024;v3Cam();more=true}
   V3.R.render(V3.scene,V3.cam);
   if(more)V3.raf=requestAnimationFrame(v3Tick);
 }
@@ -2288,7 +2317,7 @@ function mount3D(){
     if(V3.host)V3.ro.unobserve(V3.host);
     host.insertBefore(V3.R.domElement,host.firstChild); V3.ro.observe(host);
     const newKind=host.dataset.v3d==="big"?"big":kind;
-    if(newKind!==V3.hostKind){const p=kind==="hero"?V3P.front:V3P.persp;if(newKind!=="big"){V3.az=p[0];V3.pol=p[1]}V3.hostKind=newKind;V3.fsig=""}
+    if(newKind!==V3.hostKind){const p=kind==="hero"?V3P.hero:V3P.persp;if(newKind!=="big"){V3.az=p[0];V3.pol=p[1]}V3.hostKind=newKind;V3.fsig=""}
     V3.host=host; V3.kind=kind; V3.pad=kind==="hero"?0.95:host.dataset.v3d==="big"?0.86:0.94;
     V3.spin=kind==="hero"&&!reducedMotion(); V3.fsig="";
   }
