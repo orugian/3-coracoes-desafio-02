@@ -26,8 +26,8 @@ Pedidos, carrinho e regras ficam salvos no navegador, então o estado sobrevive 
 
 ## Roteiro sugerido de demonstração
 
-1. **Tela de acesso:** escolha **Sou cliente**. A plataforma entra como Martín, da MINOIL S.A.; o nome só aparece depois do acesso. A tela **Início** mostra o pedido sugerido pelo histórico, os alertas do rascunho (lote mínimo, carga incompleta) e insights de ocupação. Clique em **Completar carga** no alerta ou em **Usar pedido sugerido**.
-   * Opcional: clique em **Importar planilha**, depois em **Usar exemplo** e em **Substituir pedido**. O pedido do Excel vira carrinho, com código 3C, EAN e quantidade em unidades convertida para caixas.
+1. **Tela de acesso:** escolha **Sou cliente**. A plataforma entra como Martín, da MINOIL S.A.; o nome só aparece depois do acesso. A tela **Início** mostra, à esquerda, o pedido sugerido pela Xica com as dicas dela e, à direita, os **Pedidos em andamento** (rascunhos com barra de ocupação e alertas) e os **Pedidos recentes**. Abra um rascunho e clique em **Completar carga**, ou use **Usar pedido sugerido**.
+   * Opcional: em **Novo pedido**, clique em **Importar planilha**, depois em **Usar exemplo** e em **Substituir pedido**. O pedido do Excel vira carrinho, com código 3C, EAN e quantidade em unidades convertida para caixas.
    * Clique em **Fale com a Xica** (canto inferior direito) e pergunte, por exemplo, *"Como completo a carga?"* ou *"Adicione 2 pallets de Cappuccino Baunilha"*. O assistente responde com os dados da conta e ajusta o rascunho.
 2. Digite quantidades no catálogo e veja os pallets caírem na carreta em 3D. Gire com o mouse, troque para contêiner 40' ou 20' e use **Ampliar** para ver o plano de carga em tela cheia. Use o aviso *"faltam 24 cx para fechar o 4º pallet"* e o botão **Aplicar** da sugestão.
 3. No Café Estrada Real, escolha **UN** e digite **1010**: aparece *"Não fecha caixa"* com as opções de arredondamento.
@@ -57,7 +57,7 @@ O item extra pedido no desafio, *"importar o restante dos produtos e exportar o 
 ## Funcionalidades
 
 ### Área do cliente (distribuidor)
-* **Início** em três blocos: **A Xica sugere** (pedido sugerido pelo histórico, em pallets fechados e dentro de peso, cubagem e lote mínimo, junto com as dicas da Xica), **Pedidos em andamento** (rascunhos e pedidos aguardando a 3corações, cada um com seus alertas; ao clicar, abre com detalhes e ações) e **Pedidos recentes** (últimos 3 aprovados, com Repetir pedido e detalhes ao clicar)
+* **Início** em duas colunas: à esquerda, **A Xica sugere** (pedido sugerido pelo histórico com carga, veículo e valor em destaque, em pallets fechados e dentro de peso, cubagem e lote mínimo, mais as dicas da Xica); à direita, **Pedidos em andamento** (rascunhos e pedidos aguardando a 3corações, com barra de ocupação e alertas; ao clicar, abre com detalhes e ações) e, logo abaixo, **Pedidos recentes** (últimos 3 aprovados, com Repetir pedido e detalhes ao clicar). Uma única ação principal no topo: **Novo pedido**
 * **Assistente de carga** no painel de embarque: completar carga mantendo o mix, fechar pallets, usar o veículo recomendado, reduzir excesso, com explicação do recurso que limita a carga e do ganho de frete por pallet
 * Catálogo com fotos e preço da lista do cliente
 * **Ficha técnica** de cada produto com todos os campos da Order Basis: código 3C, produto, família, preço, unidades por embalagem, EAN, DUN, peso bruto, peso líquido, cubagem, C × L × A, NCM, linha e caixas por pallet
