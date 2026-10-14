@@ -26,14 +26,25 @@ function isAlive(pid: number): boolean {
   }
 }
 
-function readLockPid(file: string): number | null {
+function readRaw(file: string): string | null {
   try {
-    const pid = Number((JSON.parse(readFileSync(file, 'utf8')) as { pid?: unknown }).pid);
+    return readFileSync(file, 'utf8');
+  } catch {
+    return null;
+  }
+}
+
+function parsePid(raw: string | null): number | null {
+  if (raw === null) return null;
+  try {
+    const pid = Number((JSON.parse(raw) as { pid?: unknown }).pid);
     return Number.isInteger(pid) && pid > 0 ? pid : null;
   } catch {
     return null;
   }
 }
+
+const readLockPid = (file: string): number | null => parsePid(readRaw(file));
 
 // Devolve a função que libera a trava (idempotente).
 export function acquireDataDirLock(dataDir: string): () => void {
@@ -51,9 +62,12 @@ export function acquireDataDirLock(dataDir: string): () => void {
       };
     } catch (err) {
       if ((err as NodeJS.ErrnoException).code !== 'EEXIST') throw err;
-      const pid = readLockPid(file);
+      const stale = readRaw(file);
+      const pid = parsePid(stale);
       if (pid !== null && isAlive(pid)) throw new DataDirInUseError(dataDir, pid);
-      rmSync(file, { force: true }); // trava de um processo que já terminou
+      // Trava de um processo que já terminou. Relê antes de apagar: se outro processo acabou de trocá-la pela dele,
+      // o conteúdo mudou e a trava nova fica (a próxima volta do laço a encontra viva).
+      if (readRaw(file) === stale) rmSync(file, { force: true });
     }
   }
   throw new Error(`não foi possível criar ${file}`);

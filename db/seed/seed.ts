@@ -154,18 +154,20 @@ export async function seed(db: Db, options: SeedOptions = {}): Promise<SeedRepor
   const hashes = new Map<string, string>();
   for (const [username, password] of passwords) hashes.set(username, await hashPassword(password));
 
-  const report = await db.tx((q) => load(q, src, hashes));
-
+  // Grava as senhas aleatórias antes do commit: se a escrita falhar, o banco não fica com hashes que ninguém conhece.
+  // Se a transação falhar depois, o arquivo fica com senhas sem uso e o próximo db:seed o sobrescreve.
   let credentialsFile: string | null = null;
+  const body = [...passwords].map(([u, p]) => `${u}: ${p}`).join('\n');
   if (random) {
     credentialsFile = options.credentialsFile ?? DEFAULT_CREDENTIALS_FILE;
     mkdirSync(path.dirname(credentialsFile), { recursive: true });
-    const body = [...passwords].map(([u, p]) => `${u}: ${p}`).join('\n');
     writeFileSync(credentialsFile, `# Senhas do npm run db:seed (${new Date().toISOString()}). Não versionar.\n${body}\n`, { mode: 0o600 });
-    log(`senhas geradas (mostradas só agora; cópia em ${credentialsFile}):\n${body}`);
-  } else {
-    log('senha de todos os usuários: a de SEED_PASSWORD');
   }
+
+  const report = await db.tx((q) => load(q, src, hashes));
+
+  if (random) log(`senhas geradas (mostradas só agora; cópia em ${credentialsFile}):\n${body}`);
+  else log('senha de todos os usuários: a de SEED_PASSWORD');
   log(`seed concluído: ${report.batches} lotes de importação, pedidos ${report.orders.join(', ')}`);
   return { ...report, credentialsFile };
 }

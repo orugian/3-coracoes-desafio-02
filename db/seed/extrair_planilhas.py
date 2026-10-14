@@ -116,13 +116,21 @@ def is_material(value):
     return c is not None and c.isdigit() and len(c) == SKUS_RE_LEN
 
 
+def client_rows(ob):
+    """Linhas de cliente da DADOS CLIENTES: todas as que vêm depois do cabeçalho ([1] == "Cliente") e têm código.
+    Não depende do tipo do código, para um cliente com código em texto não escapar da autoverificação."""
+    rows = list(ob["DADOS CLIENTES"].iter_rows(values_only=True))
+    header = next((i for i, r in enumerate(rows) if len(r) > 1 and isinstance(r[1], str) and r[1].strip().lower() == "cliente"), None)
+    if header is None:
+        raise SystemExit("DADOS CLIENTES sem a linha de cabeçalho (coluna [1] = 'Cliente')")
+    return [r for r in rows[header + 1:] if len(r) > 1 and code(r[1])]
+
+
 def client_secrets(ob):
     """Valores de senha da DADOS CLIENTES (colunas [2] e [0]) das linhas de cliente. Nunca impressos."""
     secrets = set()
-    for r in ob["DADOS CLIENTES"].iter_rows(values_only=True):
-        if len(r) < 3 or not isinstance(r[1], (int, float)) or isinstance(r[1], bool):
-            continue  # cabeçalhos
-        for value in (r[2], r[0]):
+    for r in client_rows(ob):
+        for value in (r[2] if len(r) > 2 else None, r[0]):
             if value is not None and code(value):
                 secrets.add(code(value))
     return secrets
@@ -131,9 +139,9 @@ def client_secrets(ob):
 def extract_ob(path):
     ob = openpyxl.load_workbook(path, data_only=True, keep_vba=True, read_only=True)
     clientes = []
-    for r in ob["DADOS CLIENTES"].iter_rows(values_only=True):
-        if len(r) < 14 or not isinstance(r[1], (int, float)) or isinstance(r[1], bool):
-            continue
+    for r in client_rows(ob):
+        if len(r) < 14:
+            raise SystemExit(f"DADOS CLIENTES: linha de cliente com {len(r)} colunas (esperado 14)")
         # Lista fechada de colunas: [0] (CHAVE) e [2] (senha) nunca entram.
         clientes.append({"codigo": code(r[1]), "resumo": r[3], "lista": r[4], "nome": r[5], "condPagamentoCodigo": code(r[6]),
                          "condPagamentoTexto": r[7], "incoterm": r[8], "ativo": r[9], "idioma": r[10], "moeda": r[11],
@@ -161,8 +169,10 @@ def extract_ob(path):
 
 # ---------------------------------------------------------------- gravação
 def assert_no_secrets(text, secrets):
+    # Procura o valor cru e a forma escapada em JSON (uma senha com aspas, barra ou acento viraria \", \\ ou \uXXXX).
     for i, secret in enumerate(sorted(secrets)):
-        if secret and secret in text:
+        forms = {secret, json.dumps(secret)[1:-1], json.dumps(secret, ensure_ascii=False)[1:-1]}
+        if any(f and f in text for f in forms):
             raise SecretLeak(f"valor de senha nº {i + 1} da aba DADOS CLIENTES apareceria na fonte gerada")
 
 
