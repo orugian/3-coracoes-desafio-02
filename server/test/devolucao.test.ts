@@ -164,7 +164,9 @@ describe('devolução: recusas (cada uma com o controle da transição acima)', 
     assert.equal((await ret(lucas, id, { expectedVersion: 1, reason: 'x'.repeat(200) })).status, 200, 'controle: 200 caracteres');
   });
 
-  test('ordem das recusas: 422 do corpo antes do 404; 404 antes da transição; transição antes da versão', async () => {
+  test('ordem das recusas: 403 do papel antes do 422 do corpo; 422 do corpo antes do 404; 404 antes da transição; transição antes da versão', async () => {
+    const adminBadBody = await ret(admin, '3CC-2026-0002', { expectedVersion: 1 });
+    assert.equal(adminBadBody.status, 403, 'papel antes do corpo');
     const missing = await ret(lucas, '3CC-2026-9999', { expectedVersion: 1 });
     assert.equal(missing.status, 422, 'corpo antes do 404');
     const notFound = await ret(lucas, '3CC-2026-9999', { expectedVersion: 1, reason: 'x' });
@@ -278,12 +280,41 @@ describe('reenvio: recusas', () => {
     assert.equal(ok.status, 200, 'controle: data no limite');
   });
 
-  test('ordem das recusas: 422 do corpo antes do 404 do escopo; 404 antes da transição', async () => {
+  test('ordem das recusas: 422 do corpo antes do 404 do escopo; 404 antes da transição; versão antes de material, data e BLOCK; material antes da data', async () => {
     const id = await submit(martin, '11131', CASO_2); // SUBMITTED, de Martín
     const badOutOfScope = await resubmit(sofia, id, body([{ material: '12031189', boxes: 1.5 }]));
     assert.equal(badOutOfScope.status, 422);
     const outOfScope = await resubmit(sofia, id, body());
     assert.equal(outOfScope.status, 404, 'o pedido de outro cliente não revela o estado');
+
+    const ret1 = await returned();
+    const soon = addDays(saoPauloDate(), 3);
+    const staleAndBad = await resubmit(martin, ret1, body([{ material: '99999999', boxes: 10 }], { ...CARRETA, loadingDate: soon }, 2));
+    assert.equal(await errorCode(staleAndBad), 'VERSION_CONFLICT', 'versão antes de material e data');
+    const staleBlocked = await resubmit(martin, ret1, body(PEDIDO_TESTE, CARRETA, 2));
+    assert.equal(await errorCode(staleBlocked), 'VERSION_CONFLICT', 'versão antes do BLOCK');
+    const unknownAndSoon = await resubmit(martin, ret1, body([{ material: '99999999', boxes: 10 }], { ...CARRETA, loadingDate: soon }));
+    assert.equal(unknownAndSoon.status, 422);
+    assert.deepEqual((await errorBody(unknownAndSoon)).error.details?.map((d) => d.code), ['UNKNOWN_MATERIAL'], 'material antes da data');
+    const soonAndBlocked = await resubmit(martin, ret1, body(PEDIDO_TESTE, { ...CARRETA, loadingDate: soon }));
+    assert.equal(await errorCode(soonAndBlocked), 'LOADING_DATE_TOO_SOON', 'data antes do BLOCK');
+  });
+
+  test('pallet misto: vale o do cliente agora, nunca o do corpo (com a regra ligada, o corpo false não desliga)', async () => {
+    const id = await returned();
+    assert.equal((await ana.put('/v1/backoffice/customers/11131/rules', { mixedPallet: true })).status, 200);
+    try {
+      const res = await resubmit(martin, id, body(PEDIDO_TESTE, { ...CARRETA, mixedPallet: false }));
+      // Com misto o pedido-teste dá 29 posições para 28: ainda EXCEEDED, então 422; o misto aparece nos alertas.
+      assert.equal(res.status, 422);
+      assert.equal((await errorBody(res)).error.details?.find((d) => d.code === 'VEHICLE_EXCEEDED')?.params?.positions, 1, '29 − 28: misto do cliente');
+      const ok = await resubmit(martin, id, body(CASO_2, { ...CARRETA, mixedPallet: false }));
+      assert.equal(ok.status, 200);
+      const o = await strictJson(ok, PortalOrderView);
+      assert.equal(o.current.header.mixedPallet, true, 'congelado na versão o valor do cliente');
+    } finally {
+      assert.equal((await ana.put('/v1/backoffice/customers/11131/rules', { mixedPallet: false })).status, 200);
+    }
   });
 
   test('reenvio sem mudança nenhuma é aceito (o distribuidor confirma o pedido); evento sem changes', async () => {

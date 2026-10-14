@@ -181,7 +181,7 @@ Detalhes da devolução e do reenvio (S9):
   - `submittedAt` passa a ser o do reenvio.
   - Ordem das recusas: 422 do corpo; 404 (inexistente ou fora do escopo, sem revelar o estado); 409 `INVALID_TRANSITION`; 409 `VERSION_CONFLICT`; 422 de material; 422 da data; 422 `ORDER_BLOCKED`.
   - Um duplo clique dá 200 e 409 `INVALID_TRANSITION`.
-  - Violação da PK de `order_version` vira 409 `VERSION_CONFLICT`, como no backoffice.
+  - Violação da PK de `order_version` vira 409 `VERSION_CONFLICT`, como no backoffice. No PGlite as transações são serializadas, então a trava (`select … for update`) e essa tradução só ganham teste real no adaptador `pg` (pendência do PostgreSQL 16).
 - Enquanto o pedido está devolvido, nova versão e aprovação do backoffice dão 409 `INVALID_TRANSITION`.
 
 Não há rota de exportação no corte.
@@ -213,7 +213,7 @@ A aprovação automática é a exceção à aprovação por segunda pessoa: é u
 ## Regras transversais
 
 - **Recálculo:** o servidor ignora qualquer resultado vindo do navegador. Toda versão é calculada por `buildEngineInput` (02) e `calculate` (01); o pallet misto vem de `customer.mixed_pallet`, nunca do corpo, e fica congelado na versão.
-- **Validação de linhas:** de 1 a 50 linhas, materiais únicos, existentes e ativos, caixas inteiras de 1 a 100.000. Caixa fracionária: 422 `VALIDATION_FAILED` com detalhe `QTY_NOT_MULTIPLE` (a UI resolve o arredondamento antes). Códigos de detalhe do 422: `QTY_NOT_MULTIPLE` (`params.lo`, `params.hi`), `DUPLICATE_MATERIAL`, `UNKNOWN_MATERIAL` (inexistente, inativo ou sem paletização no centro do cliente) e `INVALID_FIELD` (`params.path`, `params.issue`, sem ecoar o valor). Vale para `quote` e para o envio; a simulação não aplica a regra da data.
+- **Validação de linhas:** de 1 a 50 linhas, materiais únicos, existentes e ativos, caixas inteiras de 1 a 100.000. Caixa fracionária: 422 `VALIDATION_FAILED` com detalhe `QTY_NOT_MULTIPLE` (a UI resolve o arredondamento antes). Códigos de detalhe do 422: `QTY_NOT_MULTIPLE` (`params.lo`, `params.hi`), `DUPLICATE_MATERIAL`, `UNKNOWN_MATERIAL` (inexistente, inativo ou sem paletização no centro do cliente) e `INVALID_FIELD` (`params.path`, `params.issue`, sem ecoar o valor). Vale para `quote`, para o envio e para o reenvio (S9); a simulação não aplica a regra da data.
 - **Bloqueio no envio:** 422 `ORDER_BLOCKED` com `details` = alertas BLOCK do motor (`{ code, material, params }`), na ordem das linhas (catálogo) e depois os do pedido.
 - **Idempotência:** `Idempotency-Key` (8 a 64 caracteres `[A-Za-z0-9_-]`) por cliente; ausente, 428; fora do formato, 422. Mesma chave e mesmo corpo (sha256 do JSON canônico de `customerCode`, cabeçalho e linhas, depois da validação: campos fora do contrato, como `mixedPallet`, não contam): 200 com o pedido já criado e cabeçalho `Idempotent-Replayed: true`. Mesma chave e corpo diferente: 409. A busca pela chave vem antes da regra da data e do motor, então o replay devolve o pedido mesmo depois que a data deixou de passar. Ordem das recusas no envio: 428; 422 do corpo (contrato, materiais repetidos, caixa fracionária); 404 do escopo; replay ou 409; 422 de material inexistente no catálogo do cliente; 422 da data; 422 do bloqueio.
 - **Concorrência otimista:** toda ação sobre pedido existente leva `expectedVersion`; diferente de `current_version`: 409 `VERSION_CONFLICT` com `details[0].params.currentVersion`.
