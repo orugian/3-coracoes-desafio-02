@@ -1400,6 +1400,19 @@ function renderLogin(area){
   </div>`;
 }
 function loginError(form,html){const el=form.querySelector("[data-login-error]");el.innerHTML=LOGIN_ERR_IC+`<div>${html}</div>`;el.hidden=false;form.querySelectorAll("input").forEach(i=>i.setAttribute("aria-invalid","true"))}
+/* Depois de "Preencher". No celular as credenciais ficam abaixo do formulário: leva o formulário para a tela
+   explicitamente (o foco num botão não rola a página em todos os navegadores, como o Safari do iPhone)
+   e confirma, em texto e para leitores de tela, qual conta foi preenchida. */
+function fillDone(f,u){
+  const sub=f.querySelector('button[type="submit"]'), r=f.getBoundingClientRect(), top=document.querySelector(".lg-head,.top");
+  const hdr=top&&getComputedStyle(top).position.match(/sticky|fixed/)?top.getBoundingClientRect().bottom:0;
+  if(r.top<hdr||r.bottom>innerHeight)f.scrollIntoView({block:"center",behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
+  let st=f.querySelector("[data-fill-note]");
+  if(!st){st=document.createElement("p");st.className="fill-note";st.setAttribute("data-fill-note","");st.setAttribute("role","status");sub.before(st)}
+  st.textContent=f.dataset.login==="client"?tr(`Dados de ${u.who} preenchidos. Agora é só entrar.`,`Datos de ${u.who} completados. Ahora solo entra.`,`${u.who}: details filled in. Now just sign in.`):`Dados de ${u.who} preenchidos. Agora é só entrar.`;
+  f.addEventListener("input",()=>{const n=f.querySelector("[data-fill-note]");if(n)n.remove()},{once:true});
+  try{sub.focus({preventScroll:true})}catch(_){sub.focus()}
+}
 function doLogin(form){
   const area=form.dataset.login, cl=area==="client", tx=cl?tr:(pt)=>pt;
   const em=String(form.elements.email.value||"").trim().toLowerCase(), pw=String(form.elements.password.value||"");
@@ -3390,7 +3403,7 @@ applyTheme();
 try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{if(!S.theme)render()})}catch(_){}
 document.addEventListener("click",e=>{
   const b=e.target.closest("button"); if(!b) return;
-  if(b.dataset.fillCreds!=null){const u=MOCK_USERS[b.dataset.area||"client"][Number(b.dataset.fillCreds)||0],f=document.querySelector(`form[data-login="${b.dataset.area||"client"}"]`);if(u&&f){f.elements.email.value=u.email;f.elements.password.value=u.pw;f.querySelectorAll("input").forEach(i=>i.removeAttribute("aria-invalid"));const er=f.querySelector("[data-login-error]");if(er)er.hidden=true;f.querySelector('button[type="submit"]').focus()}return}
+  if(b.dataset.fillCreds!=null){const u=MOCK_USERS[b.dataset.area||"client"][Number(b.dataset.fillCreds)||0],f=document.querySelector(`form[data-login="${b.dataset.area||"client"}"]`);if(u&&f){f.elements.email.value=u.email;f.elements.password.value=u.pw;f.querySelectorAll("input").forEach(i=>i.removeAttribute("aria-invalid"));const er=f.querySelector("[data-login-error]");if(er)er.hidden=true;fillDone(f,u)}return}
   if(b.hasAttribute("data-pwtoggle")){const i=document.getElementById(b.getAttribute("aria-controls"));if(i){const show=i.type==="password";i.type=show?"text":"password";b.setAttribute("aria-pressed",String(show));b.textContent=show?tr("Ocultar","Ocultar","Hide"):tr("Mostrar","Mostrar","Show");if(b.closest('form[data-login="admin"]'))b.textContent=show?"Ocultar":"Mostrar"}return}
   if(b.classList.contains("chat-act")&&!b.dataset.chatq&&innerWidth<=640)chatOpen(false,true);
   if(b.id==="chatFab"){chatOpen(!CHAT.open);return}

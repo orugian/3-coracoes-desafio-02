@@ -455,6 +455,12 @@ ol.timeline li[aria-current="step"]::before{background:var(--brand)}
 
 /* shipment panel: the action on the stage, then the vehicle, the floor and the numbers */
 .panel{background:var(--tone-1);overflow:hidden}
+/* No desktop o painel fica fixo ao rolar e tem no máximo a altura da tela (regra base): precisa de rolagem própria
+   para mostrar tudo (carga, veículos, assistente). overflow-y:auto também recorta nos cantos arredondados.
+   Sem scroll-behavior:smooth: o render() devolve a posição da rolagem (data-keepscroll) e ela não deve animar. */
+@media (min-width:1041px){.panel{overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}
+  /* espaço no fim da rolagem para a última linha não ficar sob o botão "Fale com a Xica" (fixo no canto) */
+  body.on-dist .panel::after{content:"";display:block;height:72px}}
 .p-cta{background:var(--stage);color:var(--stage-ink);border-bottom:0;border-radius:var(--r-panel) var(--r-panel) 0 0;padding:18px 24px}
 .p-cta .label{color:var(--stage-muted)}
 .p-cta b{font-size:var(--t-lead);font-weight:500;color:var(--stage-ink)}
@@ -793,3 +799,7 @@ tr.cat-x > td{background:var(--ground);padding:0!important;border-bottom:3px sol
 
 table.cat2 td.ph{min-width:60px}
 @media (max-width:640px){.rowlink .sapd{display:none}.tb-tools{padding:14px}.tb-tools .search{max-width:none}.pager{padding:12px 14px}}
+
+
+/* login: confirmação depois de "Preencher" (role=status) */
+.fill-note{margin:0;font-size:var(--t-small);color:var(--ok);font-weight:500}
