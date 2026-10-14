@@ -149,11 +149,13 @@ describe('DDL do corte (001_inicial.sql)', () => {
   });
 
   test('boxes_per_pallet é coluna gerada STORED e não aceita valor explícito', async () => {
+    // attgenerated: 's' = STORED, 'v' = virtual (PG 18 sem a palavra-chave; erro de sintaxe no PG 16). information_schema
+    // diz ALWAYS nos dois casos, então não distingue.
     const { rows } = await db.query<{ generation: string; bpp: number }>(
-      `select c.is_generated as generation, p.boxes_per_pallet as bpp
-         from information_schema.columns c, palletization p
-        where c.table_name = 'palletization' and c.column_name = 'boxes_per_pallet' and p.material_code = '12031189' and p.plant = '2612'`);
-    assert.deepEqual(rows, [{ generation: 'ALWAYS', bpp: 168 }]);
+      `select a.attgenerated as generation, p.boxes_per_pallet as bpp
+         from pg_attribute a, palletization p
+        where a.attrelid = 'palletization'::regclass and a.attname = 'boxes_per_pallet' and p.material_code = '12031189' and p.plant = '2612'`);
+    assert.deepEqual(rows, [{ generation: 's', bpp: 168 }]);
     await rejects(`update palletization set boxes_per_pallet = 1 where material_code = '12031189'`);
   });
 

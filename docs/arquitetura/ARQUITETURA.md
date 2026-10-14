@@ -161,6 +161,12 @@ Cada recurso de infraestrutura fica atrás de uma interface. É isso que permite
 | `IdentityProvider { login; verify }` | login próprio, `crypto.scrypt` e JWT | Cognito e `aws-jwt-verify`, com as mesmas claims |
 | `LlmMapper` | `heuristic`, ou `bedrock` se houver credencial | `bedrock` |
 
+No corte (§13), só a porta `Db` é uma interface no código (`server/src/ports/db.ts`, com os adaptadores PGlite e `pg`). As outras duas que o corte usa são módulos com fronteira definida, ainda sem interface própria:
+- `HttpRuntime`: `createApp` não depende do runtime, e só `server/src/main.ts` chama o `@hono/node-server`.
+- `IdentityProvider`: `server/src/auth/` emite e confere o JWT com as claims `sub` e `role` que o Cognito vai emitir.
+
+As interfaces entram quando houver um segundo adaptador. `FileStorage`, `JobQueue` e `LlmMapper` são da F3. A árvore de pastas do §11 é a meta; o corte usa `server/src/{adapters/db,auth,portal,backoffice,orders,repo,domain,http}`.
+
 Decisões e o porquê (a evidência dos achados está no Anexo F):
 - **SQL puro, sem ORM.** Evita acoplamento entre ORM, driver `pg` e Data API. Os módulos só chamam `db.query` e `db.tx`.
 - **Transação sempre por `tx(fn)`, nunca `BEGIN` solto.** O PGlite usa uma conexão única: no teste, duas requisições com `BEGIN`/`COMMIT` manual intercalados compartilharam a transação. Nenhuma transação fica aberta durante chamada ao modelo de IA ou leitura de planilha.
@@ -478,7 +484,13 @@ A fase 1 é ambiente de desenvolvimento e não é exposta à internet.
 
 Equipe de 4 devs (§11) e prazo do desafio no Dia 2, até 16:30. Cada fatia termina em algo verificável, e o piloto garante uma demonstração a qualquer momento.
 
-**Corte de escopo (decisão do time, 13/10):** entram a segregação de acesso, os pedidos persistentes e o backoffice, ou seja, F0 a F2 sem a exportação. A **exportação para o SAP e para o padrão OB fica para uma fase futura**, depois que a arquitetura for validada na prática: na versão com servidor, o pedido termina em `APPROVED`, e o estado `EXPORTED`, a tabela `sap_export` e o §10 continuam como desenho. Também ficam fora do corte o importador do SAP por upload com quarentena e a ingestão por IA (F3), a nuvem (F4, depois da validação local) e o `engine_version` 2 (tara, medidas nos SKUs com `VOL_MISMATCH`, estivada por piso e upsell com três opções; o caso 5 só passa a valer com ele). O modo `file://` do piloto continua com todas as funções que já tem, inclusive o CSV. Specs e plano por responsável ficam em `docs/specs/` e `docs/plano/`.
+**Corte de escopo (decisão do time, 13/10):** entram a segregação de acesso, os pedidos persistentes e o backoffice, ou seja, F0 a F2 sem a exportação. A **exportação para o SAP e para o padrão OB fica para uma fase futura**, depois que a arquitetura for validada na prática: na versão com servidor, o pedido termina em `APPROVED`, e o estado `EXPORTED`, a tabela `sap_export` e o §10 continuam como desenho. Também ficam fora do corte o importador do SAP por upload com quarentena e a ingestão por IA (F3), a nuvem (F4, depois da validação local) e o `engine_version` 2 (tara, medidas nos SKUs com `VOL_MISMATCH`, estivada por piso e upsell com três opções; o caso 5 só passa a valer com ele). O modo `file://` do piloto continua com todas as funções que já tem, inclusive o CSV. Dentro do corte, quatro pontos do §6 e do §11 ficam reduzidos (specs 01 e 04):
+- a Exportação não envia pedido em nome do cliente; só ajusta, devolve e aprova;
+- o administrador só lê pedidos, produtos e clientes, e altera as regras do cliente. Dado mestre, override, usuário e veículo só mudam pelo seed;
+- o seed com as conferências do 03 ocupa o lugar do importador com portão de qualidade do passo 3 do §11;
+- o navegador continua com o `calc()` do HTML como prévia, guardado pelo teste de paridade. O motor empacotado como script clássico (passo 2 do §11) fica para depois do corte.
+
+Specs e plano por responsável ficam em `docs/specs/` e `docs/plano/`.
 
 | Fatia | Conteúdo | Pronto quando | No corte |
 |---|---|---|---|
