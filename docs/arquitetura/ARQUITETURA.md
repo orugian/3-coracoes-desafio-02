@@ -165,7 +165,7 @@ No corte (§13), só a porta `Db` é uma interface no código (`server/src/ports
 - `HttpRuntime`: `createApp` não depende do runtime, e só `server/src/main.ts` chama o `@hono/node-server`.
 - `IdentityProvider`: `server/src/auth/` emite e confere o JWT com as claims `sub` e `role` que o Cognito vai emitir.
 
-As interfaces entram quando houver um segundo adaptador. `FileStorage`, `JobQueue` e `LlmMapper` são da F3. A árvore de pastas do §11 é a meta; o corte usa `server/src/{adapters/db,auth,portal,backoffice,orders,repo,domain,http}`.
+As interfaces entram quando houver um segundo adaptador. `FileStorage`, `JobQueue` e `LlmMapper` são da F3. A árvore de pastas do §11 é a meta; o corte usa `server/src/{ports,adapters/db,db,auth,http,portal,backoffice,orders,repo,domain}`.
 
 Decisões e o porquê (a evidência dos achados está no Anexo F):
 - **SQL puro, sem ORM.** Evita acoplamento entre ORM, driver `pg` e Data API. Os módulos só chamam `db.query` e `db.tx`.

@@ -1,6 +1,7 @@
 // Concorrência e unicidade (docs/specs/02-banco.md, "Porta Db"; 04, "Regras transversais" e "Detalhes do backoffice").
-// 1. Tradução da PK de order_version (23505) em 409 VERSION_CONFLICT, nas três ações que gravam versão: roda em PGlite,
-//    com um Db que injeta a violação (no PGlite as transações são serializadas e a corrida real não acontece).
+// 1. Tradução da PK de order_version (23505) em 409 VERSION_CONFLICT, nas duas ações que criam versão sobre um pedido
+//    existente (nova versão do backoffice e reenvio do portal): roda em PGlite, com um Db que injeta a violação (no
+//    PGlite as transações são serializadas e a corrida real não acontece).
 // 2. PostgreSQL 16 pelo adaptador pg: migrações, DDL e corridas reais com select … for update. Só roda com
 //    TEST_DATABASE_URL apontando para um banco descartável terminado em _test (o schema public é recriado).
 import { test, describe, before, after } from 'node:test';
@@ -115,7 +116,10 @@ describe('PostgreSQL 16 pelo adaptador pg: migrações, DDL e corridas reais', {
   let martin: Client;
   before(async () => {
     db = createPgDb(PG_URL!);
-    await resetPgSchema(db, true); // só em banco terminado em _test (ou _dev)
+    // Só banco terminado em _test (o resetPgSchema também aceitaria _dev, e este teste apaga o schema public).
+    const { rows: [{ name }] } = await db.query<{ name: string }>('select current_database() as name');
+    assert.match(name, /_test$/, `TEST_DATABASE_URL precisa apontar para um banco terminado em _test (atual: ${name})`);
+    await resetPgSchema(db, true);
     assert.deepEqual(await migrate(db), ['001_inicial']);
     await seed(db, { password: PASSWORD, log: () => undefined });
     t = testApp(db);
@@ -136,7 +140,7 @@ describe('PostgreSQL 16 pelo adaptador pg: migrações, DDL e corridas reais', {
     assert.equal(n, 3, 'seed com os 3 pedidos');
   });
 
-  test('mesma Idempotency-Key em paralelo → um 201 e um 200 replay (23505 traduzido), um só pedido', async () => {
+  test('mesma Idempotency-Key em paralelo → um 201 e os outros 200 replay (pela busca ou pelo 23505 traduzido), um só pedido', async () => {
     const key = newKey('pg-idem');
     const send = () => martin.post('/v1/portal/orders', { customerCode: '11131', header: CARRETA, lines: CASO_2 }, { headers: { 'idempotency-key': key } });
     const results = await Promise.all([send(), send(), send()]);
@@ -160,20 +164,29 @@ describe('PostgreSQL 16 pelo adaptador pg: migrações, DDL e corridas reais', {
     const results = await Promise.all([ana.post(`/v1/backoffice/orders/${id}/approve`, { expectedVersion: 1 }),
       ana.post(`/v1/backoffice/orders/${id}/approve`, { expectedVersion: 1 })]);
     assert.deepEqual(results.map((r) => r.status).sort(), [200, 409]);
+    assert.equal(await errorCode(results.find((r) => r.status === 409)!), 'INVALID_TRANSITION');
     const n = Number((await db.query<{ n: string }>(`select count(*) as n from order_event where order_id = $1 and type = 'APPROVED'`, [id])).rows[0].n);
     assert.equal(n, 1);
   });
 
-  test('devolução e aprovação em paralelo → uma vence, a outra 409; dois reenvios em paralelo → 200 e 409', async () => {
+  test('devolução e aprovação em paralelo → uma vence, a outra 409 INVALID_TRANSITION, estado e eventos coerentes; dois reenvios em paralelo → 200 e 409', async () => {
     const id = await submit(martin);
-    const race = await Promise.all([lucas.post(`/v1/backoffice/orders/${id}/return`, { expectedVersion: 1, reason: 'x' }),
+    const [back, appr] = await Promise.all([lucas.post(`/v1/backoffice/orders/${id}/return`, { expectedVersion: 1, reason: 'x' }),
       ana.post(`/v1/backoffice/orders/${id}/approve`, { expectedVersion: 1 })]);
-    assert.deepEqual(race.map((r) => r.status).sort(), [200, 409]);
+    assert.deepEqual([back.status, appr.status].sort(), [200, 409]);
+    const loser = back.status === 409 ? back : appr;
+    assert.equal(await errorCode(loser), 'INVALID_TRANSITION');
+    const winner = back.status === 200 ? 'CHANGES_REQUESTED' : 'APPROVED';
+    const st = (await db.query<{ status: string }>('select status from sales_order where id = $1', [id])).rows[0].status;
+    assert.equal(st, winner);
+    const types = (await db.query<{ type: string }>('select type from order_event where order_id = $1 order by id', [id])).rows.map((r) => r.type);
+    assert.deepEqual(types, ['SUBMITTED', winner], 'só o evento de quem venceu');
     const id2 = await submit(martin);
     assert.equal((await lucas.post(`/v1/backoffice/orders/${id2}/return`, { expectedVersion: 1, reason: 'x' })).status, 200);
     const body = { expectedVersion: 1, header: CARRETA, lines: CASO_2 };
     const results = await Promise.all([martin.post(`/v1/portal/orders/${id2}/versions`, body), martin.post(`/v1/portal/orders/${id2}/versions`, body)]);
     assert.deepEqual(results.map((r) => r.status).sort(), [200, 409]);
+    assert.equal(await errorCode(results.find((r) => r.status === 409)!), 'INVALID_TRANSITION');
     const n = Number((await db.query<{ n: string }>('select count(*) as n from order_version where order_id = $1', [id2])).rows[0].n);
     assert.equal(n, 2);
   });
