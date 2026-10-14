@@ -19,9 +19,11 @@ export const canEdit = (a: Actor, o: OrderAccess): boolean => a.role === 'int_ex
 export const canApprove = (a: Actor, o: OrderAccess): boolean =>
   a.role === 'int_exportacao' && o.status === 'SUBMITTED' && !isCreatorOrAuthor(a, o);
 
-// Devolver e reenviar são da S9 (desejável): sem a rota, ninguém pode.
-export const canReturn = (_a: Actor, _o: OrderAccess): boolean => false;
-export const canResubmit = (_a: Actor, _o: OrderAccess): boolean => false;
+// Devolver (S9): int_exportacao, pedido SUBMITTED; sem segregação (quem criou ou editou também devolve).
+export const canReturn = (a: Actor, o: OrderAccess): boolean => a.role === 'int_exportacao' && o.status === 'SUBMITTED';
+// Reenviar (S9): distribuidor do escopo, pedido devolvido (CHANGES_REQUESTED).
+export const canResubmit = (a: Actor, o: OrderAccess): boolean =>
+  a.role === 'ext_distribuidor' && o.status === 'CHANGES_REQUESTED' && a.customers.includes(o.customerCode);
 
 export const permissionsFor = (a: Actor, o: OrderAccess): Permissions => ({
   canEdit: canEdit(a, o), canApprove: canApprove(a, o), canReturn: canReturn(a, o), canResubmit: canResubmit(a, o),

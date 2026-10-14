@@ -12,6 +12,8 @@ export const JSON_SCHEMA_CONTRACTS: [name: string, schema: z.ZodType, io: Mode][
   ['RulesBody', C.RulesBody, 'input'],
   ['BackofficeVersionBody', C.BackofficeVersionBody, 'input'],
   ['ApproveBody', C.ApproveBody, 'input'],
+  ['ReturnBody', C.ReturnBody, 'input'],
+  ['ResubmitBody', C.ResubmitBody, 'input'],
   ['ApiErrorBody', C.ApiErrorBody, 'output'],
   ['Me', C.Me, 'output'],
   ['PortalCatalog', C.PortalCatalog, 'output'],

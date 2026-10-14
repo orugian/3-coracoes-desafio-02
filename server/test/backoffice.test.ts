@@ -74,8 +74,8 @@ describe('leitura', () => {
 
   test('permissions do 0001: Lucas (criador e autor) pode editar e não aprovar; Ana pode as duas; admin.dados só lê', async () => {
     const perms = async (c: Client) => (await detail(c, '3CC-2026-0001')).permissions;
-    assert.deepEqual(await perms(lucas), { canEdit: true, canApprove: false, canReturn: false, canResubmit: false });
-    assert.deepEqual(await perms(ana), { canEdit: true, canApprove: true, canReturn: false, canResubmit: false });
+    assert.deepEqual(await perms(lucas), { canEdit: true, canApprove: false, canReturn: true, canResubmit: false }, 'devolver não tem segregação (S9)');
+    assert.deepEqual(await perms(ana), { canEdit: true, canApprove: true, canReturn: true, canResubmit: false });
     assert.deepEqual(await perms(admin), { canEdit: false, canApprove: false, canReturn: false, canResubmit: false });
     assert.deepEqual((await detail(ana, '3CC-2026-0002')).permissions, { canEdit: false, canApprove: false, canReturn: false, canResubmit: false }, 'APPROVED');
   });
@@ -200,7 +200,7 @@ describe('roteiro do 3CC-2026-0001: Lucas ajusta e não aprova; Ana aprova', () 
     assert.deepEqual([created?.type, created?.actorLabel, created?.fromStatus, created?.toStatus, created?.versionNo],
       ['VERSION_CREATED', 'Lucas (Exportação)', 'SUBMITTED', 'SUBMITTED', 2]);
     assert.deepEqual(created?.payload, { changes: [{ material: '12031189', old: 3528, new: 3192 }], reason: 'Reduzir para caber na carreta' });
-    assert.deepEqual(o.permissions, { canEdit: true, canApprove: false, canReturn: false, canResubmit: false });
+    assert.deepEqual(o.permissions, { canEdit: true, canApprove: false, canReturn: true, canResubmit: false });
     await assert.rejects(db.query(`update order_version set lines = '[]'::jsonb where order_id = $1 and version_no = 1`, [ID]), /aceita só inserção/);
     await assert.rejects(db.query(`delete from order_version where order_id = $1`, [ID]), /aceita só inserção/);
   });

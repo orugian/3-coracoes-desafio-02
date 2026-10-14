@@ -100,6 +100,15 @@ export function requestHash(customerCode: string, header: HeaderInput, lines: Li
 
 export interface LineChange { material: string; old: number; new: number }
 
+// Diferença entre duas listas de linhas (reenvio): material novo com old 0, removido com new 0, em ordem de material.
+export function lineChanges(before: Line[], after: Line[]): LineChange[] {
+  const a = new Map(before.map((l) => [l.material, l.boxes]));
+  const b = new Map(after.map((l) => [l.material, l.boxes]));
+  return [...new Set([...a.keys(), ...b.keys()])].sort()
+    .map((material) => ({ material, old: a.get(material) ?? 0, new: b.get(material) ?? 0 }))
+    .filter((c) => c.old !== c.new);
+}
+
 // Materiais únicos no corpo (422 DUPLICATE_MATERIAL), antes de qualquer consulta: é erro do corpo (ordem das recusas).
 export function assertUniqueMaterials(lines: { material: string }[]): void {
   const seen = new Set<string>();
