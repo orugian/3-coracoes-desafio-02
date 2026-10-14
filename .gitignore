@@ -1,0 +1,9 @@
+# Segredos: a chave da OpenRouter fica nas variáveis de ambiente da Vercel (ou num .env local)
+.env
+.env.*
+!.env.example
+
+node_modules/
+.vercel/
+.DS_Store
+Thumbs.db
