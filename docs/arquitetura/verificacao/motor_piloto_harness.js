@@ -2,7 +2,10 @@
 // Uso: node docs/arquitetura/verificacao/motor_piloto_harness.js caminho/para/index.html
 // O index.html é o do repositório orugian/3-coracoes-desafio-02 (branch solucao-3c-conecta; conferido nos commits 636ac8d, dca67be e f89cef4).
 // Não há dependências: o script extrai do HTML os blocos P, VEH, CLIENTS, priceFor e calc.
+// Desde a S7 (docs/specs/05-integracao-web.md), P e CLIENTS saíram do index.html para o demo-data.js ao lado dele:
+// sem o bloco P no HTML, o script lê os dois de window.PSF_DEMO, definido pelo demo-data.js.
 const fs = require("fs");
+const path = require("path");
 const file = process.argv[2];
 if (!file) { console.error("informe o caminho do index.html do piloto"); process.exit(2); }
 const L = fs.readFileSync(file, "utf8").split("\n");
@@ -15,15 +18,18 @@ function block(startRe, endRe) {
   return L.slice(a, b + 1).join("\n");
 }
 
-const m = new Function([
-  block(/^const P = \[/, /^const BY/),
+const inline = L.some(l => /^const P = \[/.test(l.trimStart()));
+const demo = {};
+if (!inline) new Function("window", fs.readFileSync(path.join(path.dirname(file), "demo-data.js"), "utf8"))(demo);
+const m = new Function("DEMO", [
+  inline ? block(/^const P = \[/, /^const BY/) : "const P = DEMO.P;",
   block(/^const VEH/, /^const RULES/),
-  block(/^const CLIENTS/, /^\};/),
+  inline ? block(/^const CLIENTS/, /^\};/) : "const CLIENTS = DEMO.CLIENTS;",
   "const EPS=1e-9; const S={lang:'pt'};",
   block(/^function priceFor/, /^function priceFor/),
   block(/^function calc/, /^\}/),
   "P.forEach(p=>{p.cxPal=p.lastro*p.alt;p.m3=p.dm3/1000}); return {P,VEH,CLIENTS,calc};",
-].join("\n"))();
+].join("\n"))(demo.PSF_DEMO);
 
 // Chaves dos clientes mudam entre commits (636ac8d: "minoil"/"demo"; dca67be e f89cef4: "minoil"/"rioclaro").
 // O cliente real é o de código 11131; o demo é o que tem bloqueio por destino.

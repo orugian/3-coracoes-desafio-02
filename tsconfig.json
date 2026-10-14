@@ -16,5 +16,5 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true
   },
-  "include": ["server", "packages", "db", "scripts"]
+  "include": ["server", "packages", "db", "scripts", "test"]
 }

@@ -425,5 +425,28 @@ describe('estáticos de lista fechada (item 8)', () => {
     }
   });
 
-  test.todo('o HTML servido não contém ob:{, rioclaro, 11999, MINOIL, Río Claro, Martín, Sofía, EXP-MINOIL nem lista AR (depende da S7)');
+  // Item 8, textos (S7): os dados do piloto saíram para demo-data.js, que o servidor nunca serve.
+  const SENSITIVE = ['ob:{', 'rioclaro', '11999', 'MINOIL', 'Río Claro', 'Martín', 'Sofía', 'EXP-MINOIL', 'lista AR'];
+  test('o HTML e o api-client.js servidos não contêm ob:{, rioclaro, 11999, MINOIL, Río Claro, Martín, Sofía, EXP-MINOIL nem lista AR', async () => {
+    // Controle: os textos de dados estão no demo-data.js do repositório (a busca acharia se estivessem no HTML). "lista AR"
+    // vinha da explicação da lista AR no HTML, que o front já tirou antes da S7.
+    const demoFile = readFileSync(path.join(ROOT, 'demo-data.js'), 'utf8');
+    assert.deepEqual(SENSITIVE.filter((s) => s !== 'lista AR' && !demoFile.includes(s)), [], 'demo-data.js tem os textos');
+    for (const p of ['/', '/index.html', '/api-client.js', '/demo-data.js']) {
+      const res = await t.app.request(p);
+      assert.equal(res.status, 200, p);
+      const body = await res.text();
+      assert.ok(body.length > 0, p);
+      assert.deepEqual(SENSITIVE.filter((s) => body.includes(s)), [], p);
+      // Nem os slugs: o HTML é o mesmo para todos os usuários (05, "Como ficou na S7").
+      assert.deepEqual(['minoil'].filter((s) => body.includes(s)), [], `${p}: slug`);
+    }
+    assert.ok(demoFile.includes('minoil'), 'controle do slug');
+    const client = await t.app.request('/api-client.js');
+    assert.match(client.headers.get('content-type') ?? '', /^text\/javascript/);
+    // O HTML carrega os scripts na ordem do 05: vendor, demo-data.js, api-client.js, aplicação.
+    const html = await (await t.app.request('/')).text();
+    const order = ['vendor/three.min.js', 'demo-data.js', 'api-client.js', 'function calc('].map((s) => html.indexOf(s));
+    assert.ok(order.every((i, k) => i > 0 && (k === 0 || i > order[k - 1])), `ordem dos scripts: ${order.join(', ')}`);
+  });
 });

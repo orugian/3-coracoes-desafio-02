@@ -3,7 +3,7 @@
 **Plataforma de pedidos de exportação da 3corações**
 Protótipo do Hackathon Cafeína Week 2026 (FIAP) · Desafio 02 · Pedido sem Fronteiras
 
-O distribuidor monta o pedido vendo produtos, pallets e a ocupação do veículo em tempo real. A equipe de Exportação recebe o pedido já validado, pronto para importar no SAP, sem digitar nada e com registro de cada alteração.
+O distribuidor monta o pedido vendo produtos, pallets e a ocupação do veículo em tempo real. A equipe de Exportação recebe o pedido já validado e gera o arquivo para upload no Sirius/SAP, sem digitar nada e com registro de cada alteração.
 
 > Pergunta-guia do desafio: *Como criar uma jornada de pedido de exportação em que o distribuidor monte seu pedido vendo produtos, pallets e ocupação do contêiner, e a equipe de Exportação o receba pronto, sem retrabalho?*
 
@@ -20,21 +20,24 @@ Para publicar com um link, ative o GitHub Pages em **Settings → Pages → Bran
 
 O leitor de planilhas (SheetJS) e o motor 3D (Three.js) estão na pasta `vendor`, então a importação do SAP e a visão 3D funcionam mesmo sem internet. Só as fontes vêm do Google Fonts; sem internet, o navegador usa uma fonte parecida. Se o navegador não tiver WebGL, a plataforma mostra o desenho 2D do veículo.
 
-Pedidos, carrinho e regras ficam salvos no navegador, então o estado sobrevive a um recarregamento. Para voltar aos dados de exemplo, use **Restaurar dados de exemplo** (tela de acesso) ou **Restaurar dados** (menu do painel).
+Pedidos, carrinho e regras ficam salvos no navegador, então o estado sobrevive a um recarregamento. Para voltar aos dados iniciais antes de uma apresentação, abra a página com `#reset` no fim do endereço.
 
 ---
 
 ## Roteiro sugerido de demonstração
 
-1. **Tela de acesso:** escolha o perfil **Distribuidor** (Martín, MINOIL S.A.). A tela **Início** mostra o pedido sugerido pelo histórico, os alertas do rascunho (lote mínimo, carga incompleta) e insights de ocupação. Clique em **Completar carga** no alerta ou em **Usar pedido sugerido**.
-   * Opcional: clique em **Importar planilha**, depois em **Usar exemplo** e em **Substituir pedido**. O pedido do Excel vira carrinho, com código 3C, EAN e quantidade em unidades convertida para caixas.
+1. **Tela de acesso:** escolha **Sou cliente**. A plataforma entra como Martín, da MINOIL S.A.; o nome só aparece depois do acesso. A tela **Início** mostra, à esquerda, o pedido sugerido pela Xica com as dicas dela e, à direita, os **Pedidos em andamento** (rascunhos com barra de ocupação e alertas) e os **Pedidos recentes**. Abra um rascunho e clique em **Completar carga**, ou use **Usar pedido sugerido**.
+   * Opcional: em **Novo pedido**, clique em **Importar planilha**, depois em **Usar exemplo** e em **Substituir pedido**. O pedido do Excel vira carrinho, com código 3C, EAN e quantidade em unidades convertida para caixas.
+   * Clique em **Fale com a Xica** (canto inferior direito) e pergunte, por exemplo, *"Como completo a carga?"* ou *"Adicione 2 pallets de Cappuccino Baunilha"*. O assistente responde com os dados da conta e ajusta o rascunho.
 2. Digite quantidades no catálogo e veja os pallets caírem na carreta em 3D. Gire com o mouse, troque para contêiner 40' ou 20' e use **Ampliar** para ver o plano de carga em tela cheia. Use o aviso *"faltam 24 cx para fechar o 4º pallet"* e o botão **Aplicar** da sugestão.
 3. No Café Estrada Real, escolha **UN** e digite **1010**: aparece *"Não fecha caixa"* com as opções de arredondamento.
-4. **Revisar pedido → Confirmar** e depois **Ver no painel 3corações**.
+4. **Revisar pedido → Confirmar**. Saia (ícone ao lado do nome) e entre como **Sou colaborador 3corações**.
 5. No painel, abra o pedido **3CC-2026-0001** (o pedido teste da Order Basis): a planilha marcava "OK", mas são **30 pallets para 28 posições**. No plano de carga 3D, os 2 pallets que sobram aparecem fora da carreta, em vermelho.
-6. Ajuste uma quantidade (fica registrado na trilha de auditoria), aprove e gere o **arquivo para o SAP**.
-7. Em **Clientes e preços**, ligue **pallet misto** para a MINOIL e volte ao portal: as sobras passam a dividir pallets e o pedido teste cai de 30 para 29 posições.
-8. Em **Produtos e regras**, arraste as planilhas Conferência de produtos, Materiais e Registros (estão em `pre-solucao/pedidos-sem-fronteiras/`) para mostrar a importação do SAP com os alertas de qualidade.
+6. Ajuste uma quantidade (fica registrado na trilha de auditoria), aprove, clique em **Gerar arquivo Sirius/SAP** e em **Baixar .csv**: é o arquivo que o analista sobe no Sirius.
+7. Em **Clientes e preços**, abra a ficha da MINOIL, ligue **pallet misto** e volte ao portal: as sobras passam a dividir pallets e o pedido teste cai de 30 para 29 posições.
+8. Em **Parâmetros → Veículos**, mude a carreta de 28 para 30 posições: antes de salvar, a barra de impacto mostra que o pedido teste passa de excesso para carga completa. Salve e veja o histórico. Em **Regras do negócio**, troque o lote mínimo para "Só alerta"; em **Produtos**, ajuste lastro e camadas; em **Restrições por destino**, bloqueie um produto para um cliente.
+9. Em **Catálogo e dados**, abra **Qualidade do cadastro** para ver, em linguagem simples, cada divergência entre a Order Basis e o SAP (como o peso do stick quase 10 vezes maior). Em **Importar do SAP**, arraste as planilhas Conferência de produtos, Materiais e Registros (estão em `pre-solucao/pedidos-sem-fronteiras/`) para mostrar a importação com os alertas de qualidade.
+10. Recolha o menu lateral pelo ícone ao lado do logo: ele vira uma barra de ícones, abre ao passar o mouse e pode ser fixado de novo.
 
 ---
 
@@ -46,7 +49,7 @@ Pedidos, carrinho e regras ficam salvos no navegador, então o estado sobrevive 
 | 2. Valida | Conferência manual de quantidades, múltiplos e restrições | Validação a cada digitação: múltiplo de caixa, lote mínimo, restrição por destino. A confirmação fica travada enquanto houver erro |
 | 3. Calcula a carga | Cubagem e paletização à mão, erros de ocupação | Peso, cubagem, pallets e posições ao vivo, veículo em 3D com os pallets do pedido (os que não cabem ficam do lado de fora), alerta de excesso e de carga incompleta, sugestões automáticas |
 | 4. Confirma | Distribuidor não sabe como ficará o pedido | Tela de revisão com resumo completo, confirmação e acompanhamento em "Meus pedidos" |
-| 5. Recebe pronto | Redigitação item a item, sem registro | Fila validada no painel, trilha de auditoria, arquivo de importação para o SAP |
+| 5. Recebe pronto | Redigitação item a item, sem registro | Fila validada no painel, trilha de auditoria, arquivo pronto para upload no Sirius/SAP |
 
 O item extra pedido no desafio, *"importar o restante dos produtos e exportar o pedido no mesmo padrão"*, também está implementado: importação das extrações do SAP e exportação do pedido em CSV.
 
@@ -55,7 +58,7 @@ O item extra pedido no desafio, *"importar o restante dos produtos e exportar o 
 ## Funcionalidades
 
 ### Área do cliente (distribuidor)
-* **Início** com pedido sugerido a partir do histórico (pallets fechados, carreta cheia, respeitando peso, cubagem e lote mínimo), rascunho atual, último pedido, alertas acionáveis e insights
+* **Início** em duas colunas: à esquerda, **A Xica sugere** (pedido sugerido pelo histórico com carga, veículo e valor em destaque, em pallets fechados e dentro de peso, cubagem e lote mínimo, mais as dicas da Xica); à direita, **Pedidos em andamento** (rascunhos e pedidos aguardando a 3corações, com barra de ocupação e alertas; ao clicar, abre com detalhes e ações) e, logo abaixo, **Pedidos recentes** (últimos 3 aprovados, com Repetir pedido e detalhes ao clicar). Uma única ação principal no topo: **Novo pedido**
 * **Assistente de carga** no painel de embarque: completar carga mantendo o mix, fechar pallets, usar o veículo recomendado, reduzir excesso, com explicação do recurso que limita a carga e do ganho de frete por pallet
 * Catálogo com fotos e preço da lista do cliente
 * **Ficha técnica** de cada produto com todos os campos da Order Basis: código 3C, produto, família, preço, unidades por embalagem, EAN, DUN, peso bruto, peso líquido, cubagem, C × L × A, NCM, linha e caixas por pallet
@@ -69,26 +72,41 @@ O item extra pedido no desafio, *"importar o restante dos produtos e exportar o 
 * **Recomendação de veículo**: compara carreta, contêiner 40' e 20' com a ocupação de cada um e marca o mais bem aproveitado
 * **Divisão em embarques**: quando o pedido não cabe em um veículo, o sistema propõe a divisão (ex.: carreta 100% + contêiner 20' 20%)
 * **Importar pedido do Excel**: colar linhas ou enviar a planilha que o distribuidor já usa; reconhece código 3C, EAN ou DUN e quantidade em caixas, unidades ou quilos, com prévia antes de aplicar. Lê o cabeçalho da planilha (código, caixas ou quantidade, unidade) e escolhe a aba certa: enviando a própria `ORDEN BASIS TESTE.xlsm`, o pedido teste entra sozinho (aba ORDEM, coluna CAIXAS)
-* **Repetir pedido** a partir de Meus pedidos
-* Rascunho salvo automaticamente
+* **Xica, a assistente (chat)**, mascote do 3C Conecta, em todas as telas do cliente, em PT, ES e EN: caixas por pallet, lote mínimo, preço, veículo mais adequado, como completar a carga, prazo mínimo, status dos pedidos, importação do Excel e condições da conta, sempre com os dados reais da conta. Também ajusta o rascunho por texto (*"adicione 2 pallets de Café Tradicional"*, *"remova o filtro"*) e oferece botões de ação (completar carga, trocar veículo, abrir o plano 3D, revisar pedido). Publicado no claude.ai, as perguntas digitadas são respondidas pelo Claude com o contexto da conta e ferramentas para consultar e ajustar o rascunho (o visitante autoriza no primeiro uso); no GitHub Pages ou sem autorização, um motor de respostas embutido responde na hora
+* **Vários rascunhos por cliente**: criar, nomear, continuar, completar a carga e excluir (com confirmação); o rascunho enviado vira pedido e sai da lista; na tela Novo pedido, o rascunho é trocado, renomeado (Enter salva, Esc cancela) e excluído ali mesmo, sem voltar ao Início; tudo salvo automaticamente
+* **Meus pedidos** em lista: rascunhos e pedidos enviados; ao clicar, abre como está (alertas do rascunho) ou como foi (itens, etapas, veículo, datas e ajustes da Exportação), com **Repetir pedido**
 * Revisão com a lista exata do que impede a confirmação, prazo mínimo de carregamento e proteção contra envio duplicado
 * Acompanhamento com jornada em 5 etapas e aviso quando a Exportação ajusta algum item
-* Indicadores do cliente: pedidos em andamento, ocupação média, comprado no ano, aprovados sem ajuste
+* Indicadores do cliente: pedidos enviados, ocupação média, comprado no ano, aprovados sem ajuste
 * Português, espanhol e inglês, modo claro e escuro
 
 ### Painel 3corações (Exportação)
-* Faixa **Atenção agora**: pedidos bloqueados, aguardando há mais de 4 horas, cargas incompletas e qualidade de dados, cada um como atalho de filtro
-* **Aprovação automática** por cliente: pedido sem bloqueio e com carga completa entra aprovado, sem fila, com registro da regra na auditoria
-* Fila de pedidos validados com busca e filtro por status, jornada completa em 8 etapas e responsável por etapa
-* **Plano de carga 3D** de cada pedido, ao lado de posições, peso, cubagem e alertas
-* Ajuste de quantidades com **trilha de auditoria** (quem, o quê, quando)
-* Aprovação e geração do **arquivo de importação para o SAP** e do **pedido completo no padrão Order Basis** (copiar ou baixar CSV)
-* Indicadores de operação na fila (aguardando, tempo de aprovação, certos na primeira, ocupação)
-* Aba **Indicadores** com **insights automáticos** (divisão de embarques, veículo mais adequado, cargas incompletas, concentração por família, potencial de aprovação automática) e os indicadores de operação e gestão: receita, volume, países e clientes ativos, ocupação por pedido, volume por família e pedidos por etapa
-* Clientes e tabela de preços por lista, com a regra de **pallet misto** por cliente e histórico de alterações
-* **Importação do SAP**: lê Conferência de produtos, Materiais e Registros, mostra prévia (novos, alterados, alertas) e atualiza o catálogo após confirmação
-* **Ficha técnica completa dos produtos** (padrão Order Basis) com troca de foto
-* Base de dados com as divergências entre as planilhas, regras e premissas
+Todas as telas do painel foram pensadas para a operação real, com centenas de clientes, produtos e pedidos: busca, filtros, ordenação e paginação em todas as listas.
+
+* **Menu lateral recolhível**: fixo, recolhido em ícones, abre ao passar o mouse ou ao clicar em Mostrar menu e pode ser fixado; a preferência fica salva. Modo claro ou escuro pelo ícone no canto superior direito
+* **Xica no painel**: resumo da fila, pedidos bloqueados e parados, pedido por número, simulação de parâmetros (*"o que muda se a carreta tiver 30 posições?"*, com botão que leva a mudança para Parâmetros), insights, clientes, produtos e qualidade do cadastro
+* **Pedidos**
+  * Faixa **Atenção agora**: bloqueados, aguardando além do limite configurado (padrão 4 horas), cargas incompletas e qualidade do cadastro, cada um como atalho
+  * Barra única com busca (pedido, cliente, código ou referência), status em uma linha e ordenação por prioridade, data ou valor; a lista fica fixa ao rolar, tem rolagem própria e pagina de 25 em 25
+  * Detalhe em seções com cabeçalho fixo (a ação de aprovar fica sempre visível): **jornada em uma linha**, do recebimento até o arquivo para o Sirius/SAP, plano de carga 3D, itens, arquivo e auditoria
+  * Ajuste de quantidades com **trilha de auditoria** (quem, o quê, quando)
+  * **Aprovação automática** por cliente: pedido sem bloqueio e com carga completa entra aprovado, sem fila, com registro da regra
+  * Geração do **arquivo para upload no Sirius/SAP** e do **pedido completo no padrão Order Basis**, com botões para copiar e **baixar .csv**
+* **Clientes e preços**
+  * Lista de clientes com busca e filtros por destino e lista de preço, e a **ficha do cliente**: condições comerciais, regras (pallet misto e aprovação automática), produtos bloqueados para o destino, pedidos e histórico de regras
+  * **Listas de preço** uma por vez (escala para muitas listas), com preço por caixa e por pallet, fonte do preço (SAP, manual ou sem preço), busca e filtros
+* **Catálogo e dados**
+  * **Produtos** com busca por nome, código 3C, EAN ou DUN, filtros por família e situação e **ficha técnica** completa ao clicar (padrão Order Basis), com troca de foto
+  * **Qualidade do cadastro**: cada divergência entre a Order Basis e o SAP explicada em uma frase, com o tipo (peso, paletização, preço, lote mínimo), o impacto (muda o cálculo da carga ou o valor do pedido) e o valor que o 3C Conecta usa; a tabela comparativa completa fica disponível para conferência
+  * **Importar do SAP**: lê Conferência de produtos, Materiais e Registros, mostra prévia (novos, alterados, alertas) e atualiza o catálogo após confirmação
+* **Indicadores** com filtro de período e de cliente, **insights automáticos** (divisão de embarques, veículo mais adequado, cargas incompletas, concentração por família, potencial de aprovação automática), indicadores de operação e gestão, distribuição da ocupação dos embarques com os pedidos que pedem atenção, volume por família, ranking de clientes e pedidos por etapa
+* **Parâmetros do negócio**, em cinco abas:
+  * **Regras do negócio**: carga completa a partir de X%, prazo mínimo de carregamento, alerta de pedido parado na fila, lote mínimo e pallet incompleto (bloqueia o envio ou só alerta) e resumo das regras por cliente
+  * **Veículos**: posições de pallet, peso máximo, cubagem, nome em PT, ES e EN, disponível ou fora de uso, cadastro de veículos novos (truck, bitrem, contêiner high cube), que entram no seletor do cliente, na recomendação, na divisão em embarques e no plano 3D
+  * **Produtos**: lastro, camadas (caixas por pallet recalculadas na hora), lote mínimo, peso bruto por caixa e produto ativo ou fora de linha, com busca, filtros e paginação
+  * **Restrições por destino**: escolha o cliente e libere ou bloqueie cada produto, com busca e filtro de bloqueados
+  * **Histórico**: quem mudou o quê e quando
+  * Edição em rascunho com validação campo a campo, **barra de impacto** antes de salvar (quais pedidos em análise mudam de status) e **Restaurar padrão** por aba. Pedidos já aprovados guardam a capacidade do veículo da data de aprovação
 
 ---
 
@@ -122,9 +140,9 @@ Produtos do recorte: 10 materiais das marcas 3corações e Iguaçu (cafés, capp
 * **Valor** = caixas × preço da lista do cliente
 * **Posições de pallet**: sem pallet misto, cada pallet incompleto ocupa uma posição inteira; com pallet misto, as sobras de produtos diferentes dividem posições
 * **Recurso limitante** = o maior entre peso ÷ limite, cubagem ÷ capacidade e posições ÷ capacidade
-* **Status da carga**: acima de 100% é excesso; a partir de 90% é carga completa; abaixo de 90% é carga incompleta
+* **Status da carga**: acima de 100% é excesso; a partir de 90% é carga completa; abaixo de 90% é carga incompleta (o limite de 90% é ajustável em Parâmetros)
 * **Pedido em UN ou KG**: convertido para caixas (UN pelas unidades por caixa; KG pelo peso líquido da caixa). Se não fecha caixa inteira, o pedido fica bloqueado até o cliente escolher o arredondamento
-* **Bloqueios**: abaixo do lote mínimo, caixa quebrada, produto não liberado para o destino, produto sem preço ou excesso de carga impedem a confirmação
+* **Bloqueios**: abaixo do lote mínimo, caixa quebrada, produto não liberado para o destino, produto sem preço, produto fora de linha ou excesso de carga impedem a confirmação. Lote mínimo e pallet incompleto podem ser configurados para bloquear ou só alertar
 * **Carga estivada**: sem pallets, a ocupação considera peso e cubagem
 
 | Veículo | Cubagem | Peso | Posições de pallet |
@@ -133,6 +151,8 @@ Produtos do recorte: 10 materiais das marcas 3corações e Iguaçu (cafés, capp
 | Contêiner 40' | 60,84 m³ | 25.000 kg | 20 |
 | Contêiner 20' | 29,7 m³ | 25.000 kg | 10 |
 
+Valores de fábrica. A Exportação ajusta capacidades e cadastra veículos novos em **Parâmetros**.
+
 ---
 
 ## Premissas assumidas (a validar com a 3corações)
@@ -140,7 +160,7 @@ Produtos do recorte: 10 materiais das marcas 3corações e Iguaçu (cafés, capp
 * **Posições de pallet** por veículo (28, 20 e 10), considerando pallet PBR de 1,20 × 1,00 m. Cubagem e peso vêm da Order Basis.
 * **Carga completa a partir de 90%** do recurso limitante.
 * **UN** é a menor unidade de venda (sachê, stick, pote, pacote). **KG** usa o peso líquido.
-* **Layout do arquivo para o SAP** é sugerido pela equipe, até recebermos o layout oficial de importação.
+* **Layout do arquivo para o Sirius/SAP** é sugerido pela equipe, até recebermos o layout oficial de importação.
 * **Peso máximo por pallet** não foi aplicado; o pallet mais pesado do recorte tem cerca de 895 kg.
 * **Stick de solúvel (12147801)**: o SAP traz o peso bruto da caixa em gramas trocadas (menor que o peso líquido). Mantivemos 1,2 kg por caixa, valor da Order Basis.
 * **Filtro de papel (12037417)**: lote mínimo de 2 pallets, linha da filial LONT com a descrição "RED DES".
@@ -170,9 +190,9 @@ Proposta: o SAP passa a ser a **fonte única** dos dados, e a Exportação só c
 
 ---
 
-## Arquivo de importação para o SAP
+## Arquivo para upload no Sirius/SAP
 
-Layout sugerido (CSV separado por ponto e vírgula, UTF-8):
+Depois de aprovar, o analista gera o arquivo no detalhe do pedido e baixa o .csv para fazer o upload no Sirius, que cria a ordem de venda no SAP. Layout sugerido (CSV separado por ponto e vírgula, UTF-8):
 
 ```
 PEDIDO_PORTAL;COD_CLIENTE;REF_CLIENTE;CANAL;CENTRO;LISTA_PRECO;MATERIAL;DESCRICAO_SAP;QTD;UM;PRECO_UNIT;MOEDA;VALOR_TOTAL;INCOTERM;COND_PAGTO;DATA_CARREGAMENTO
@@ -186,6 +206,18 @@ O layout é uma configuração: na POC ele é substituído pelo layout oficial d
 
 O protótipo roda inteiro no navegador, mas o código já está separado como uma aplicação real: **motor de cálculo**, **camada de dados** no formato da API e **telas**. Na POC, a camada de dados vira um serviço; as telas não mudam.
 
+### Proposta de arquitetura na AWS
+
+![Arquitetura proposta do 3C Conecta na AWS](assets/arquitetura/arquitetura_aws_3c_conecta.jpg)
+
+Serverless na região sa-east-1 (São Paulo), com os dados no Brasil:
+
+* **Acesso:** Route 53, CloudFront com AWS WAF e o app estático no S3; login com Amazon Cognito, federado ao diretório corporativo da 3corações para os analistas.
+* **API e regras:** API Gateway protegida pelo Cognito e AWS Lambda por domínio (pedidos e aprovação, motor de carga, clientes, catálogo e preços, parâmetros e auditoria, arquivo Sirius/SAP e Xica).
+* **Dados e IA:** Aurora PostgreSQL Serverless v2 para pedidos, clientes, catálogo e auditoria; S3 para as extrações do SAP e os arquivos gerados; Amazon Bedrock (Claude) para a Xica.
+* **Eventos e integração:** EventBridge para os eventos do pedido e a agenda noturna, Step Functions para a importação e a sincronização, Amazon SES para os e-mails e, na fase 2, Amazon AppFlow com o conector SAP OData para gravar o pedido direto no SAP.
+* **Operação e segurança:** CloudWatch, CloudTrail, Secrets Manager (credenciais do SAP), KMS e CloudFormation (infraestrutura como código).
+
 ### Princípios
 
 * **O servidor é a fonte da verdade.** O navegador calcula para dar resposta imediata, mas o servidor recalcula preço, pallets, ocupação e bloqueios com o mesmo motor antes de gravar. Um pedido adulterado no navegador é recusado.
@@ -196,7 +228,7 @@ O protótipo roda inteiro no navegador, mas o código já está separado como um
 ### Máquina de status do pedido
 
 ```
-em análise ──aprovar──▶ aprovado ──gerar arquivo──▶ arquivo SAP gerado
+em análise ──aprovar──▶ aprovado ──gerar arquivo──▶ arquivo gerado (upload no Sirius/SAP)
      │                                                  │
      └─ ajustes da Exportação (versão +1, auditoria)    └─ pode gerar o arquivo de novo
 ```
@@ -215,7 +247,12 @@ Transições fora dessa ordem são recusadas (HTTP 409). Só pedidos em análise
 | PATCH | `/api/v1/orders/:id/items/:material` | Ajuste de quantidade pela Exportação (versão +1) | 409 pedido fora de análise |
 | POST | `/api/v1/orders/:id/approve` | Aprova o pedido | 409 bloqueios ou status errado |
 | POST | `/api/v1/orders/:id/sap-export?layout=sap\|ob` | Gera o arquivo de importação do SAP ou o pedido no padrão Order Basis | 409 pedido não aprovado |
-| PUT | `/api/v1/clients/:id/rules` | Regras do cliente (pallet misto, restrições) | 400 regra desconhecida |
+| PUT | `/api/v1/clients/:id/rules` | Regras do cliente (pallet misto, aprovação automática) | 400 regra desconhecida |
+| GET | `/api/v1/settings` | Regras, veículos, paletização dos produtos e restrições em vigor | |
+| PATCH | `/api/v1/settings` | Lote de alterações `{caminho: valor}`, validado por inteiro antes de aplicar (tudo ou nada), com registro no histórico | 422 valor fora da faixa, nenhum veículo disponível |
+| POST | `/api/v1/settings/vehicles` | Cadastra veículo | 422 nome repetido ou capacidade inválida |
+| DELETE | `/api/v1/settings/vehicles/:id` | Exclui veículo cadastrado pela Exportação | 409 veículo padrão ou usado em pedidos |
+| POST | `/api/v1/settings/reset` | Volta uma aba (ou tudo) aos valores de fábrica | |
 | POST | `/api/v1/imports/sap` | Recebe as extrações Conferência, Materiais e Registros e devolve a prévia com alertas | 422 arquivo não reconhecido |
 | POST | `/api/v1/imports/sap/:id/apply` | Aplica a prévia ao catálogo | |
 
@@ -235,6 +272,18 @@ Idempotency-Key: d8k2f1x9
     { "material": "12031189", "boxes": 1680 },
     { "material": "12034109", "boxes": 84 }
   ]
+}
+```
+
+Exemplo de alteração de parâmetros (a tela mostra o impacto antes de enviar):
+
+```json
+PATCH /api/v1/settings
+{
+  "veh.carreta.pos": 30,
+  "rules.fullAt": 0.92,
+  "prod.12031189.lastro": 15,
+  "block.rioclaro.20908885": true
 }
 ```
 
@@ -262,22 +311,31 @@ No protótipo, cada endpoint está no objeto `API` do `index.html`, com o mesmo 
 | `precos` | material, lista, preço, vigência (de, até) |
 | `lote_minimo` | material, filial, pallets |
 | `restricoes_destino` | material, país ou cliente, motivo |
-| `veiculos` | tipo, cubagem, peso máximo, posições de pallet |
-| `pedidos` | número, cliente, veículo, modo, regra de pallet misto na data do envio, referência, data de carregamento, status, versão, chave de idempotência |
+| `veiculos` | tipo, nomes por idioma, cubagem, peso máximo, posições de pallet, disponível |
+| `parametros` | regra, valor, vigência, usuário que alterou (carga completa, prazo mínimo, alerta de fila, lote mínimo e pallet incompleto bloqueiam ou alertam) |
+| `pedidos` | número, cliente, veículo, capacidade do veículo na aprovação, modo, regra de pallet misto na data do envio, referência, data de carregamento, status, versão, chave de idempotência |
 | `itens_pedido` | pedido, material, caixas, preço aplicado |
 | `auditoria` | pedido, data e hora, usuário, ação, valor anterior, valor novo |
 | `importacoes` | arquivos, usuário, data, itens novos, alterados e alertas |
 
+### Xica, a assistente com IA
+
+<img src="assets/mascote/xica_feliz.svg" alt="Xica, a mascote do 3C Conecta" width="140" align="right">
+
+A Xica é a mascote do 3C Conecta: uma xícara 3C cujo vapor muda com a mensagem (coração para ajudar, pontinhos enquanto pensa, exclamação nos alertas e festa quando o pedido é aprovado). Ela aparece no chat, nos alertas e insights, na faixa Atenção agora, no pedido enviado e nas telas vazias, para o cliente e para a Exportação.
+
+O chat tem dois motores. No claude.ai, a página declara a capacidade de IA do artefato e envia ao Claude a pergunta, o histórico curto da conversa e um retrato da conta (cliente, regras, veículos, catálogo com preços da lista, rascunho e pedidos). Para o cliente, o Claude pode chamar três ferramentas da página (`ajustar_item`, `completar_carga` e `trocar_veiculo`), que passam pelas mesmas validações do portal. No painel 3corações, recebe a fila com status, bloqueios e tempo de espera, e usa `simular_parametros` (só simula, não grava) e `abrir_pedido`. Ele não envia pedidos: a confirmação continua com o cliente, no botão Revisar pedido. Se a IA não estiver disponível (GitHub Pages, visitante não autorizou, limite de uso), o motor de intenções embutido responde com os mesmos dados. Na POC, o mesmo desenho roda no servidor, com a chave da API guardada no backend.
+
 ### Segurança e operação
 
-* Login com perfis: **distribuidor** (só vê o próprio cadastro, preços e pedidos), **Exportação** (fila, ajustes, aprovação, arquivo SAP) e **administração** (regras e importação).
+* Login com perfis: **distribuidor** (só vê o próprio cadastro, preços e pedidos), **Exportação** (fila, ajustes, aprovação, arquivo Sirius/SAP) e **administração** (parâmetros e importação).
 * Integração com o SAP em duas etapas: arquivo no layout oficial de importação na POC; BAPI ou IDoc de ordem de venda no piloto.
 * Arquitetura serverless na AWS: front no Amplify, API Gateway com Lambda, banco gerenciado, Cognito para login e S3 para arquivos e fotos.
 * Logs e métricas por endpoint (tempo de resposta, erros de validação mais comuns), que também alimentam os indicadores da área.
 
-### Persistência no ambiente de homologação
+### Persistência sem servidor
 
-Sem servidor, o protótipo grava o estado no `localStorage` do navegador (pedidos, carrinho, regras, catálogo importado e histórico), com versão de esquema. Se os dados-base do catálogo mudarem, o estado salvo é descartado automaticamente.
+Sem servidor, o protótipo grava o estado no `localStorage` do navegador (pedidos, carrinho, regras, parâmetros, veículos cadastrados, catálogo importado e histórico), com versão de esquema. Se os dados-base do catálogo mudarem, o estado salvo é descartado automaticamente.
 
 ---
 
@@ -287,7 +345,7 @@ Sem servidor, o protótipo grava o estado no `localStorage` do navegador (pedido
 * [SheetJS Community Edition 0.18.5](https://sheetjs.com) para leitura das planilhas (licença Apache 2.0, em `vendor/`)
 * [Three.js r128](https://threejs.org) para a visão 3D dos veículos e da carga (licença MIT, em `vendor/`)
 * Fonte Jost (Google Fonts)
-* Identidade visual inspirada no Mercafé, loja oficial da 3corações, com selo de ambiente de homologação
+* Identidade visual inspirada no Mercafé, loja oficial da 3corações
 
 ## Fotos dos produtos
 
@@ -302,6 +360,8 @@ vendor/LICENSE-sheetjs.txt Licença do SheetJS
 vendor/three.min.js       Motor 3D (Three.js r128)
 vendor/LICENSE-three.txt  Licença do Three.js
 assets/produtos/           Fotos dos produtos (nome do arquivo = código SAP)
+assets/mascote/            Xica, a mascote: SVGs das expressões, ícones e prévias
+assets/arquitetura/        Proposta de arquitetura na AWS (imagem)
 README.md                  Este documento
 pre-solucao/               Material do desafio (apresentação e planilhas fornecidas pela 3corações)
 ```
@@ -312,12 +372,12 @@ pre-solucao/               Material do desafio (apresentação e planilhas forne
 
 | Fase | Escopo |
 |---|---|
-| **Hackathon** | 1 cliente, 10 produtos, carreta e contêineres, motor de cálculo e arquivo para o SAP |
-| **POC** | 1 país, 2 ou 3 distribuidores reais, login com perfis de acesso, dados sincronizados do SAP, layout oficial de importação |
-| **Piloto** | Todo o Mercosul, regras por país em configuração, integração direta com o SAP por API, indicadores da área |
+| **Hackathon** | 10 produtos, carreta e contêineres, motor de cálculo, Xica, parâmetros, telas prontas para centenas de clientes e arquivo para o Sirius/SAP |
+| **POC** | 1 país, 2 ou 3 distribuidores reais, na AWS, com login por perfil de acesso, dados sincronizados do SAP e layout oficial do arquivo do Sirius |
+| **Piloto** | Todo o Mercosul, regras por país em configuração, pedido gravado direto no SAP (Amazon AppFlow com o conector SAP OData), indicadores da área |
 | **Escala** | Novos mercados, frete marítimo, proforma e packing list automáticos, sugestão de pedido por IA e leitura de pedidos enviados por e-mail |
 
-Arquitetura proposta para a POC: serverless na AWS (front no Amplify, API Gateway com Lambda, banco gerenciado, autenticação com Cognito e arquivos no S3).
+Arquitetura proposta para a POC: serverless na AWS, detalhada na seção [Proposta de arquitetura na AWS](#proposta-de-arquitetura-na-aws).
 
 ---
 

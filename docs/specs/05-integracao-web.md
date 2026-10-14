@@ -36,6 +36,24 @@ Os números de linha são de `dca67be` e servem de orientação; em `f89cef4` el
 | Saída | `data-logout` só troca `S.area` | Em servidor, `PSF.logout()` chama `POST /v1/auth/logout` e faz `location.reload()`: nada da sessão anterior (`P` com `prices` e `ob`, `CLIENTS` de todos os clientes, `S.orders`) fica na memória para o próximo usuário da mesma aba |
 | 3D da tela de acesso (`v3Spec("hero")`, 1892) | `calc(HERO_QTY, { client: "minoil", … })` | Em servidor, a especificação do hero é o veículo vazio, sem `calc` (não há catálogo nem `CLIENTS` antes do login) |
 
+### Como ficou na S7 (sobre `d84b4cf`)
+
+O front avançou de `f89cef4` para `d84b4cf` antes da S7 (3.767 linhas; `calc` em 1335, `API` em 3498, `STORE_KEY` em 3591, seed em 3616). A mudança seguiu a tabela acima, com estes ajustes:
+- **Dados:** `P`, `EXTRA` (com a mescla), `CLIENTS` e os 3 pedidos foram copiados como estavam para `demo-data.js`, dentro de uma função que só define `window.PSF_DEMO`. O comentário "lista US / EXP-MINOIL" saiu. O front já tinha tirado a explicação da lista AR, o "porta filtro para a Distribuidora Río Claro" e o "Martín · MINOIL S.A." fixo.
+- **Valor inicial de `S.client`:** passou a ser `Object.keys(CLIENTS)[0]||""`. Os dois rascunhos de exemplo (`r-demo-1` e `r-demo-2`, novos no front) só existem em demo e usam `S.client`. Com isso, o HTML servido não tem nem o slug `minoil`.
+- **`API_DEMO`:** além das chamadas `API.get` em `updateItem`, `approve` e `exportSap`, o `resetSettings` chama `API_DEMO.saveSettings` e `API_DEMO.removeVehicle`. O objeto de ligação vem explícito: `PSF.createApi(API_DEMO, { S, P, BY, VEH, RULES, CLIENTS, RLOG, ApiError, render, toast, loadFolderPhotos })`, porque o `api-client.js` carrega antes desses nomes existirem.
+- **Parâmetros do negócio** (aba nova do front): `getSettings` lê o estado local nos dois modos. Em servidor, `saveSettings`, `addVehicle`, `removeVehicle` e `resetSettings` recusam na hora com "Parâmetros do negócio: próxima fase", sem rede. Em demo continuam síncronos. Esconder a aba no servidor é da S8.
+- **`confirmOrder`:** bloqueio (`ORDER_BLOCKED`, ou o 422 do demo) continua com o texto traduzido `t("cannot")`. Os demais erros mostram `e.message`, inclusive `LOADING_DATE_TOO_SOON`. A fachada põe o `code` da API no erro.
+- **Status `devolvido`:** entrou em `ST`, `QF`, na ordenação da fila (`SO`), em `FLOW` e nos três `step` (lista de "Meus pedidos", resposta da Xica e contexto da IA). A Xica ganhou a frase de "próximo passo" para o devolvido. Sem isso, um pedido devolvido pela S9 quebraria o `render`.
+- **Hero:** `calc` com o pedido vazio no servidor (`calc({}, …)` não lê `CLIENTS`). O resultado é o veículo vazio.
+- **Acesso no servidor:** os botões de perfil (`data-enter`) não fazem nada no servidor. O formulário é da S8, que chama `PSF.login(usuario, senha)`, e o 401 vira `ApiError` com "Usuário ou senha incorretos.". `data-logout` chama `PSF.logout()`.
+- **Lateral do painel:** nome e papel vêm de `PSF.who("Lucas", "Analista de Exportação")`. É o usuário da sessão no servidor ("Ana", "Exportação 3corações"; "Administração de dados", "Dados e usuários") e o texto fixo em demo.
+- **Preferências:** além de `qty`, `unit`, `veh`, `mode`, `lang` e `view3d`, guardam `drafts` e `draftId`, os rascunhos do front e o carrinho de hoje (§7.2: o rascunho fica no navegador). `S.lang` usa a preferência salva e, sem ela, o idioma do cliente.
+- **Carga da sessão:** o portal lê `catalog?customer=` do primeiro cliente do escopo e a lista de pedidos. O backoffice lê `products`, `customers` e `orders`. Nos dois, o detalhe de cada pedido (versões e eventos) vem logo depois, para `audit` e "Meus pedidos". `RULES.minLotBlock` e `fullPalBlock` ficam no perfil do `engine_version` 1 (01).
+- **Ainda fixos, para a S8:** o "Lucas (Exportação)" do histórico de importações (`IMP.log`), o "Oi, Lucas!" da Xica no painel e a persona da IA ("Pergunta do Lucas", "conversando com Lucas"; só valem com `window.claude`), e o `ACTOR_EXP`, que só vale em demo. O rótulo `priceSrc === "site"` ("fora da lista SAP · site 3corações") também fica para a S8: o `srcNote` de hoje mostra "SAP".
+- **Também para a S8 (revisão da S7):** campos que agora vêm do servidor e entram no HTML sem `esc()` (`c.contact` e `c.contact[0]` no cabeçalho e na lateral do portal; `cl.code`, `cl.inc`, `cl.pay`, `cl.list` e `cl.filial` no detalhe do pedido). No corte eles vêm do seed. Num distribuidor com mais de um cliente, trocar o cliente no seletor precisa recarregar `catalog?customer=` (preço e restrições são por cliente); `PSF.start` carrega o primeiro.
+- **Saída:** `PSF.logout()` só recarrega se o servidor confirmou (204) ou se a sessão já não valia (401). Com o servidor fora do ar, a tela fica e o toast avisa, porque o cookie continuaria válido para o próximo usuário da aba. Se `PSF.start()` não conseguir carregar a área, volta para o acesso com o motivo no toast.
+
 ## Fachada `API` no modo servidor
 
 Mesmos nomes e argumentos que o piloto já usa; todos devolvem `Promise`. Erros viram `ApiError(status, message, details)`, a mesma classe do piloto.
@@ -50,6 +68,9 @@ Mesmos nomes e argumentos que o piloto já usa; todos devolvem `Promise`. Erros 
 | `exportSap(id)` | — | Rejeita com "Exportação para o SAP: próxima fase" |
 | `setClientRule(k, field, val)` | `PUT /v1/backoffice/customers/:code/rules` com `mixedPallet` ou `autoApprove` | Atualiza `CLIENTS[k]` e o histórico `RLOG` |
 | `returnOrder(id, reason)`, `resubmit(id, d)` (desejáveis) | `…/return` e `POST /v1/portal/orders/:id/versions` | Idem |
+| `getSettings()`; `saveSettings`, `addVehicle`, `removeVehicle`, `resetSettings` | Nenhuma | `getSettings` lê o estado local; as escritas recusam com "Parâmetros do negócio: próxima fase" (síncronas, como no piloto) |
+
+Além da fachada, o `api-client.js` expõe `PSF.mode`, `PSF.me` (o `Me` da sessão), `PSF.start()`, `PSF.login(usuario, senha)`, `PSF.logout()`, `PSF.who(nome, papel)`, `PSF.request(método, url, corpo)` (para a S8 ler o que a fachada não cobre, com o mesmo tratamento de erro) e `PSF.translate` (os tradutores, usados nos testes). Falha de rede vira `ApiError` com status 0 e "Sem conexão com o servidor…".
 
 Em 409 `VERSION_CONFLICT`, a fachada recarrega o pedido (`GET …/orders/:id`), atualiza `S.orders` e repassa o erro para o toast.
 
@@ -100,6 +121,9 @@ Automático:
 - teste de estáticos e de textos do servidor (04, item 8) e paridade do motor (01);
 - testes unitários dos tradutores (`api-client.test.ts`): `CatalogItem` → item de `P`, `OrderView` → pedido do piloto (inclusive `VERSION_CREATED` → entradas "Alterou" com `kind: "edit"`), alertas → códigos do piloto;
 - **teste de fumaça do modo demo** (`web-demo.test.ts`, com `happy-dom`): carrega `demo-data.js`, `api-client.js` e o script do `index.html`; confere que o modo é `demo`; cria um pedido pelo `API`, ajusta um item do `3CC-2026-0001`, aprova um pedido sem bloqueio e gera o CSV; confere `S.orders` depois de cada passo. É o que garante o plano B (`file://`) sem teste manual.
+- **modo servidor contra a API** (`web-server.test.ts`, `happy-dom` com o app Hono e o banco semeado): os arquivos como o servidor entrega, `fetch` com cookie e `Sec-Fetch-Site`; automatiza, nos dados da tela (`S`, `P`, `CLIENTS`, `RLOG`), os passos 1 a 6 do roteiro abaixo. O que é visual (formulário, botões escondidos, rótulos) continua no roteiro manual da S8.
+
+Os testes do navegador ficam em `test/web/`. O `happy-dom` embrulha cada `<script>` numa função, e os `const` deixariam de ser compartilhados entre os scripts. Por isso a avaliação dele fica desligada, e os três scripts rodam com `vm.runInContext` no contexto da janela, como scripts clássicos.
 
 Roteiro manual no modo servidor, depois de `npm run db:seed` e `npm run dev`:
 1. Martín entra: o catálogo mostra preço da lista US e 98 cx/pallet no 12034109; monta um pedido, vê "faltam N cx", envia; recarrega a página e o pedido continua em "Meus pedidos".
