@@ -1,21 +1,28 @@
 // API do portal do distribuidor (docs/specs/04-api.md, "Rotas"): catálogo, simulação e pedidos. A guarda por prefixo
 // (só ext_distribuidor) fica no app; aqui, o escopo de cliente, sempre o do banco (fora dele, 404).
 import { Hono, type Context } from 'hono';
-import { EngineResult, IdempotencyKey, ListOrdersQuery, OrderBody, PortalCatalog, PortalOrderView } from '#contracts';
+import { EngineResult, IdempotencyKey, ListOrdersQuery, OrderBody, PortalCatalog, PortalOrderView, ResubmitBody } from '#contracts';
 import { uniqueViolation, type Db } from '../ports/db.ts';
+import { canResubmit } from '../domain/permissions.ts';
 import { saoPauloDate } from '../domain/time.ts';
 import { ApiError } from '../http/errors.ts';
 import type { AppEnv, AuthUser } from '../http/env.ts';
 import { parseInput, readBody } from '../http/validate.ts';
 import { customerPrices, FULL_AT, restrictedMaterials } from '../repo/catalog.ts';
 import { lastAutoApproveChange } from '../repo/customers.ts';
-import { findByIdempotencyKey, insertEvent, insertVersion, loadOrder, loadOrders, nextOrderId } from '../repo/orders.ts';
+import { currentVersionOf, findByIdempotencyKey, insertEvent, insertVersion, loadOrder, loadOrders, lockOrder, nextOrderId } from '../repo/orders.ts';
 import { catalogItems, vehicles } from '../repo/products.ts';
 import { customerProfiles } from '../repo/users.ts';
-import { blockDetails, checkKnownMaterials, checkLines, checkLoadingDate, computeVersion, isFullLoad, LEAD_DAYS, requestHash } from '../orders/compute.ts';
-import { AUTO_APPROVAL_LABEL, orderView } from '../orders/views.ts';
+import {
+  blockDetails, checkKnownMaterials, checkLines, checkLoadingDate, computeVersion, isFullLoad, LEAD_DAYS, lineChanges, requestHash,
+} from '../orders/compute.ts';
+import { AUTO_APPROVAL_LABEL, orderAccess, orderView } from '../orders/views.ts';
 
 const IDEMPOTENCY_CONSTRAINT = 'sales_order_customer_code_idempotency_key_key';
+const VERSION_PK = 'order_version_pkey';
+
+const versionConflict = (currentVersion: number | null) =>
+  new ApiError('VERSION_CONFLICT', { details: [{ code: 'VERSION_CONFLICT', params: { currentVersion } }] });
 
 interface PortalDeps { db: Db; now: () => Date }
 
@@ -143,6 +150,53 @@ export function portalRoutes(deps: PortalDeps): Hono<AppEnv> {
   });
 
   r.get('/orders/:id', async (c) => c.json(await detail(c, c.req.param('id'))));
+
+  // Reenvio do pedido devolvido (CHANGES_REQUESTED → SUBMITTED, versão + 1, S9): distribuidor do escopo, com as regras do
+  // envio (materiais, data de carregamento, sem BLOCK) e o pallet misto do cliente agora. Não dispara a aprovação
+  // automática: o pedido já passou por uma pessoa. Ordem das recusas: 422 do corpo, 404 (inexistente ou fora do escopo),
+  // 409 INVALID_TRANSITION, 409 VERSION_CONFLICT, 422 de material, 422 da data, 422 ORDER_BLOCKED.
+  r.post('/orders/:id/versions', async (c) => {
+    const auth = c.get('auth');
+    const id = c.req.param('id');
+    const body = await readBody(c, ResubmitBody);
+    const lines = checkLines(body.lines);
+    const now = deps.now();
+    await db.tx(async (q) => {
+      if (!(await lockOrder(q, id))) throw new ApiError('NOT_FOUND');
+      const data = await loadOrder(q, id);
+      if (!data || !auth.customers.includes(data.order.customer_code)) throw new ApiError('NOT_FOUND');
+      const access = orderAccess(data);
+      if (access.status !== 'CHANGES_REQUESTED') throw new ApiError('INVALID_TRANSITION');
+      if (!canResubmit(auth, access)) throw new ApiError('NOT_FOUND');
+      if (body.expectedVersion !== data.order.current_version) throw versionConflict(data.order.current_version);
+
+      const code = data.order.customer_code;
+      await checkKnownMaterials(q, code, lines);
+      checkLoadingDate(body.header.loadingDate, now);
+      const v = await computeVersion(q, code, body.header, lines, now);
+      if (v.result.blocking) throw new ApiError('ORDER_BLOCKED', { details: blockDetails(v.result) });
+      const previous = data.versions.find((x) => x.version_no === data.order.current_version)!;
+      const changes = lineChanges(previous.lines, v.lines);
+      const versionNo = data.order.current_version + 1;
+      await insertVersion(q, {
+        orderId: id, versionNo, vehicleId: v.header.vehicleId, loadMode: v.header.loadMode, mixedPallet: v.header.mixedPallet,
+        reference: v.header.reference, loadingDate: v.header.loadingDate, lines: v.lines, result: v.result,
+        inputs: { priceDate: v.priceDate, vehicleId: v.header.vehicleId, customerCode: code },
+        dataBatches: v.dataBatches, overrides: v.overrides, contentHash: v.contentHash,
+        authorId: auth.userId, authorLabel: auth.displayName, reason: null, at: now,
+      });
+      await insertEvent(q, {
+        orderId: id, at: now, actorId: auth.userId, actorLabel: auth.displayName, type: 'RESUBMITTED', from: 'CHANGES_REQUESTED', to: 'SUBMITTED',
+        versionNo, payload: changes.length ? { changes } : {},
+      });
+      await q.query(`update sales_order set status = 'SUBMITTED', current_version = $2, updated_at = $3 where id = $1`, [id, versionNo, now]);
+    }).catch(async (err: unknown) => {
+      // Gravação concorrente da mesma versão (PK de order_version): 409 com a versão atual, nunca 500.
+      if (uniqueViolation(err) === VERSION_PK) throw versionConflict(await currentVersionOf(db, id));
+      throw err;
+    });
+    return c.json(await detail(c, id));
+  });
 
   return r;
 }

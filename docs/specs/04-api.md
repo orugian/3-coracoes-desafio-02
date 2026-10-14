@@ -51,7 +51,7 @@ Recorte da matriz do §6 (deny-by-default). "Escopo" = clientes de `user_custome
 | Regras do cliente (pallet misto, aprovação automática) | Não | Sim | Sim |
 | Produtos com origem do preço, overrides e valores da OB | Não | Leitura | Leitura |
 
-O backoffice calcula, para o usuário da sessão, `permissions` de cada pedido (`canEdit`, `canApprove`, `canReturn`) com as mesmas funções que as rotas usam para autorizar; a UI só esconde ou desabilita, quem decide é a rota.
+O backoffice calcula, para o usuário da sessão, `permissions` de cada pedido (`canEdit`, `canApprove`, `canReturn`) com as mesmas funções que as rotas usam para autorizar; o portal recebe as mesmas `permissions`, com `canResubmit` para o pedido devolvido. A UI só esconde ou desabilita, quem decide é a rota.
 
 ## Contratos
 
@@ -138,7 +138,7 @@ Detalhes de implementação dos contratos:
 - `OrderVersionView.result` é o `EngineResult` sem `inputs` (`priceDate`, veículo e cliente ficam só em `engine_result` no banco).
 - `payload` de evento no portal: só `changes` e `reason`; no backoffice, também `internal`.
 - `submittedAt` é o do último `SUBMITTED` ou `RESUBMITTED`; `approvedAt` e `approvedByLabel`, os do último `APPROVED` ou `AUTO_APPROVED`.
-- `permissions.canReturn` e `canResubmit` ficam falsos enquanto as rotas da S9 não existirem.
+- `permissions.canReturn`: `int_exportacao` e pedido `SUBMITTED`, sem segregação (quem criou ou editou também devolve). `canResubmit`: distribuidor do escopo e pedido `CHANGES_REQUESTED` (S9).
 - `Vehicle.assumptions`: os campos que não vêm do `container.json`, com a fonte (no corte, "Posições de pallet: artefato 3C Conecta (Q4)").
 - Catálogo de distribuidor sem nenhum cliente no escopo: 404.
 
@@ -155,7 +155,7 @@ Detalhes de implementação dos contratos:
 | `POST /v1/portal/orders` | ext | Cabeçalho `Idempotency-Key`; `{ customerCode, header, lines }` → 201 `OrderView` (detalhe) | 404; 422 `ORDER_BLOCKED`, `LOADING_DATE_TOO_SOON`, `VALIDATION_FAILED`; 428 `IDEMPOTENCY_KEY_REQUIRED`; 409 `IDEMPOTENCY_KEY_REUSED` |
 | `GET /v1/portal/orders?status=` | ext | → `OrderView[]` do escopo, mais recentes primeiro | — |
 | `GET /v1/portal/orders/:id` | ext | → `OrderView` com versões e eventos | 404 |
-| `POST /v1/portal/orders/:id/versions` (desejável) | ext | `{ expectedVersion, header, lines }` → `OrderView` | 404; 409 `INVALID_TRANSITION`, `VERSION_CONFLICT`; 422 `ORDER_BLOCKED` |
+| `POST /v1/portal/orders/:id/versions` (desejável, S9) | ext | `ResubmitBody` `{ expectedVersion, header, lines }` → 200 `OrderView` (detalhe) | 404; 409 `INVALID_TRANSITION`, `VERSION_CONFLICT`; 422 `ORDER_BLOCKED`, `LOADING_DATE_TOO_SOON`, `VALIDATION_FAILED` |
 | `GET /v1/backoffice/customers` | int | → `{ customers: CustomerInternal[], ruleChanges: { at, customerCode, field, oldValue, newValue, actorLabel }[] }` (últimas 50) | — |
 | `PUT /v1/backoffice/customers/:code/rules` | int | `{ mixedPallet?, autoApprove? }` (pelo menos um) → `CustomerInternal`. Só grava e registra em `customer_rule_change` o campo que muda de valor. Entra na S5 (o teste da aprovação automática liga a regra por esta rota) | 404; 422 |
 | `GET /v1/backoffice/products` | int | → `{ items: ProductInternal[], vehicles: Vehicle[], rules }` | — |
@@ -163,7 +163,26 @@ Detalhes de implementação dos contratos:
 | `GET /v1/backoffice/orders/:id` | int | → `OrderView` com versões (com `internal`) e eventos | 404 |
 | `POST /v1/backoffice/orders/:id/versions` | `int_exportacao` | `{ expectedVersion, changes: { material, boxes }[], reason? }` → `OrderView`. `boxes` de 0 a 100.000; 0 remove a linha. Depois de aplicar: pelo menos 1 linha, senão 422; nenhuma mudança efetiva (todas iguais ao atual), 422 `NO_CHANGES` sem criar versão | 404; 409 `INVALID_TRANSITION`, `VERSION_CONFLICT`; 422 |
 | `POST /v1/backoffice/orders/:id/approve` | `int_exportacao` | `{ expectedVersion }` → `OrderView` | 403 `SELF_APPROVAL_FORBIDDEN`; 409 `ORDER_BLOCKED`, `INVALID_TRANSITION`, `VERSION_CONFLICT` |
-| `POST /v1/backoffice/orders/:id/return` (desejável) | `int_exportacao` | `{ expectedVersion, reason }` → `OrderView` | 409 |
+| `POST /v1/backoffice/orders/:id/return` (desejável, S9) | `int_exportacao` | `ReturnBody` `{ expectedVersion, reason }` → 200 `OrderView` (detalhe) | 403; 404; 409 `INVALID_TRANSITION`, `VERSION_CONFLICT`; 422 |
+
+Detalhes da devolução e do reenvio (S9):
+- `POST /backoffice/orders/:id/return`:
+  - `reason` é aparado e obrigatório, de 1 a 200 caracteres, sem caracteres de controle (senão 422).
+  - Não cria versão: grava o evento `CHANGES_REQUESTED` (de `SUBMITTED` para `CHANGES_REQUESTED`, com `versionNo` atual e `payload.reason`) e muda o estado.
+  - Não há segregação: Lucas devolve o 0001 que ele mesmo importou.
+  - Ordem das recusas: 403 do papel (`int_admin`); 422 do corpo; 404; 409 `INVALID_TRANSITION` (qualquer estado que não seja `SUBMITTED`, inclusive um pedido já devolvido); 409 `VERSION_CONFLICT`.
+  - O motivo chega ao portal no `payload.reason` do evento.
+- `POST /portal/orders/:id/versions` (reenvio):
+  - O corpo é o do envio (cabeçalho e linhas completos), mais `expectedVersion`. `mixedPallet` do corpo é ignorado: vale o do cliente agora, congelado na versão nova.
+  - Aplica as mesmas regras do envio: linhas (`checkLines`), materiais do catálogo do cliente, data de carregamento ≥ hoje + 7 dias e nenhum BLOCK.
+  - Grava a versão + 1 com o distribuidor como autor e o evento `RESUBMITTED` (de `CHANGES_REQUESTED` para `SUBMITTED`). O `payload.changes` traz a diferença de linhas em relação à versão anterior (material novo com `old` 0, removido com `new` 0). Sem diferença de linhas, o payload é `{}`.
+  - Reenvio idêntico é aceito: o distribuidor pode só confirmar, ou só mudar o cabeçalho.
+  - Não dispara a aprovação automática.
+  - `submittedAt` passa a ser o do reenvio.
+  - Ordem das recusas: 422 do corpo; 404 (inexistente ou fora do escopo, sem revelar o estado); 409 `INVALID_TRANSITION`; 409 `VERSION_CONFLICT`; 422 de material; 422 da data; 422 `ORDER_BLOCKED`.
+  - Um duplo clique dá 200 e 409 `INVALID_TRANSITION`.
+  - Violação da PK de `order_version` vira 409 `VERSION_CONFLICT`, como no backoffice. No PGlite as transações são serializadas, então a trava (`select … for update`) e essa tradução só ganham teste real no adaptador `pg` (pendência do PostgreSQL 16).
+- Enquanto o pedido está devolvido, nova versão e aprovação do backoffice dão 409 `INVALID_TRANSITION`.
 
 Não há rota de exportação no corte.
 
@@ -194,7 +213,7 @@ A aprovação automática é a exceção à aprovação por segunda pessoa: é u
 ## Regras transversais
 
 - **Recálculo:** o servidor ignora qualquer resultado vindo do navegador. Toda versão é calculada por `buildEngineInput` (02) e `calculate` (01); o pallet misto vem de `customer.mixed_pallet`, nunca do corpo, e fica congelado na versão.
-- **Validação de linhas:** de 1 a 50 linhas, materiais únicos, existentes e ativos, caixas inteiras de 1 a 100.000. Caixa fracionária: 422 `VALIDATION_FAILED` com detalhe `QTY_NOT_MULTIPLE` (a UI resolve o arredondamento antes). Códigos de detalhe do 422: `QTY_NOT_MULTIPLE` (`params.lo`, `params.hi`), `DUPLICATE_MATERIAL`, `UNKNOWN_MATERIAL` (inexistente, inativo ou sem paletização no centro do cliente) e `INVALID_FIELD` (`params.path`, `params.issue`, sem ecoar o valor). Vale para `quote` e para o envio; a simulação não aplica a regra da data.
+- **Validação de linhas:** de 1 a 50 linhas, materiais únicos, existentes e ativos, caixas inteiras de 1 a 100.000. Caixa fracionária: 422 `VALIDATION_FAILED` com detalhe `QTY_NOT_MULTIPLE` (a UI resolve o arredondamento antes). Códigos de detalhe do 422: `QTY_NOT_MULTIPLE` (`params.lo`, `params.hi`), `DUPLICATE_MATERIAL`, `UNKNOWN_MATERIAL` (inexistente, inativo ou sem paletização no centro do cliente) e `INVALID_FIELD` (`params.path`, `params.issue`, sem ecoar o valor). Vale para `quote`, para o envio e para o reenvio (S9); a simulação não aplica a regra da data.
 - **Bloqueio no envio:** 422 `ORDER_BLOCKED` com `details` = alertas BLOCK do motor (`{ code, material, params }`), na ordem das linhas (catálogo) e depois os do pedido.
 - **Idempotência:** `Idempotency-Key` (8 a 64 caracteres `[A-Za-z0-9_-]`) por cliente; ausente, 428; fora do formato, 422. Mesma chave e mesmo corpo (sha256 do JSON canônico de `customerCode`, cabeçalho e linhas, depois da validação: campos fora do contrato, como `mixedPallet`, não contam): 200 com o pedido já criado e cabeçalho `Idempotent-Replayed: true`. Mesma chave e corpo diferente: 409. A busca pela chave vem antes da regra da data e do motor, então o replay devolve o pedido mesmo depois que a data deixou de passar. Ordem das recusas no envio: 428; 422 do corpo (contrato, materiais repetidos, caixa fracionária); 404 do escopo; replay ou 409; 422 de material inexistente no catálogo do cliente; 422 da data; 422 do bloqueio.
 - **Concorrência otimista:** toda ação sobre pedido existente leva `expectedVersion`; diferente de `current_version`: 409 `VERSION_CONFLICT` com `details[0].params.currentVersion`.
@@ -250,3 +269,11 @@ Em PGlite em memória com o seed completo; requisições por `app.request()` do 
 - `products` traz os 3 overrides e os valores `ob`; `permissions` do 0001 para Lucas tem `canApprove` falso e para Ana verdadeiro.
 
 **Casos de referência na variante adotada (`golden-adotado.test.ts`)**: casos 1 a 4 do 01 com `buildEngineInput` sobre o banco semeado; e `GET /portal/catalog` de Martín com `boxesPerPallet` 98 no 12034109 e 77 no 20908885.
+
+**Devolução e reenvio (`devolucao.test.ts`, S9)**:
+- Transição completa: Martín envia, Lucas devolve com motivo e Martín vê o motivo e `canResubmit`. Martín reenvia uma v2 (cabeçalho novo, pallet misto do cliente, evento `RESUBMITTED` com `changes`, v1 intacta) e Ana aprova a v2.
+- Recusas da devolução, cada uma com o seu controle: `admin.dados` e distribuidor → 403; motivo ausente, vazio, só espaços, longo ou com caractere de controle → 422; inexistente → 404; aprovado → 409 `INVALID_TRANSITION`; versão desatualizada → 409 `VERSION_CONFLICT`; devoluções simultâneas → 200 e 409.
+- Recusas do reenvio, cada uma com o seu controle: fora do escopo ou inexistente → 404; interno → 403; não devolvido → 409; versão desatualizada → 409; BLOCK → 422 sem gravar nada; data a 3 dias → 422; material desconhecido, fração, repetido → 422; reenvios simultâneos → 200 e 409.
+- Ordem das recusas.
+- Reenvio sem mudança aceito.
+- O reenvio não dispara a aprovação automática. Controle: um envio novo com a mesma carga é aprovado na hora.

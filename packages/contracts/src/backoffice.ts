@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { IsoDate, Timestamp } from './common.ts';
 import { CatalogItem, Rules, Vehicle } from './catalog.ts';
 import { CustomerInternal } from './customer.ts';
-import { MAX_BOXES, MAX_LINES, Material, OrderStatus } from './order.ts';
+import { ExpectedVersion, MAX_BOXES, MAX_LINES, Material, OrderStatus } from './order.ts';
 
 export const PriceOrigin = z.enum(['SAP_LIST', 'SITE_3C', 'DEMO_DERIVED']);
 
@@ -40,7 +40,6 @@ export const BackofficeOrdersQuery = z.object({
   q: z.string().trim().min(1).max(64).optional(),
 });
 
-const ExpectedVersion = z.int().min(1);
 const Reason = z.string().trim().max(200).regex(/^[^\p{Cc}]*$/u, 'sem caracteres de controle');
 
 // Nova versão: caixas inteiras de 0 a 100.000 (0 remove a linha); materiais únicos.
@@ -52,3 +51,7 @@ export const BackofficeVersionBody = z.object({
 export type BackofficeVersionBody = z.infer<typeof BackofficeVersionBody>;
 
 export const ApproveBody = z.object({ expectedVersion: ExpectedVersion });
+
+// Devolução ao distribuidor (S9): motivo obrigatório, aparado, de 1 a 200 caracteres, sem caracteres de controle.
+export const ReturnBody = z.object({ expectedVersion: ExpectedVersion, reason: Reason.min(1, 'informe o motivo') });
+export type ReturnBody = z.infer<typeof ReturnBody>;

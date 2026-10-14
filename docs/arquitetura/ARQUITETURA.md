@@ -187,7 +187,8 @@ Matriz de permissões (deny-by-default):
 | Ver catálogo com o preço da própria lista | Sim | Qualquer lista | Qualquer lista |
 | Simular e confirmar pedido | Sim, do próprio cliente | Em nome de qualquer cliente | Não |
 | Ver pedidos | Só os próprios | Todos | Todos (leitura) |
-| Editar pedido (gera nova versão) | Só rascunho próprio | Sim | Não |
+| Editar pedido (gera nova versão) | Só rascunho próprio e o reenvio do pedido devolvido | Sim | Não |
+| Devolver ao distribuidor (pede ajuste, com motivo) | Não | Sim | Não |
 | Aprovar | Não | Sim, desde que não tenha criado nem editado **nenhuma** versão do pedido | Não |
 | Exportar para o SAP (fase futura, §13) | Não | Sim | Não |
 | Ver origem do preço, divergências e dados mestres | Não | Leitura | Sim |
