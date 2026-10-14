@@ -14,19 +14,22 @@
   "scripts": {
     "dev": "node --env-file-if-exists=.env server/src/main.ts",
     "test": "tsc --noEmit && node --test \"**/*.test.ts\"",
-    "db:migrate": "node scripts/pendente.ts S2 db:migrate",
-    "db:seed": "node scripts/pendente.ts S3 db:seed",
+    "db:migrate": "node --env-file-if-exists=.env scripts/db_migrate.ts",
+    "db:seed": "node --env-file-if-exists=.env scripts/db_seed.ts",
     "extract": "node scripts/pendente.ts S3 extract",
     "fixtures:piloto": "node scripts/extrair_piloto.ts",
     "contracts:schema": "node scripts/pendente.ts S6 contracts:schema",
     "user:unlock": "node scripts/pendente.ts S4 user:unlock"
   },
   "dependencies": {
+    "@electric-sql/pglite": "0.5.9",
     "@hono/node-server": "2.1.5",
-    "hono": "4.13.13"
+    "hono": "4.13.13",
+    "pg": "8.23.1"
   },
   "devDependencies": {
     "@types/node": "24.19.2",
+    "@types/pg": "8.23.1",
     "typescript": "5.9.3"
   }
 }
