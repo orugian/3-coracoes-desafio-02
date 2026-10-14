@@ -77,6 +77,8 @@ export const VEHICLE_FROM_PILOT: Record<string, string> = { carreta: 'carreta_pa
 // Desde 18e3e1a, o calc() do front lê RULES.minLotBlock e RULES.fullPalBlock (aba "Parâmetros do negócio").
 // O engine_version 1 é o calc() com estes valores, que são os padrões do HTML (01, "Teste de paridade").
 export const ENGINE_V1_PILOT_RULES = { minLotBlock: true, fullPalBlock: false } as const;
+// Chaves conhecidas da linha `const RULES` do HTML: uma chave nova pode mudar o calc() sem passar pelo perfil acima.
+export const PILOT_RULES_KEYS = ['fullAt', 'fullPalBlock', 'lateH', 'leadDays', 'minLotBlock'] as const;
 
 // Padrões de RULES no index.html (linha `const RULES = {...};`), para o teste conferir que continuam os do engine_version 1.
 export function pilotRulesDefaults(htmlPath: string = ROOT_INDEX_HTML): Record<string, unknown> {
@@ -145,7 +147,17 @@ export function pilotHasNoPrice(p: PilotProduct, client: PilotClient): boolean {
   return p.price == null && !(p.prices && p.prices[client.list] != null);
 }
 
-// Fixture + pedido do piloto → entrada do motor. Preço: priceFor × 100, arredondado; null quando o piloto marca noPrice.
+// Preço pela regra do 01 (lista do cliente; senão price × factor com 2 casas), calculado aqui e não pelo priceFor do
+// HTML: se o front mudar o priceFor, o valor do piloto diverge do motor e a paridade acusa.
+export function pilotPrice(p: PilotProduct, client: PilotClient): number {
+  const listed = p.prices?.[client.list];
+  if (listed != null) return listed;
+  if (p.price == null) return 0;
+  return Math.round(p.price * client.factor * 100) / 100;
+}
+
+// Fixture + pedido do piloto → entrada do motor. Preço: pilotPrice × 100, arredondado; null quando o piloto marca noPrice.
+// (fns fica na assinatura para os chamadores; o preço não sai mais dele.)
 export function toEngineInput(data: PilotData, fns: PilotFunctions, order: PilotOrder): EngineInput {
   const client = data.CLIENTS[order.client];
   const veh = data.VEH[order.veh];
@@ -161,7 +173,7 @@ export function toEngineInput(data: PilotData, fns: PilotFunctions, order: Pilot
     layerBoxes: p.lastro,
     layers: p.alt,
     minLotPallets: p.loteMin,
-    priceCents: pilotHasNoPrice(p, client) ? null : Math.round(fns.priceFor(p, order.client) * 100),
+    priceCents: pilotHasNoPrice(p, client) ? null : Math.round(pilotPrice(p, client) * 100),
   }));
   return {
     engineVersion: 1,

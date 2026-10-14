@@ -7,8 +7,12 @@ import { openPage, type Page } from './page.ts';
 import { plain } from './helpers.ts';
 
 let page: Page;
-before(() => { page = openPage({ demo: true }); });
-after(async () => { await page.close(); });
+const network: string[] = []; // o modo demo não chama a rede
+before(() => { page = openPage({ demo: true, fetch: async (input) => { network.push(String(input)); throw new Error('rede no modo demo'); } }); });
+after(async () => {
+  await page.close();
+  assert.deepEqual(network, [], 'nenhuma chamada de rede no modo demo');
+});
 
 const orders = () => plain(page.run<{ id: string; status: string; v?: number; qty: Record<string, number>; audit: { what: string }[] }[]>('S.orders'));
 const order = (id: string) => orders().find((o) => o.id === id)!;
@@ -88,6 +92,16 @@ describe('modo demo (file://)', () => {
     assert.match(page.run<string>('RLOG[0].what'), /MINOIL S\.A\.: pallet misto liberado/);
     await page.click('[data-logout]');
     assert.deepEqual([page.run('S.area'), page.run('S.view')], [null, 'entry']);
+    assert.deepEqual(page.errors, []);
+  });
+
+  test('pedido Devolvido (CHANGES_REQUESTED, S9) renderiza na fila, no detalhe, em Meus pedidos e no início', async () => {
+    page.run('S.orders.find(o=>o.id==="3CC-2026-0004").status="devolvido"');
+    page.run('S.area="admin"; S.view="exp"; S.qf="devolvido"; S.sel="3CC-2026-0004"; render()');
+    const exp = page.window.document.getElementById('v-exp')!.textContent ?? '';
+    assert.match(exp, /Devolvido/);
+    assert.match(exp, /3CC-2026-0004/, 'o filtro Devolvidos mostra o pedido');
+    page.run('S.qf="all"; S.area="client"; S.client="minoil"; S.view="myorders"; render(); S.view="home"; render()');
     assert.deepEqual(page.errors, []);
   });
 });

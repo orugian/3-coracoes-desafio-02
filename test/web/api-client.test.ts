@@ -459,18 +459,41 @@ describe('sessão e preferências', () => {
     assert.deepEqual(saved.qty, { '12031189': 168 });
   });
 
-  test('logout: POST /v1/auth/logout e recarrega a página (mesmo se a chamada falhar)', async () => {
+  test('logout: POST /v1/auth/logout e recarrega; 401 também recarrega; com o servidor fora do ar, fica na tela e avisa', async () => {
     const t = serverEnv([(c) => (json(c, 'POST', '/v1/auth/logout') ? { status: 204 } : undefined)]);
     let reloads = 0;
     t.PSF.reload = () => { reloads++; };
-    await t.PSF.logout();
+    assert.equal(await t.PSF.logout(), true);
     assert.deepEqual(t.calls.map((c) => [c.method, c.url, c.headers['content-type']]), [['POST', '/v1/auth/logout', 'application/json']]);
     assert.deepEqual(t.calls[0].body, {});
     assert.equal(reloads, 1);
-    const off = serverEnv([(c) => (c.url === '/v1/auth/logout' ? { status: 500, body: errorBody('INTERNAL', 'x') } : undefined)]);
-    off.PSF.reload = () => { reloads++; };
-    await off.PSF.logout();
+
+    const gone = serverEnv([(c) => (c.url === '/v1/auth/logout' ? { status: 401, body: errorBody('UNAUTHENTICATED', 'x') } : undefined)]);
+    gone.PSF.reload = () => { reloads++; };
+    assert.equal(await gone.PSF.logout(), true, 'sessão já inválida: recarrega');
     assert.equal(reloads, 2);
+
+    const toasts: string[] = [];
+    const off = serverEnv([(c) => (c.url === '/v1/auth/logout' ? { status: 500, body: errorBody('INTERNAL', 'x') } : undefined)]);
+    (off.env as any).toast = (m: string) => toasts.push(m);
+    off.PSF.reload = () => { reloads++; };
+    assert.equal(await off.PSF.logout(), false);
+    assert.equal(reloads, 2, 'não recarrega: o cookie ainda vale e o próximo usuário da aba entraria logado');
+    assert.match(toasts[0], /Não foi possível sair/);
+  });
+
+  test('start: sem cliente no escopo (catálogo 404), volta para o acesso com toast, sem rejeição', async () => {
+    const me = { user: { id: 9, username: 'x', displayName: 'X', role: 'ext_distribuidor' }, area: 'portal', customers: [profile] };
+    const t = serverEnv([
+      (c) => (json(c, 'GET', '/v1/auth/me') ? { status: 200, body: me } : undefined),
+      (c) => (json(c, 'GET', '/v1/portal/orders') ? { status: 200, body: [] } : undefined),
+    ]);
+    const toasts: string[] = [];
+    (t.env as any).toast = (m: string) => toasts.push(m);
+    assert.equal(await t.PSF.start(), null);
+    assert.deepEqual([(t.env.S as any).area, (t.env.S as any).view, t.PSF.me], [null, 'entry', null]);
+    assert.equal(toasts.length, 1);
+    assert.ok(t.env.renders >= 1);
   });
 
   test('who: no servidor, nome e papel do usuário da sessão; sem sessão, os padrões do demo', () => {

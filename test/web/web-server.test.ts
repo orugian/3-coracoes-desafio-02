@@ -101,11 +101,21 @@ describe('modo servidor (index.html + api-client.js + API)', () => {
     assert.ok(tab.requests.includes('POST /v1/portal/orders'));
     assert.deepEqual(page.errors, []);
 
+    // Erro que não é bloqueio aparece com a mensagem da API (antes, todo 422 virava "Corrija os bloqueios").
+    // A checagem local da data é trocada para o pedido chegar ao servidor, que aplica a regra no fuso de São Paulo.
+    const soon = new Date(Date.now() + 3 * 86_400_000).toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
+    page.run(`minDate=()=>"2000-01-01"; S.view="dist"; S.qty={"12031189":2352,"12142501":1400}; render(); openReview(); document.getElementById("rvDate").value=${JSON.stringify(soon)}`);
+    await page.click('#confirmBtn');
+    await page.until('!document.getElementById("rvErr").hidden');
+    assert.match(page.window.document.getElementById('rvErr')!.textContent ?? '', /pelo menos 7 dias/);
+    assert.equal(page.run('S.orders.length'), 3, 'nada criado');
+
     page.run('S.lang="es"; render()');
     const storage = page.storage();
     const key = Object.keys(storage).find((k) => k.startsWith('3cc-srv-v1:'))!;
     assert.ok(key, 'preferências por usuário');
     assert.ok(!storage[key].includes('3CC-2026'), 'nada de pedidos no localStorage');
+    assert.ok(!('3cc-v4' in storage), 'a chave do demo (pedidos, regras e catálogo) não é gravada no servidor');
     page = await tab.open(storage);
     await page.until('S.area==="client"');
     assert.ok(tab.json<string[]>('S.orders.map(o=>o.id)').includes(created.id), 'recarregou e o pedido continua em Meus pedidos');
@@ -163,7 +173,9 @@ describe('modo servidor (index.html + api-client.js + API)', () => {
     page.run('S.sel="3CC-2026-0001"; render()');
     await page.change('[data-edit="12031189"]', '3192');
     await page.until('API.get("3CC-2026-0001").v===2');
+    await page.settle();
     assert.equal(o1().qty['12031189'], 3192);
+    assert.equal((page.window.document.querySelector('[data-edit="12031189"]') as unknown as { value: string }).value, '3192', 'a tela é redesenhada depois da resposta');
     assert.match(o1().audit.at(-1).what, /^Alterou 12031189 .* de 3\.528 para 3\.192 cx$/);
     assert.equal(o1().audit.at(-1).who, 'Lucas (Exportação)');
     assert.equal(page.run('(o=>calc(o.qty,o).tot.positions)(API.get("3CC-2026-0001"))'), 28);

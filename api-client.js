@@ -30,6 +30,7 @@
     demoOnly: "Disponível só no modo servidor",
     noCustomer: "Cliente não encontrado",
     noRule: "Regra desconhecida",
+    logoutFailed: "Não foi possível sair agora. Confira a conexão e tente de novo.",
   };
 
   // ---------- formatos
@@ -471,8 +472,13 @@
     try {
       return await enter(me);
     } catch (e) {
+      // Sem a área carregada, volta para o acesso com o motivo no toast (sem rejeição solta no boot).
       if (typeof ENV.toast === "function") ENV.toast(e.message, "err");
-      throw e;
+      PSF.me = null;
+      ENV.S.area = null;
+      ENV.S.view = "entry";
+      ENV.render();
+      return null;
     }
   }
 
@@ -483,10 +489,20 @@
   }
 
   // Encerra a sessão e recarrega a página: nada da sessão anterior (P com prices e ob, CLIENTS, S.orders) fica na memória.
+  // Recarrega só se o servidor confirmou (204) ou a sessão já não valia (401); com o servidor fora do ar, o cookie
+  // continuaria válido, então a tela fica e o toast avisa.
   async function logout() {
-    try { await request("POST", "/v1/auth/logout", {}); } catch (_) { /* recarrega mesmo assim */ }
+    try {
+      await request("POST", "/v1/auth/logout", {});
+    } catch (e) {
+      if (!e || e.status !== 401) {
+        if (typeof ENV.toast === "function") ENV.toast(MSG.logoutFailed, "err");
+        return false;
+      }
+    }
     PSF.me = null;
     PSF.reload();
+    return true;
   }
 
   // Nome e papel para a lateral: o usuário da sessão no servidor; no demo, os rótulos fixos do piloto.

@@ -438,7 +438,10 @@ describe('estáticos de lista fechada (item 8)', () => {
       const body = await res.text();
       assert.ok(body.length > 0, p);
       assert.deepEqual(SENSITIVE.filter((s) => body.includes(s)), [], p);
+      // Nem os slugs: o HTML é o mesmo para todos os usuários (05, "Como ficou na S7").
+      assert.deepEqual(['minoil'].filter((s) => body.includes(s)), [], `${p}: slug`);
     }
+    assert.ok(demoFile.includes('minoil'), 'controle do slug');
     const client = await t.app.request('/api-client.js');
     assert.match(client.headers.get('content-type') ?? '', /^text\/javascript/);
     // O HTML carrega os scripts na ordem do 05: vendor, demo-data.js, api-client.js, aplicação.
