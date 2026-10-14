@@ -782,7 +782,7 @@ body.chat-open .chat-fab{display:none}
     <form class="chat-form" id="chatForm" autocomplete="off"><input id="chatIn" maxlength="400" enterkeyhint="send"><button class="chat-send" id="chatSend" type="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></button></form>
   </section>
 </div>
-<footer><div><span><b>3C Conecta</b> · Plataforma de pedidos de exportação</span><span>Ambiente de homologação · dados de exemplo</span></div></footer>
+<footer><div><span><b>3C Conecta</b> · Plataforma de pedidos de exportação</span><span>Exportação 3corações · Mercosul</span></div></footer>
 
 <script src="vendor/three.min.js"></script>
 <script>window.THREE||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>')</script>
@@ -1076,14 +1076,12 @@ function renderEntry(){
     <section class="login-form">
       <div class="lf-top">${themeBtn()}</div>
       <div class="lf-box">
-        <span class="env-badge">Ambiente de homologação</span>
         <h2>Acessar o 3C Conecta</h2>
-        <p>Selecione o seu perfil de acesso.</p>
-        <button class="acc" data-enter="client"><span class="ic cli"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5L5.5 4h13L20 9.5"/><path d="M4 9.5h16v1a3 3 0 0 1-5.3 1.9A3 3 0 0 1 12 13.5a3 3 0 0 1-2.7-1.1A3 3 0 0 1 4 10.5z"/><path d="M5.5 13v7h13v-7M10 20v-4h4v4"/></svg></span><span><b>Distribuidor</b><small>Martín · MINOIL S.A.</small></span>${go}</button>
-        <button class="acc" data-enter="admin"><span class="ic adm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 13h3M8 16h6M15 13h1"/></svg></span><span><b>Exportação 3corações</b><small>Lucas · Analista de Exportação</small></span>${go}</button>
-        <p class="lf-note">Em produção, o acesso é feito com o login corporativo de cada empresa.</p>
+        <p>Como você vai acessar?</p>
+        <button class="acc" data-enter="client"><span class="ic cli"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5L5.5 4h13L20 9.5"/><path d="M4 9.5h16v1a3 3 0 0 1-5.3 1.9A3 3 0 0 1 12 13.5a3 3 0 0 1-2.7-1.1A3 3 0 0 1 4 10.5z"/><path d="M5.5 13v7h13v-7M10 20v-4h4v4"/></svg></span><span><b>Sou cliente</b><small>Distribuidor: monte e acompanhe seus pedidos de exportação</small></span>${go}</button>
+        <button class="acc" data-enter="admin"><span class="ic adm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 13h3M8 16h6M15 13h1"/></svg></span><span><b>Sou colaborador 3corações</b><small>Exportação: fila de pedidos, aprovação e parâmetros</small></span>${go}</button>
       </div>
-      <div class="lf-foot">3C Conecta · dados de exemplo<button class="lf-reset" data-reset>${S.resetArm?"Clique de novo para confirmar":"Restaurar dados de exemplo"}</button></div>
+      <div class="lf-foot">© 2026 3C Conecta · Exportação 3corações</div>
     </section>
   </div>`;
 }
@@ -1141,14 +1139,14 @@ function journeyHTML(o,r){
 function renderClients(){
   const cls=Object.entries(CLIENTS);
   document.getElementById("v-clients").innerHTML=`
-  <div class="hero"><div><div class="eyebrow">Exportação · Cadastro</div><h1>Clientes e preços</h1><p>Cada distribuidor tem sua lista de preço, Incoterm, condição de pagamento, restrições por destino e regra de pallet misto. Na versão real, o cadastro vem do SAP (relatório ZSDR059A, citado na Order Basis) e a tabela de preços da extração Registros.</p></div></div>
+  <div class="hero"><div><div class="eyebrow">Exportação · Cadastro</div><h1>Clientes e preços</h1><p>Cada distribuidor tem sua lista de preço, Incoterm, condição de pagamento, restrições por destino e regra de pallet misto. O cadastro vem do SAP (relatório ZSDR059A, citado na Order Basis) e a tabela de preços, da extração Registros.</p></div></div>
   <div class="card card-pad" style="display:grid;gap:12px"><h3 style="font-size:18px">Distribuidores</h3><div class="tbl-wrap"><table class="data">
     <thead><tr><th>Cliente</th><th>Código</th><th>Destino</th><th>Idioma</th><th>Lista</th><th>Incoterm</th><th>Pagamento</th><th>Restrições</th><th>Pallet misto</th><th>Aprovação automática</th><th class="r">Pedidos</th></tr></thead>
     <tbody>${cls.map(([k,c])=>`<tr><td><b>${esc(c.name)}</b><div class="label">Contato: ${c.contact}</div></td><td class="num">${c.code}</td><td>${c.dest}</td><td>Espanhol</td><td><span class="chip neutral">${c.list}</span></td><td>${c.inc}</td><td>${c.pay}</td><td>${c.blocked.length?c.blocked.map(b=>`<span class="note err">${BY[b].pt}</span>`).join(""):'<span class="label">Nenhuma</span>'}</td><td><label class="switch"><input type="checkbox" data-mixclient="${k}" ${c.mixed?"checked":""} aria-label="Pallet misto para ${esc(c.name)}"> ${c.mixed?"Aceita":"Não aceita"}</label></td><td><label class="switch"><input type="checkbox" data-autoclient="${k}" ${c.autoApprove?"checked":""} aria-label="Aprovação automática para ${esc(c.name)}"> ${c.autoApprove?"Ativa":"Desligada"}</label></td><td class="r num">${S.orders.filter(o=>o.client===k).length}</td></tr>`).join("")}</tbody></table></div><div class="label">A regra de pallet misto vale para os próximos pedidos do cliente e aparece para ele no portal. Com a aprovação automática ativa, pedido sem bloqueio e com carga completa entra aprovado, sem passar pela fila, e a auditoria registra a regra.</div>${RLOG.some(a=>a.kind!=="param")?`<div><div class="sec-title">Histórico de regras</div><div class="audit">${RLOG.filter(a=>a.kind!=="param").slice(0,6).map(a=>`<div><time>${a.at}</time><span><b>${esc(a.who)}</b> · ${esc(a.what)}</span></div>`).join("")}</div></div>`:""}</div>
   <div class="card card-pad" style="display:grid;gap:12px"><div class="p-head"><h3 style="font-size:18px">Tabela de preços por cliente</h3><span class="label">USD por caixa · CD Londrina (2612)</span></div><div class="tbl-wrap"><table class="data prices">
     <thead><tr><th>Produto</th>${cls.map(([k,c])=>`<th class="r">${esc(c.name.split(" ")[0])} · lista ${c.list}</th>`).join("")}<th class="r">Fonte</th></tr></thead>
     <tbody>${P.map(p=>`<tr><td><div style="display:flex;gap:10px;align-items:center"><span class="dot" style="background:${famColor(p.fam)}"></span><div>${esc(p.pt)}<div class="code">${p.code}</div></div></div></td>${cls.map(([k,c])=>`<td class="r num">${c.blocked.includes(p.code)?'<span class="label">bloqueado</span>':(p.price==null&&!(p.prices&&p.prices[c.list]!=null))?'<span class="label">—</span>':money(priceFor(p,k),"pt-BR")}</td>`).join("")}<td class="r">${p.priceSrc==="missing"?'<span class="note err">sem preço</span>':p.priceSrc==="manual"?'<span class="note warn">manual</span>':'<span class="note ok">SAP</span>'}</td></tr>`).join("")}</tbody></table></div>
-    <div class="label">Lista US vem da extração Registros (EXP-MINOIL). Três produtos não têm preço no SAP e usam o valor digitado na Order Basis. A lista AR é uma tabela de exemplo deste ambiente.</div></div>`;
+    <div class="label">Lista US vem da extração Registros (EXP-MINOIL). Três produtos não têm preço no SAP e usam o valor digitado na Order Basis.</div></div>`;
 }
 
 /* ---------- Indicadores (gestão) ---------- */
@@ -1400,7 +1398,7 @@ function confirmOrder(btn){
   S.sel=o.id;
   ov.innerHTML=`<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="okT"><div class="success">${SVG.check}</div><div><h2 id="okT" style="font-size:26px">${t("okTitle")(o.id)}</h2><div class="muted" style="margin-top:4px">${o.auto?t("okAuto"):t("okSub")}</div></div>
   <div class="timeline">${t("tl").map((x,i)=>`<div class="${i<=(o.auto?2:0)?"done":""}">${x}</div>`).join("")}</div>
-  <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end"><button class="btn-soft" data-goexp>${t("seeExp")}</button><button class="btn-soft" data-gomine>${t("seeMine")}</button><button class="btn sm" data-neworder>${t("newOrder")}</button></div></div>`;
+  <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end"><button class="btn-soft" data-gomine>${t("seeMine")}</button><button class="btn sm" data-neworder>${t("newOrder")}</button></div></div>`;
   render();
 }
 
@@ -1704,7 +1702,7 @@ function pDest(){
   return `<div class="card"><div class="card-pad p-head" style="padding-bottom:8px"><h3 style="font-size:18px">Produtos liberados por cliente e destino</h3><span class="label">Desligue para bloquear o produto naquele destino</span></div>
     <div class="tbl-wrap"><table class="data"><thead><tr><th>Produto</th>${cls.map(([k,c])=>`<th>${esc(c.name)}<small>${esc(c.dest)} · lista ${c.list}</small></th>`).join("")}</tr></thead>
     <tbody>${P.map(p=>`<tr><td><div style="display:flex;gap:10px;align-items:center"><span class="dot" style="background:${famColor(p.fam)}"></span><div>${esc(p.pt)}<div class="code">${p.code}</div></div></div></td>${cls.map(([k,c])=>{const path=`block.${k}.${p.code}`,blk=pv(path,c.blocked.includes(p.code));return `<td><div class="pcl">${sw(path,!blk,"Liberado","Bloqueado",true,p.pt+" para "+c.name)}${hasPrice(p,c)?"":'<span class="note warn">sem preço na lista</span>'}</div></td>`}).join("")}</tr>`).join("")}</tbody></table></div>
-    <div class="card-pad label" style="padding-top:12px">O bloqueio vale na hora para o catálogo, o pedido sugerido, a importação por Excel e a validação do pedido. Na versão integrada, as restrições vêm do cadastro do SAP.</div></div>`;
+    <div class="card-pad label" style="padding-top:12px">O bloqueio vale na hora para o catálogo, o pedido sugerido, a importação por Excel e a validação do pedido.</div></div>`;
 }
 function pLog(){
   return `<div class="card card-pad" style="display:grid;gap:10px"><div class="p-head"><h3 style="font-size:18px">Histórico de alterações</h3><span class="label">${RLOG.length} registro${RLOG.length===1?"":"s"} · quem, quando e o que mudou</span></div>
@@ -2734,7 +2732,7 @@ const API={
   }
 };
 
-/* ============ PERSISTÊNCIA LOCAL (ambiente de homologação) ============ */
+/* ============ PERSISTÊNCIA LOCAL (sem servidor) ============ */
 /* Guarda pedidos, carrinho e regras no navegador para o estado sobreviver a um recarregamento.
    Em produção, isso é o banco de dados. Se os dados-base do catálogo mudarem, o estado salvo é descartado. */
 const STORE_KEY="3cc-v4";
@@ -2768,6 +2766,7 @@ S.orders.push({id:"3CC-2026-0002",client:"minoil",veh:"carreta",mode:"pal",mixed
 S.orders.push({id:"3CC-2026-0003",client:"rioclaro",veh:"c40",mode:"pal",mixed:false,qty:{"12031291":1176,"12034109":140,"12142501":1400,"12147801":540},ref:"OC-4471",date:"2026-11-03",status:"aprovado",created:"12/10 10:21",createdMs:new Date(2026,9,12,10,21).getTime(),approved:"12/10 14:05",approvedMs:new Date(2026,9,12,14,5).getTime(),origin:"Portal",
   audit:[{at:"12/10 10:21",who:"Sofía (Distribuidora Río Claro S.R.L.)",what:"Pedido criado no portal e validado automaticamente."},{at:"12/10 14:05",who:"Lucas (Exportação)",what:"Pedido aprovado sem alterações."}]});
 S.sel="3CC-2026-0001";
+try{if(location.hash==="#reset"){localStorage.removeItem(STORE_KEY);history.replaceState(null,"",location.pathname+location.search)}}catch(_){}
 load();
 S.orders.forEach(o=>{if(o.status!=="analise"&&!o.vsnap&&VEH_DEF[o.veh]){const v=VEH_DEF[o.veh];o.vsnap={pos:v.pos,kg:v.kg,m3:v.m3}}});
 
@@ -2811,7 +2810,7 @@ document.addEventListener("click",e=>{
   if(b.dataset.v3big){open3D(b.dataset.v3big);return}
   if(b.dataset.v3p){v3Preset(b.dataset.v3p);return}
   if(b.dataset.qf){S.qf=b.classList.contains("att")&&S.qf===b.dataset.qf?"all":b.dataset.qf;render();return}
-  if(b.dataset.enter){S.resetArm=false;S.area=b.dataset.enter;S.view=S.area==="client"?"home":"exp";render();window.scrollTo(0,0);return}
+  if(b.dataset.enter){const fromEntry=S.view==="entry";S.resetArm=false;S.area=b.dataset.enter;S.view=S.area==="client"?"home":"exp";render();window.scrollTo(0,0);if(fromEntry){const c=CLIENTS[S.client];toast(S.area==="client"?tr(`Conectado como ${c.contact} · ${c.name}`,`Conectado como ${c.contact} · ${c.name}`,`Signed in as ${c.contact} · ${c.name}`):"Conectado como Lucas · Analista de Exportação")}return}
   if(b.hasAttribute("data-logout")){S.area=null;S.view="entry";render();window.scrollTo(0,0);return}
   if(b.dataset.view){S.view=b.dataset.view;render();window.scrollTo(0,0);return}
   if(b.dataset.lang){S.lang=b.dataset.lang;render();return}

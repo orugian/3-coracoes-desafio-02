@@ -20,18 +20,18 @@ Para publicar com um link, ative o GitHub Pages em **Settings → Pages → Bran
 
 O leitor de planilhas (SheetJS) e o motor 3D (Three.js) estão na pasta `vendor`, então a importação do SAP e a visão 3D funcionam mesmo sem internet. Só as fontes vêm do Google Fonts; sem internet, o navegador usa uma fonte parecida. Se o navegador não tiver WebGL, a plataforma mostra o desenho 2D do veículo.
 
-Pedidos, carrinho e regras ficam salvos no navegador, então o estado sobrevive a um recarregamento. Para voltar aos dados de exemplo, use **Restaurar dados de exemplo** (tela de acesso) ou **Restaurar dados** (menu do painel).
+Pedidos, carrinho e regras ficam salvos no navegador, então o estado sobrevive a um recarregamento. Para voltar aos dados iniciais antes de uma apresentação, use **Restaurar dados** no menu do painel 3corações ou abra a página com `#reset` no fim do endereço.
 
 ---
 
 ## Roteiro sugerido de demonstração
 
-1. **Tela de acesso:** escolha o perfil **Distribuidor** (Martín, MINOIL S.A.). A tela **Início** mostra o pedido sugerido pelo histórico, os alertas do rascunho (lote mínimo, carga incompleta) e insights de ocupação. Clique em **Completar carga** no alerta ou em **Usar pedido sugerido**.
+1. **Tela de acesso:** escolha **Sou cliente**. A plataforma entra como Martín, da MINOIL S.A.; o nome só aparece depois do acesso. A tela **Início** mostra o pedido sugerido pelo histórico, os alertas do rascunho (lote mínimo, carga incompleta) e insights de ocupação. Clique em **Completar carga** no alerta ou em **Usar pedido sugerido**.
    * Opcional: clique em **Importar planilha**, depois em **Usar exemplo** e em **Substituir pedido**. O pedido do Excel vira carrinho, com código 3C, EAN e quantidade em unidades convertida para caixas.
    * Clique em **Dúvidas?** (canto inferior direito) e pergunte, por exemplo, *"Como completo a carga?"* ou *"Adicione 2 pallets de Cappuccino Baunilha"*. O assistente responde com os dados da conta e ajusta o rascunho.
 2. Digite quantidades no catálogo e veja os pallets caírem na carreta em 3D. Gire com o mouse, troque para contêiner 40' ou 20' e use **Ampliar** para ver o plano de carga em tela cheia. Use o aviso *"faltam 24 cx para fechar o 4º pallet"* e o botão **Aplicar** da sugestão.
 3. No Café Estrada Real, escolha **UN** e digite **1010**: aparece *"Não fecha caixa"* com as opções de arredondamento.
-4. **Revisar pedido → Confirmar** e depois **Ver no painel 3corações**.
+4. **Revisar pedido → Confirmar**. Saia (ícone ao lado do nome) e entre como **Sou colaborador 3corações**.
 5. No painel, abra o pedido **3CC-2026-0001** (o pedido teste da Order Basis): a planilha marcava "OK", mas são **30 pallets para 28 posições**. No plano de carga 3D, os 2 pallets que sobram aparecem fora da carreta, em vermelho.
 6. Ajuste uma quantidade (fica registrado na trilha de auditoria), aprove e gere o **arquivo para o SAP**.
 7. Em **Clientes e preços**, ligue **pallet misto** para a MINOIL e volte ao portal: as sobras passam a dividir pallets e o pedido teste cai de 30 para 29 posições.
@@ -309,7 +309,7 @@ O chat do distribuidor tem dois motores. No claude.ai, a página declara a capac
 * Arquitetura serverless na AWS: front no Amplify, API Gateway com Lambda, banco gerenciado, Cognito para login e S3 para arquivos e fotos.
 * Logs e métricas por endpoint (tempo de resposta, erros de validação mais comuns), que também alimentam os indicadores da área.
 
-### Persistência no ambiente de homologação
+### Persistência sem servidor
 
 Sem servidor, o protótipo grava o estado no `localStorage` do navegador (pedidos, carrinho, regras, parâmetros, veículos cadastrados, catálogo importado e histórico), com versão de esquema. Se os dados-base do catálogo mudarem, o estado salvo é descartado automaticamente.
 
@@ -321,7 +321,7 @@ Sem servidor, o protótipo grava o estado no `localStorage` do navegador (pedido
 * [SheetJS Community Edition 0.18.5](https://sheetjs.com) para leitura das planilhas (licença Apache 2.0, em `vendor/`)
 * [Three.js r128](https://threejs.org) para a visão 3D dos veículos e da carga (licença MIT, em `vendor/`)
 * Fonte Jost (Google Fonts)
-* Identidade visual inspirada no Mercafé, loja oficial da 3corações, com selo de ambiente de homologação
+* Identidade visual inspirada no Mercafé, loja oficial da 3corações
 
 ## Fotos dos produtos
 
