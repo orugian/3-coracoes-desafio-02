@@ -28,7 +28,7 @@ Pedidos, carrinho e regras ficam salvos no navegador, então o estado sobrevive 
 
 1. **Tela de acesso:** escolha **Sou cliente**. A plataforma entra como Martín, da MINOIL S.A.; o nome só aparece depois do acesso. A tela **Início** mostra o pedido sugerido pelo histórico, os alertas do rascunho (lote mínimo, carga incompleta) e insights de ocupação. Clique em **Completar carga** no alerta ou em **Usar pedido sugerido**.
    * Opcional: clique em **Importar planilha**, depois em **Usar exemplo** e em **Substituir pedido**. O pedido do Excel vira carrinho, com código 3C, EAN e quantidade em unidades convertida para caixas.
-   * Clique em **Dúvidas?** (canto inferior direito) e pergunte, por exemplo, *"Como completo a carga?"* ou *"Adicione 2 pallets de Cappuccino Baunilha"*. O assistente responde com os dados da conta e ajusta o rascunho.
+   * Clique em **Fale com a Xica** (canto inferior direito) e pergunte, por exemplo, *"Como completo a carga?"* ou *"Adicione 2 pallets de Cappuccino Baunilha"*. O assistente responde com os dados da conta e ajusta o rascunho.
 2. Digite quantidades no catálogo e veja os pallets caírem na carreta em 3D. Gire com o mouse, troque para contêiner 40' ou 20' e use **Ampliar** para ver o plano de carga em tela cheia. Use o aviso *"faltam 24 cx para fechar o 4º pallet"* e o botão **Aplicar** da sugestão.
 3. No Café Estrada Real, escolha **UN** e digite **1010**: aparece *"Não fecha caixa"* com as opções de arredondamento.
 4. **Revisar pedido → Confirmar**. Saia (ícone ao lado do nome) e entre como **Sou colaborador 3corações**.
@@ -71,7 +71,7 @@ O item extra pedido no desafio, *"importar o restante dos produtos e exportar o 
 * **Recomendação de veículo**: compara carreta, contêiner 40' e 20' com a ocupação de cada um e marca o mais bem aproveitado
 * **Divisão em embarques**: quando o pedido não cabe em um veículo, o sistema propõe a divisão (ex.: carreta 100% + contêiner 20' 20%)
 * **Importar pedido do Excel**: colar linhas ou enviar a planilha que o distribuidor já usa; reconhece código 3C, EAN ou DUN e quantidade em caixas, unidades ou quilos, com prévia antes de aplicar. Lê o cabeçalho da planilha (código, caixas ou quantidade, unidade) e escolhe a aba certa: enviando a própria `ORDEN BASIS TESTE.xlsm`, o pedido teste entra sozinho (aba ORDEM, coluna CAIXAS)
-* **Assistente de dúvidas (chat)** em todas as telas do cliente, em PT, ES e EN: caixas por pallet, lote mínimo, preço, veículo mais adequado, como completar a carga, prazo mínimo, status dos pedidos, importação do Excel e condições da conta, sempre com os dados reais da conta. Também ajusta o rascunho por texto (*"adicione 2 pallets de Café Tradicional"*, *"remova o filtro"*) e oferece botões de ação (completar carga, trocar veículo, abrir o plano 3D, revisar pedido). Publicado no claude.ai, as perguntas digitadas são respondidas pelo Claude com o contexto da conta e ferramentas para consultar e ajustar o rascunho (o visitante autoriza no primeiro uso); no GitHub Pages ou sem autorização, um motor de respostas embutido responde na hora
+* **Xica, a assistente (chat)**, mascote do 3C Conecta, em todas as telas do cliente, em PT, ES e EN: caixas por pallet, lote mínimo, preço, veículo mais adequado, como completar a carga, prazo mínimo, status dos pedidos, importação do Excel e condições da conta, sempre com os dados reais da conta. Também ajusta o rascunho por texto (*"adicione 2 pallets de Café Tradicional"*, *"remova o filtro"*) e oferece botões de ação (completar carga, trocar veículo, abrir o plano 3D, revisar pedido). Publicado no claude.ai, as perguntas digitadas são respondidas pelo Claude com o contexto da conta e ferramentas para consultar e ajustar o rascunho (o visitante autoriza no primeiro uso); no GitHub Pages ou sem autorização, um motor de respostas embutido responde na hora
 * **Repetir pedido** a partir de Meus pedidos
 * Rascunho salvo automaticamente
 * Revisão com a lista exata do que impede a confirmação, prazo mínimo de carregamento e proteção contra envio duplicado
@@ -80,6 +80,7 @@ O item extra pedido no desafio, *"importar o restante dos produtos e exportar o 
 * Português, espanhol e inglês, modo claro e escuro
 
 ### Painel 3corações (Exportação)
+* **Xica no painel**: resumo da fila, pedidos bloqueados e parados, pedido por número, simulação de parâmetros (*"o que muda se a carreta tiver 30 posições?"*, com botão que leva a mudança para Parâmetros), insights, clientes, produtos e qualidade de dados
 * Faixa **Atenção agora**: pedidos bloqueados, aguardando além do limite configurado (padrão 4 horas), cargas incompletas e qualidade de dados, cada um como atalho de filtro
 * **Aprovação automática** por cliente: pedido sem bloqueio e com carga completa entra aprovado, sem fila, com registro da regra na auditoria
 * Fila de pedidos validados com busca e filtro por status, jornada completa em 8 etapas e responsável por etapa
@@ -298,9 +299,11 @@ No protótipo, cada endpoint está no objeto `API` do `index.html`, com o mesmo 
 | `auditoria` | pedido, data e hora, usuário, ação, valor anterior, valor novo |
 | `importacoes` | arquivos, usuário, data, itens novos, alterados e alertas |
 
-### Assistente com IA
+### Xica, a assistente com IA
 
-O chat do distribuidor tem dois motores. No claude.ai, a página declara a capacidade de IA do artefato e envia ao Claude a pergunta, o histórico curto da conversa e um retrato da conta (cliente, regras, veículos, catálogo com preços da lista, rascunho e pedidos). O Claude pode chamar três ferramentas da página (`ajustar_item`, `completar_carga` e `trocar_veiculo`), que passam pelas mesmas validações do portal. Ele não envia pedidos: a confirmação continua com o cliente, no botão Revisar pedido. Se a IA não estiver disponível (GitHub Pages, visitante não autorizou, limite de uso), o motor de intenções embutido responde com os mesmos dados. Na POC, o mesmo desenho roda no servidor, com a chave da API guardada no backend.
+A Xica é a mascote do 3C Conecta: uma xícara 3C cujo vapor muda com a mensagem (coração para ajudar, pontinhos enquanto pensa, exclamação nos alertas e festa quando o pedido é aprovado). Ela aparece no chat, nos alertas e insights, na faixa Atenção agora, no pedido enviado e nas telas vazias, para o cliente e para a Exportação.
+
+O chat tem dois motores. No claude.ai, a página declara a capacidade de IA do artefato e envia ao Claude a pergunta, o histórico curto da conversa e um retrato da conta (cliente, regras, veículos, catálogo com preços da lista, rascunho e pedidos). Para o cliente, o Claude pode chamar três ferramentas da página (`ajustar_item`, `completar_carga` e `trocar_veiculo`), que passam pelas mesmas validações do portal. No painel 3corações, recebe a fila com status, bloqueios e tempo de espera, e usa `simular_parametros` (só simula, não grava) e `abrir_pedido`. Ele não envia pedidos: a confirmação continua com o cliente, no botão Revisar pedido. Se a IA não estiver disponível (GitHub Pages, visitante não autorizou, limite de uso), o motor de intenções embutido responde com os mesmos dados. Na POC, o mesmo desenho roda no servidor, com a chave da API guardada no backend.
 
 ### Segurança e operação
 
