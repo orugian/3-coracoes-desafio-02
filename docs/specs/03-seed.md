@@ -64,7 +64,7 @@ Os três são criados `ACTIVE`, propostos por `admin.dados` e confirmados por `a
 | `ana.exportacao` | `int_exportacao` | Ana (Exportação) | — |
 | `admin.dados` | `int_admin` | Administração de dados | — |
 
-Senhas: se `SEED_PASSWORD` estiver definida (uso local de demonstração), todos recebem esse valor; senão, 16 caracteres aleatórios por usuário, impressos uma vez e gravados em `storage/credenciais-seed.txt`. `storage/` fica no `.gitignore`; nenhuma senha vai para o git. Os nomes de usuário são previsíveis, então o bloqueio de login (04) é por usuário e expira; se alguém bloquear uma conta durante a demo, `npm run user:unlock -- <usuario>` zera o contador.
+Senhas: se `SEED_PASSWORD` estiver definida (uso local de demonstração), todos recebem esse valor; senão, 16 caracteres aleatórios por usuário, impressos uma vez e gravados em `storage/credenciais-seed.txt`. `storage/` fica no `.gitignore`; nenhuma senha vai para o git. Os nomes de usuário são previsíveis, então o bloqueio de login (04) é por usuário e expira; se alguém bloquear uma conta durante a demo, `npm run user:unlock -- <usuario>` zera o contador. No PGlite, o `dev` segura a trava do `DATA_DIR` (02): parar o `dev`, rodar o comando e subir de novo.
 
 ## Pedidos de exemplo
 
