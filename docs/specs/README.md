@@ -46,7 +46,7 @@ Refinam a arquitetura sem contrariá-la; as que mudam texto do documento princip
 
 As fontes do seed precisam estar na branch e ter os mesmos bytes em qualquer máquina:
 - `dados/` v2 (os 4 JSON da Cecília) e `docs/arquitetura/verificacao/` entram em `integracao-backend` na S0. Hoje os v2 só existem no disco de Guilherme: `main` tem a v1 de 2 arquivos e `solucao-3c-conecta` não tem `dados/`.
-- `.gitattributes` com `dados/*.json -text`, `db/seed/fontes/*.json -text` e `*.xlsx *.xlsm *.png *.jpg *.webp binary` (o repositório roda com `core.autocrlf=true` no Windows).
+- `.gitattributes` com `dados/*.json -text`, `db/seed/fontes/*.json -text`, `packages/engine/test/fixtures/*.json -text` (fixture gerada: sem isso, `npm run fixtures:piloto` num clone com `autocrlf` deixa o arquivo como modificado) e `*.xlsx *.xlsm *.png *.jpg *.webp binary` (o repositório roda com `core.autocrlf=true` no Windows).
 - O `sha256` das fontes é calculado sobre os bytes com `\r\n` trocado por `\n`, para continuar igual se algum arquivo já tiver sido convertido.
 
 ## Convenções

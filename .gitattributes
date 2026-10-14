@@ -1,6 +1,7 @@
 # Fim de linha estável: o seed confere o sha256 destas fontes (docs/specs/README.md, "Ciclo de vida das fontes")
 dados/*.json -text
 db/seed/fontes/*.json -text
+packages/engine/test/fixtures/*.json -text
 *.xlsx binary
 *.xlsm binary
 *.png binary
