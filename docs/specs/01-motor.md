@@ -152,6 +152,12 @@ Garante que o servidor e o navegador dão o mesmo resultado enquanto a UI usar o
 - Para cada pedido compara: posições, status, limitante, `over`, totais (bruto, líquido, m³, valor), e por linha `pallets`, `boxesToNextPallet` e o conjunto de alertas (tabela de correspondência acima). Preço do piloto: `priceFor(p, cliente)` × 100, arredondado; `null` quando o piloto marca `noPrice`.
 - Se o front mudar o `calc()` do HTML, o teste falha: a mudança precisa ir também para o motor (ou virar `engine_version` 2).
 
+**Perfil do `engine_version` 1 no `calc()` de `d84b4cf` (S7).** Desde `18e3e1a`, o `calc()` do front tem quatro diferenças de forma em relação ao de `f89cef4`, nenhuma com efeito nos padrões:
+- `RULES.minLotBlock` (padrão `true`) e `RULES.fullPalBlock` (padrão `false`) decidem se `belowMin` e `missing` são erro ou aviso, editáveis na aba "Parâmetros do negócio" do modo demo. O `engine_version` 1 é o `calc()` com esses padrões: `BELOW_MIN_LOT` bloqueia e `PALLET_INCOMPLETE` só avisa. O teste injeta os dois valores por cima dos `RULES` da fixture (que segue em `f89cef4`) e confere que os padrões da linha `const RULES = {...}` do `index.html` continuam esses, com `fullAt` 0,9 e `leadDays` 7; se o front mudar o padrão, o teste falha. Um controle mostra que, com `minLotBlock: false` ou `fullPalBlock: true`, o piloto diverge do motor (a paridade enxerga a regra). No modo servidor, `PSF.applyCatalog` e `applyProducts` fixam os dois valores do perfil.
+- Produto com `off` (fora de linha) gera o erro `inactive`. No servidor, material inativo não entra no catálogo efetivo e a linha é recusada com `UNKNOWN_MATERIAL` (04); a fixture não tem `off`, e um `inactive` que aparecesse na paridade seria divergência.
+- `o.vsnap` (capacidade do veículo congelada na aprovação) equivale à versão gravada, imutável; a paridade não passa `vsnap`.
+- Veículo desconhecido cai em `bigVeh()`; no servidor, veículo fora do contrato é 422.
+
 A fixture é gerada por `npm run fixtures:piloto`, que lê o `index.html` do commit indicado (padrão: `f89cef4`; `PILOTO_COMMIT` troca) e grava o commit de origem, `P` (com `cxPal = lastro × alt` e `m3 = dm3 ÷ 1000`, como o piloto faz), `VEH`, `CLIENTS` e `RULES`. Não editar à mão.
 
 ## Motor no navegador (depois do corte)

@@ -4,8 +4,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { calculate, type EngineResult } from '#engine';
 import {
-  ALERT_FROM_PILOT, BINDING_FROM_PILOT, ORDER_ALERT_FROM_STATUS, STATUS_FROM_PILOT,
-  loadFixture, loadPilotFunctions, toEngineInput, type PilotData, type PilotOrder, type PilotResult,
+  ALERT_FROM_PILOT, BINDING_FROM_PILOT, ENGINE_V1_PILOT_RULES, ORDER_ALERT_FROM_STATUS, STATUS_FROM_PILOT,
+  loadFixture, loadPilotFunctions, pilotRulesDefaults, toEngineInput, type PilotData, type PilotOrder, type PilotResult,
 } from './piloto.ts';
 
 const SEED = 20261013;
@@ -94,15 +94,34 @@ function diff(pilot: PilotResult, engine: EngineResult): string[] {
 const fx = loadFixture();
 const bind = loadPilotFunctions();
 const cases = generate(fx);
-const results = cases.map(({ order, data }) => {
-  const fns = bind(data);
+// O piloto roda com o perfil do engine_version 1 por cima dos RULES da fixture (f89cef4 não tinha os dois campos).
+const withRules = (data: PilotData, rules: Record<string, unknown>): PilotData => ({ ...data, RULES: { ...data.RULES, ...rules } });
+const runAll = (rules: Record<string, unknown>) => cases.map(({ order, data }) => {
+  const d = withRules(data, rules);
+  const fns = bind(d);
   const { qty, ...o } = order;
-  return { pilot: fns.calc(qty, o), engine: calculate(toEngineInput(data, fns, order)) };
+  return { pilot: fns.calc(qty, o), engine: calculate(toEngineInput(d, fns, order)) };
 });
+const results = runAll(ENGINE_V1_PILOT_RULES);
 
 test(`motor e calc() do piloto dão o mesmo resultado em ${ORDERS} pedidos (semente ${SEED})`, () => {
   const failures = results.flatMap(({ pilot, engine }, i) => diff(pilot, engine).map((d) => `pedido ${i}: ${d}`));
   assert.deepEqual(failures.slice(0, 20), [], `${failures.length} divergências`);
+});
+
+test('os padrões de RULES no index.html são o perfil do engine_version 1 (senão o front mudou a regra: motor acompanha ou vira v2)', () => {
+  const rules = pilotRulesDefaults();
+  assert.equal(rules.minLotBlock, ENGINE_V1_PILOT_RULES.minLotBlock, 'RULES.minLotBlock');
+  assert.equal(rules.fullPalBlock, ENGINE_V1_PILOT_RULES.fullPalBlock, 'RULES.fullPalBlock');
+  assert.equal(rules.fullAt, fx.RULES.fullAt, 'RULES.fullAt');
+  assert.equal(rules.leadDays, fx.RULES.leadDays, 'RULES.leadDays');
+});
+
+test('controle: com o lote mínimo só alertando ou o pallet incompleto bloqueando, o piloto diverge do motor', () => {
+  for (const rules of [{ minLotBlock: false, fullPalBlock: false }, { minLotBlock: true, fullPalBlock: true }]) {
+    const n = runAll(rules).filter(({ pilot, engine }) => diff(pilot, engine).some((d) => d.startsWith('blocking'))).length;
+    assert.ok(n > 0, `nenhuma divergência com ${JSON.stringify(rules)}: a paridade não enxerga a regra`);
+  }
 });
 
 test('os pedidos sorteados exercitam todos os status e alertas da paridade', () => {

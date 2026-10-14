@@ -74,6 +74,17 @@ export const MODE_FROM_PILOT: Record<PilotOrder['mode'], LoadMode> = { pal: 'PAL
 // D10: IDs do servidor seguem o container.json.
 export const VEHICLE_FROM_PILOT: Record<string, string> = { carreta: 'carreta_padrao', c40: 'container_40', c20: 'container_20' };
 
+// Desde 18e3e1a, o calc() do front lê RULES.minLotBlock e RULES.fullPalBlock (aba "Parâmetros do negócio").
+// O engine_version 1 é o calc() com estes valores, que são os padrões do HTML (01, "Teste de paridade").
+export const ENGINE_V1_PILOT_RULES = { minLotBlock: true, fullPalBlock: false } as const;
+
+// Padrões de RULES no index.html (linha `const RULES = {...};`), para o teste conferir que continuam os do engine_version 1.
+export function pilotRulesDefaults(htmlPath: string = ROOT_INDEX_HTML): Record<string, unknown> {
+  const L = htmlLines(readFileSync(htmlPath, 'utf8'));
+  const line = extractBlock(L, /^const RULES\s*=/, /^const RULES\s*=/);
+  return new Function(`${line}\nreturn RULES;`)() as Record<string, unknown>;
+}
+
 function htmlLines(html: string): string[] {
   return html.replace(/\r\n/g, '\n').split('\n');
 }
