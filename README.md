@@ -301,6 +301,8 @@ No protótipo, cada endpoint está no objeto `API` do `index.html`, com o mesmo 
 
 ### Xica, a assistente com IA
 
+<img src="assets/mascote/xica_feliz.svg" alt="Xica, a mascote do 3C Conecta" width="140" align="right">
+
 A Xica é a mascote do 3C Conecta: uma xícara 3C cujo vapor muda com a mensagem (coração para ajudar, pontinhos enquanto pensa, exclamação nos alertas e festa quando o pedido é aprovado). Ela aparece no chat, nos alertas e insights, na faixa Atenção agora, no pedido enviado e nas telas vazias, para o cliente e para a Exportação.
 
 O chat tem dois motores. No claude.ai, a página declara a capacidade de IA do artefato e envia ao Claude a pergunta, o histórico curto da conversa e um retrato da conta (cliente, regras, veículos, catálogo com preços da lista, rascunho e pedidos). Para o cliente, o Claude pode chamar três ferramentas da página (`ajustar_item`, `completar_carga` e `trocar_veiculo`), que passam pelas mesmas validações do portal. No painel 3corações, recebe a fila com status, bloqueios e tempo de espera, e usa `simular_parametros` (só simula, não grava) e `abrir_pedido`. Ele não envia pedidos: a confirmação continua com o cliente, no botão Revisar pedido. Se a IA não estiver disponível (GitHub Pages, visitante não autorizou, limite de uso), o motor de intenções embutido responde com os mesmos dados. Na POC, o mesmo desenho roda no servidor, com a chave da API guardada no backend.
@@ -339,6 +341,7 @@ vendor/LICENSE-sheetjs.txt Licença do SheetJS
 vendor/three.min.js       Motor 3D (Three.js r128)
 vendor/LICENSE-three.txt  Licença do Three.js
 assets/produtos/           Fotos dos produtos (nome do arquivo = código SAP)
+assets/mascote/            Xica, a mascote: SVGs das expressões, ícones e prévias
 README.md                  Este documento
 pre-solucao/               Material do desafio (apresentação e planilhas fornecidas pela 3corações)
 ```
