@@ -57,7 +57,7 @@ O item extra pedido no desafio, *"importar o restante dos produtos e exportar o 
 ## Funcionalidades
 
 ### Área do cliente (distribuidor)
-* **Início** com pedido sugerido a partir do histórico (pallets fechados, carreta cheia, respeitando peso, cubagem e lote mínimo), rascunho atual, último pedido, alertas acionáveis e insights
+* **Início** em três blocos: **A Xica sugere** (pedido sugerido pelo histórico, em pallets fechados e dentro de peso, cubagem e lote mínimo, junto com as dicas da Xica), **Pedidos em andamento** (rascunhos e pedidos aguardando a 3corações, cada um com seus alertas; ao clicar, abre com detalhes e ações) e **Pedidos recentes** (últimos 3 aprovados, com Repetir pedido e detalhes ao clicar)
 * **Assistente de carga** no painel de embarque: completar carga mantendo o mix, fechar pallets, usar o veículo recomendado, reduzir excesso, com explicação do recurso que limita a carga e do ganho de frete por pallet
 * Catálogo com fotos e preço da lista do cliente
 * **Ficha técnica** de cada produto com todos os campos da Order Basis: código 3C, produto, família, preço, unidades por embalagem, EAN, DUN, peso bruto, peso líquido, cubagem, C × L × A, NCM, linha e caixas por pallet
@@ -72,8 +72,8 @@ O item extra pedido no desafio, *"importar o restante dos produtos e exportar o 
 * **Divisão em embarques**: quando o pedido não cabe em um veículo, o sistema propõe a divisão (ex.: carreta 100% + contêiner 20' 20%)
 * **Importar pedido do Excel**: colar linhas ou enviar a planilha que o distribuidor já usa; reconhece código 3C, EAN ou DUN e quantidade em caixas, unidades ou quilos, com prévia antes de aplicar. Lê o cabeçalho da planilha (código, caixas ou quantidade, unidade) e escolhe a aba certa: enviando a própria `ORDEN BASIS TESTE.xlsm`, o pedido teste entra sozinho (aba ORDEM, coluna CAIXAS)
 * **Xica, a assistente (chat)**, mascote do 3C Conecta, em todas as telas do cliente, em PT, ES e EN: caixas por pallet, lote mínimo, preço, veículo mais adequado, como completar a carga, prazo mínimo, status dos pedidos, importação do Excel e condições da conta, sempre com os dados reais da conta. Também ajusta o rascunho por texto (*"adicione 2 pallets de Café Tradicional"*, *"remova o filtro"*) e oferece botões de ação (completar carga, trocar veículo, abrir o plano 3D, revisar pedido). Publicado no claude.ai, as perguntas digitadas são respondidas pelo Claude com o contexto da conta e ferramentas para consultar e ajustar o rascunho (o visitante autoriza no primeiro uso); no GitHub Pages ou sem autorização, um motor de respostas embutido responde na hora
-* **Repetir pedido** a partir de Meus pedidos
-* Rascunho salvo automaticamente
+* **Vários rascunhos por cliente**: criar, nomear, continuar, completar a carga e excluir (com confirmação); o rascunho enviado vira pedido e sai da lista; seletor de rascunho na tela Novo pedido; tudo salvo automaticamente
+* **Meus pedidos** em lista: rascunhos e pedidos enviados; ao clicar, abre como está (alertas do rascunho) ou como foi (itens, etapas, veículo, datas e ajustes da Exportação), com **Repetir pedido**
 * Revisão com a lista exata do que impede a confirmação, prazo mínimo de carregamento e proteção contra envio duplicado
 * Acompanhamento com jornada em 5 etapas e aviso quando a Exportação ajusta algum item
 * Indicadores do cliente: pedidos em andamento, ocupação média, comprado no ano, aprovados sem ajuste
