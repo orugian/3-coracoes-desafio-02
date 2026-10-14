@@ -1,0 +1,32 @@
+{
+  "name": "pedido-sem-fronteiras",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Pedido sem Fronteiras (3corações, Desafio 02): API, motor e seed do corte",
+  "type": "module",
+  "engines": {
+    "node": ">=24.15.0"
+  },
+  "imports": {
+    "#engine": "./packages/engine/src/index.ts",
+    "#server/*": "./server/src/*"
+  },
+  "scripts": {
+    "dev": "node --env-file-if-exists=.env server/src/main.ts",
+    "test": "tsc --noEmit && node --test \"**/*.test.ts\"",
+    "db:migrate": "node scripts/pendente.ts S2 db:migrate",
+    "db:seed": "node scripts/pendente.ts S3 db:seed",
+    "extract": "node scripts/pendente.ts S3 extract",
+    "fixtures:piloto": "node scripts/pendente.ts S1 fixtures:piloto",
+    "contracts:schema": "node scripts/pendente.ts S6 contracts:schema",
+    "user:unlock": "node scripts/pendente.ts S4 user:unlock"
+  },
+  "dependencies": {
+    "@hono/node-server": "2.1.5",
+    "hono": "4.13.13"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "typescript": "5.9.3"
+  }
+}
