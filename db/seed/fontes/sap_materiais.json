@@ -1,0 +1,88 @@
+{
+  "source": "SAP_MATERIAIS",
+  "file": "pre-solucao/pedidos-sem-fronteiras/Materiais (10) (1).xlsx",
+  "sha256": "49fdcd910c152c26977a04d37a9d7acd7024b0792b89441f11a19a7cc8403b75",
+  "extractedAt": "2026-10-14T00:21:37Z",
+  "rows": [
+    {
+      "material": "12031189",
+      "descricao": "CAFE TM 3C TRAD EXP VAC 20X250G",
+      "centro": "2612",
+      "lastro": 14.0,
+      "altura": 12.0,
+      "embalagem": "CX"
+    },
+    {
+      "material": "12031291",
+      "descricao": "CAFE TM 3C EST R PREM AL VAC 20X250G",
+      "centro": "2612",
+      "lastro": 14.0,
+      "altura": 12.0,
+      "embalagem": "CX"
+    },
+    {
+      "material": "12034103",
+      "descricao": "CAFE CAPP 3C CLAS AL SACHE 16X10X20G",
+      "centro": "2612",
+      "lastro": 9.0,
+      "altura": 9.0,
+      "embalagem": "CX"
+    },
+    {
+      "material": "12034109",
+      "descricao": "CAFE CAPP 3C BAUN ABRA COR AL PT 24X200G",
+      "centro": "2612",
+      "lastro": 4.0,
+      "altura": 7.0,
+      "embalagem": "CX"
+    },
+    {
+      "material": "12037417",
+      "descricao": "FILTRO PAP 3C 102/30 RED DES 40X30UN",
+      "centro": "2612",
+      "lastro": 13.0,
+      "altura": 7.0,
+      "embalagem": "CX"
+    },
+    {
+      "material": "12142146",
+      "descricao": "CAFE SOL IGUA CLAS AL VID 12X160G",
+      "centro": "2612",
+      "lastro": 12.0,
+      "altura": 10.0,
+      "embalagem": "CX"
+    },
+    {
+      "material": "12142501",
+      "descricao": "CAFE SOL IGUA PO TRAD REF 24X40G",
+      "centro": "2612",
+      "lastro": 20.0,
+      "altura": 14.0,
+      "embalagem": "CX"
+    },
+    {
+      "material": "12144012",
+      "descricao": "CAFE CAPP IGUA CLAS SCH 8X10X10G",
+      "centro": "2612",
+      "lastro": 19.0,
+      "altura": 11.0,
+      "embalagem": "CX"
+    },
+    {
+      "material": "12147801",
+      "descricao": "CAFE SOL IGUA TRAD STICK 24X10X1,7G",
+      "centro": "2612",
+      "lastro": 15.0,
+      "altura": 12.0,
+      "embalagem": "CX"
+    },
+    {
+      "material": "20908885",
+      "descricao": "PORTA FILTRO 3C PLAST VM 102 C/12",
+      "centro": "2612",
+      "lastro": 11.0,
+      "altura": 10.0,
+      "embalagem": "CX"
+    }
+  ]
+}
