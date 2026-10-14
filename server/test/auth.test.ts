@@ -249,6 +249,15 @@ describe('bloqueio de login (item 6)', () => {
     const s = await state('teste.rajada');
     assert.equal(s.failed_logins, 5, 'erros durante o bloqueio não contam');
     assert.ok(s.locked_until instanceof Date && s.locked_until.getTime() > Date.now());
+    // Nova rajada durante o bloqueio: o locked_until não muda.
+    await Promise.all(Array.from({ length: 5 }, () => login('teste.rajada', 'senha-errada')));
+    assert.deepEqual(await state('teste.rajada'), s, 'não prolonga');
+    // Bloqueio vencido + rajada: recomeça do zero e bloqueia de novo no 5º.
+    await db.query(`update app_user set locked_until = now() - interval '1 minute' where username = 'teste.rajada'`);
+    await Promise.all(Array.from({ length: 10 }, () => login('teste.rajada', 'senha-errada')));
+    const again = await state('teste.rajada');
+    assert.equal(again.failed_logins, 5);
+    assert.ok(again.locked_until instanceof Date && again.locked_until.getTime() > Date.now());
   });
 
   test('unlockUser (npm run user:unlock) zera o contador e o bloqueio', async () => {

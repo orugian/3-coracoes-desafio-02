@@ -36,7 +36,7 @@ export function authRoutes(cfg: SessionConfig, log: (line: string) => void): Hon
     const passwordOk = await verifyPassword(body.password, user?.passwordHash ?? DUMMY_HASH);
     if (!user || !user.active) throw new ApiError('LOGIN_FAILED');
     const lockedLog = (until: Date | null) =>
-      log(`${c.get('requestId')} login recusado: usuário ${user.id} bloqueado${until ? ` até ${until.toISOString()}` : ''}`);
+      log(`${c.get('requestId')} login recusado: usuário ${user.id} ${until ? `bloqueado até ${until.toISOString()}` : 'bloqueado ou inativo'}`);
     if (user.lockedUntil && user.lockedUntil > now) {
       lockedLog(user.lockedUntil);
       throw new ApiError('LOGIN_FAILED');

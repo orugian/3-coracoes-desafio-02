@@ -42,7 +42,7 @@ export async function recordLoginFailure(q: Queryable, userId: number, now: Date
          when locked_until is not null and locked_until <= $2 then null
          when failed_logins + 1 >= $3 then $2::timestamptz + make_interval(mins => $4)
          else locked_until end
-     where id = $1 and (locked_until is null or locked_until <= $2)
+     where id = $1 and active and (locked_until is null or locked_until <= $2)
      returning failed_logins, locked_until`,
     [userId, now, MAX_FAILED_LOGINS, LOCK_MINUTES]);
   return r ? { failedLogins: Number(r.failed_logins), lockedUntil: r.locked_until } : null;
