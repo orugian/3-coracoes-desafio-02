@@ -77,7 +77,7 @@ O item extra pedido no desafio, *"importar o restante dos produtos e exportar o 
 * **Meus pedidos** em lista: rascunhos e pedidos enviados; ao clicar, abre como está (alertas do rascunho) ou como foi (itens, etapas, veículo, datas e ajustes da Exportação), com **Repetir pedido**
 * Revisão com a lista exata do que impede a confirmação, prazo mínimo de carregamento e proteção contra envio duplicado
 * Acompanhamento com jornada em 5 etapas e aviso quando a Exportação ajusta algum item
-* Indicadores do cliente: pedidos em andamento, ocupação média, comprado no ano, aprovados sem ajuste
+* Indicadores do cliente: pedidos enviados, ocupação média, comprado no ano, aprovados sem ajuste
 * Português, espanhol e inglês, modo claro e escuro
 
 ### Painel 3corações (Exportação)
@@ -87,7 +87,7 @@ Todas as telas do painel foram pensadas para a operação real, com centenas de 
 * **Xica no painel**: resumo da fila, pedidos bloqueados e parados, pedido por número, simulação de parâmetros (*"o que muda se a carreta tiver 30 posições?"*, com botão que leva a mudança para Parâmetros), insights, clientes, produtos e qualidade do cadastro
 * **Pedidos**
   * Faixa **Atenção agora**: bloqueados, aguardando além do limite configurado (padrão 4 horas), cargas incompletas e qualidade do cadastro, cada um como atalho
-  * Barra única com busca (pedido, cliente, código ou referência), status em uma linha e ordenação por prioridade, data ou valor; a lista fica fixa ao rolar e tem rolagem própria
+  * Barra única com busca (pedido, cliente, código ou referência), status em uma linha e ordenação por prioridade, data ou valor; a lista fica fixa ao rolar, tem rolagem própria e pagina de 25 em 25
   * Detalhe em seções com cabeçalho fixo (a ação de aprovar fica sempre visível): **jornada em uma linha**, do recebimento até o arquivo para o Sirius/SAP, plano de carga 3D, itens, arquivo e auditoria
   * Ajuste de quantidades com **trilha de auditoria** (quem, o quê, quando)
   * **Aprovação automática** por cliente: pedido sem bloqueio e com carga completa entra aprovado, sem fila, com registro da regra
@@ -160,7 +160,7 @@ Valores de fábrica. A Exportação ajusta capacidades e cadastra veículos novo
 * **Posições de pallet** por veículo (28, 20 e 10), considerando pallet PBR de 1,20 × 1,00 m. Cubagem e peso vêm da Order Basis.
 * **Carga completa a partir de 90%** do recurso limitante.
 * **UN** é a menor unidade de venda (sachê, stick, pote, pacote). **KG** usa o peso líquido.
-* **Layout do arquivo para o SAP** é sugerido pela equipe, até recebermos o layout oficial de importação.
+* **Layout do arquivo para o Sirius/SAP** é sugerido pela equipe, até recebermos o layout oficial de importação.
 * **Peso máximo por pallet** não foi aplicado; o pallet mais pesado do recorte tem cerca de 895 kg.
 * **Stick de solúvel (12147801)**: o SAP traz o peso bruto da caixa em gramas trocadas (menor que o peso líquido). Mantivemos 1,2 kg por caixa, valor da Order Basis.
 * **Filtro de papel (12037417)**: lote mínimo de 2 pallets, linha da filial LONT com a descrição "RED DES".
@@ -228,7 +228,7 @@ Serverless na região sa-east-1 (São Paulo), com os dados no Brasil:
 ### Máquina de status do pedido
 
 ```
-em análise ──aprovar──▶ aprovado ──gerar arquivo──▶ arquivo SAP gerado
+em análise ──aprovar──▶ aprovado ──gerar arquivo──▶ arquivo gerado (upload no Sirius/SAP)
      │                                                  │
      └─ ajustes da Exportação (versão +1, auditoria)    └─ pode gerar o arquivo de novo
 ```
@@ -328,7 +328,7 @@ O chat tem dois motores. No claude.ai, a página declara a capacidade de IA do a
 
 ### Segurança e operação
 
-* Login com perfis: **distribuidor** (só vê o próprio cadastro, preços e pedidos), **Exportação** (fila, ajustes, aprovação, arquivo SAP) e **administração** (parâmetros e importação).
+* Login com perfis: **distribuidor** (só vê o próprio cadastro, preços e pedidos), **Exportação** (fila, ajustes, aprovação, arquivo Sirius/SAP) e **administração** (parâmetros e importação).
 * Integração com o SAP em duas etapas: arquivo no layout oficial de importação na POC; BAPI ou IDoc de ordem de venda no piloto.
 * Arquitetura serverless na AWS: front no Amplify, API Gateway com Lambda, banco gerenciado, Cognito para login e S3 para arquivos e fotos.
 * Logs e métricas por endpoint (tempo de resposta, erros de validação mais comuns), que também alimentam os indicadores da área.
@@ -372,12 +372,12 @@ pre-solucao/               Material do desafio (apresentação e planilhas forne
 
 | Fase | Escopo |
 |---|---|
-| **Hackathon** | 1 cliente, 10 produtos, carreta e contêineres, motor de cálculo e arquivo para o SAP |
-| **POC** | 1 país, 2 ou 3 distribuidores reais, login com perfis de acesso, dados sincronizados do SAP, layout oficial de importação |
-| **Piloto** | Todo o Mercosul, regras por país em configuração, integração direta com o SAP por API, indicadores da área |
+| **Hackathon** | 10 produtos, carreta e contêineres, motor de cálculo, Xica, parâmetros, telas prontas para centenas de clientes e arquivo para o Sirius/SAP |
+| **POC** | 1 país, 2 ou 3 distribuidores reais, na AWS, com login por perfil de acesso, dados sincronizados do SAP e layout oficial do arquivo do Sirius |
+| **Piloto** | Todo o Mercosul, regras por país em configuração, pedido gravado direto no SAP (Amazon AppFlow com o conector SAP OData), indicadores da área |
 | **Escala** | Novos mercados, frete marítimo, proforma e packing list automáticos, sugestão de pedido por IA e leitura de pedidos enviados por e-mail |
 
-Arquitetura proposta para a POC: serverless na AWS (front no Amplify, API Gateway com Lambda, banco gerenciado, autenticação com Cognito e arquivos no S3).
+Arquitetura proposta para a POC: serverless na AWS, detalhada na seção [Proposta de arquitetura na AWS](#proposta-de-arquitetura-na-aws).
 
 ---
 
