@@ -12,6 +12,7 @@ Servidor Hono 4.13.13 em `@hono/node-server` 2.1.5, um processo (`npm run dev`),
 | `DATABASE_URL` | — | Se definida, usa PostgreSQL via `pg` |
 | `COOKIE_SECURE` | `false` | `true` atrás de HTTPS |
 | `SEED_PASSWORD` | — | Só o seed (03) |
+| `SEED_RESET` | — | `yes` autoriza o `db:seed` a recriar o schema com `DATABASE_URL`, só em banco `_dev` ou `_test` (02) |
 
 `.env.example` sem valores; `.env` e `storage/` no `.gitignore`.
 
