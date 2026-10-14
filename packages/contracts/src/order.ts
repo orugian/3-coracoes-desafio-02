@@ -41,6 +41,16 @@ export type OrderBody = z.infer<typeof OrderBody>;
 
 export const IdempotencyKey = z.string().regex(/^[A-Za-z0-9_-]{8,64}$/);
 
+export const ExpectedVersion = z.int().min(1);
+
+// Reenvio do pedido devolvido (S9): cabeçalho e linhas completos, como no envio, mais a versão esperada.
+export const ResubmitBody = z.object({
+  expectedVersion: ExpectedVersion,
+  header: OrderHeaderInput,
+  lines: z.array(LineInput).min(1).max(MAX_LINES),
+});
+export type ResubmitBody = z.infer<typeof ResubmitBody>;
+
 export const ListOrdersQuery = z.object({ status: OrderStatus.optional() });
 
 // ---- saída

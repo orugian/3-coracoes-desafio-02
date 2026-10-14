@@ -4,11 +4,11 @@
 // segregação (aprovação), 409 de versão, 422 das mudanças (nova versão) ou 409 de bloqueio (aprovação).
 import { Hono, type Context } from 'hono';
 import {
-  ApproveBody, BackofficeCustomers, BackofficeOrdersQuery, BackofficeOrderView, BackofficeProducts, BackofficeVersionBody, CustomerInternal, RulesBody,
+  ApproveBody, BackofficeCustomers, BackofficeOrdersQuery, BackofficeOrderView, BackofficeProducts, BackofficeVersionBody, CustomerInternal, ReturnBody, RulesBody,
 } from '#contracts';
 import { uniqueViolation, type Db, type Queryable } from '../ports/db.ts';
 import { requireRole } from '../auth/session.ts';
-import { canApprove, canEdit, isCreatorOrAuthor } from '../domain/permissions.ts';
+import { canApprove, canEdit, canReturn, isCreatorOrAuthor } from '../domain/permissions.ts';
 import { ApiError } from '../http/errors.ts';
 import type { AppEnv } from '../http/env.ts';
 import { parseInput, readBody } from '../http/validate.ts';
@@ -161,6 +161,28 @@ export function backofficeRoutes(deps: BackofficeDeps): Hono<AppEnv> {
         },
       });
       await q.query(`update sales_order set status = 'APPROVED', updated_at = $2 where id = $1`, [id, now]);
+    });
+    return c.json(await detail(c, id));
+  });
+
+  // Devolução (SUBMITTED → CHANGES_REQUESTED, S9): só int_exportacao, com motivo; não cria versão (a próxima é a do
+  // distribuidor, no reenvio). Sem segregação: quem criou ou editou também devolve.
+  r.post('/orders/:id/return', requireRole('int_exportacao'), async (c) => {
+    const auth = c.get('auth');
+    const id = c.req.param('id');
+    const body = await readBody(c, ReturnBody);
+    const now = deps.now();
+    await db.tx(async (q) => {
+      const data = await lockAndLoad(q, id);
+      const access = orderAccess(data);
+      if (access.status !== 'SUBMITTED') throw new ApiError('INVALID_TRANSITION');
+      if (!canReturn(auth, access)) throw new ApiError('FORBIDDEN');
+      if (body.expectedVersion !== data.order.current_version) throw versionConflict(data.order.current_version);
+      await insertEvent(q, {
+        orderId: id, at: now, actorId: auth.userId, actorLabel: auth.displayName, type: 'CHANGES_REQUESTED', from: 'SUBMITTED', to: 'CHANGES_REQUESTED',
+        versionNo: data.order.current_version, payload: { reason: body.reason },
+      });
+      await q.query(`update sales_order set status = 'CHANGES_REQUESTED', updated_at = $2 where id = $1`, [id, now]);
     });
     return c.json(await detail(c, id));
   });
