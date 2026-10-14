@@ -1,0 +1,631 @@
+{
+  "source": "ORDER_BASIS",
+  "file": "pre-solucao/pedidos-sem-fronteiras/ORDEN BASIS TESTE.xlsm",
+  "sha256": "e81dd7cb9b96441f9bc1eeff38af9a4e94ea0d6cfc374adf028640a4d12b4ee2",
+  "extractedAt": "2026-10-14T00:21:37Z",
+  "rows": {
+    "clientes": [
+      {
+        "codigo": "11131",
+        "resumo": "MINOIL",
+        "lista": "US",
+        "nome": "MINOIL S.A.",
+        "condPagamentoCodigo": "2304",
+        "condPagamentoTexto": "STANDBY IRREVOGAVEL 60 DIAS",
+        "incoterm": "FCA",
+        "ativo": "S",
+        "idioma": "Espanhol",
+        "moeda": "USD",
+        "filial": "LONT"
+      }
+    ],
+    "tab": [
+      {
+        "cliente": "11131",
+        "org": "LONT",
+        "lista": "US",
+        "material": "12031189",
+        "descricao": "CAFE TM 3C TRAD EXP VAC 20X250G",
+        "um": "CX",
+        "preco": 49.406699999999994,
+        "moeda": "USD",
+        "umb": "UN",
+        "paletizacaoUmb": 3360,
+        "paletizacaoCx": 168
+      },
+      {
+        "cliente": "11131",
+        "org": "LONT",
+        "lista": "US",
+        "material": "12031291",
+        "descricao": "CAFE TM 3C ESTR REAL PREM AL VAC 20X250",
+        "um": "CX",
+        "preco": 60.17199999999999,
+        "moeda": "USD",
+        "umb": "UN",
+        "paletizacaoUmb": 3360,
+        "paletizacaoCx": 168
+      },
+      {
+        "cliente": "11131",
+        "org": "LONT",
+        "lista": "US",
+        "material": "12142146",
+        "descricao": "CAFE SOL IGUA CLAS AL VID 12X160G",
+        "um": "CX",
+        "preco": 50.01,
+        "moeda": "USD",
+        "umb": "UN",
+        "paletizacaoUmb": 1440,
+        "paletizacaoCx": 120
+      },
+      {
+        "cliente": "11131",
+        "org": "LONT",
+        "lista": "US",
+        "material": "12034103",
+        "descricao": "CAFE CAPP 3C CLAS AL SACHE 16X10X20G",
+        "um": "CX",
+        "preco": 24.750000000000004,
+        "moeda": "USD",
+        "umb": "UN",
+        "paletizacaoUmb": 1440,
+        "paletizacaoCx": 81
+      },
+      {
+        "cliente": "11131",
+        "org": "LONT",
+        "lista": "US",
+        "material": "12034109",
+        "descricao": "CAFE CAPP 3C BAUN ABRA COR AL PT 24X200G",
+        "um": "CX",
+        "preco": 36.96,
+        "moeda": "USD",
+        "umb": "UN",
+        "paletizacaoUmb": 2352,
+        "paletizacaoCx": 98.00000000000001
+      },
+      {
+        "cliente": "11131",
+        "org": "LONT",
+        "lista": "US",
+        "material": "12037417",
+        "descricao": "FILTRO PAP 3C 102/30 DES AL 40X30UN",
+        "um": "CX",
+        "preco": 29.480000000000004,
+        "moeda": "USD",
+        "umb": "UN",
+        "paletizacaoUmb": 2730,
+        "paletizacaoCx": 91
+      },
+      {
+        "cliente": "11131",
+        "org": "LONT",
+        "lista": "US",
+        "material": "20908885",
+        "descricao": "3 Corações Plastic Filter Holder 102",
+        "um": "CX",
+        "preco": 17.611000000000004,
+        "moeda": "USD",
+        "umb": "UN",
+        "paletizacaoUmb": 924,
+        "paletizacaoCx": 60
+      },
+      {
+        "cliente": "11131",
+        "org": "LONT",
+        "lista": "US",
+        "material": "12142501",
+        "descricao": "CAFE SOL IGUA TRAD REF 24X40G",
+        "um": "CX",
+        "preco": 21.56,
+        "moeda": "USD",
+        "umb": "UN",
+        "paletizacaoUmb": 5760,
+        "paletizacaoCx": 280
+      },
+      {
+        "cliente": "11131",
+        "org": "LONT",
+        "lista": "US",
+        "material": "12144012",
+        "descricao": "CAFE CAPP IGUA CLAS SCH 8X10X10G",
+        "um": "CX",
+        "preco": 9.680000000000001,
+        "moeda": "USD",
+        "umb": "UN",
+        "paletizacaoUmb": 1672,
+        "paletizacaoCx": 209
+      },
+      {
+        "cliente": "11131",
+        "org": "LONT",
+        "lista": "US",
+        "material": "12147801",
+        "descricao": "CAFE SOL IGUA TRAD STICK 24X10X1,7G",
+        "um": "CX",
+        "preco": 19.71,
+        "moeda": "USD",
+        "umb": "UN",
+        "paletizacaoUmb": 43200,
+        "paletizacaoCx": 180
+      }
+    ],
+    "paletizacao": [
+      {
+        "org": "BHO",
+        "material": "12031189",
+        "descricao": "CAFE TM 3C TRAD EXP VAC 20X250G",
+        "um": "UN",
+        "unidadesPallet": 3360,
+        "loteMinimo": 1
+      },
+      {
+        "org": "LONT",
+        "material": "12031189",
+        "descricao": "CAFE TM 3C TRAD EXP VAC 20X250G",
+        "um": "UN",
+        "unidadesPallet": 3360,
+        "loteMinimo": 1
+      },
+      {
+        "org": "NAT",
+        "material": "12031189",
+        "descricao": "CAFE TM 3C TRAD EXP VAC 20X250G",
+        "um": "UN",
+        "unidadesPallet": 3360,
+        "loteMinimo": 1
+      },
+      {
+        "org": "BHO",
+        "material": "12031291",
+        "descricao": "CAFE TM 3C ESTR REAL PREM AL VAC 20X250",
+        "um": "UN",
+        "unidadesPallet": 3360,
+        "loteMinimo": 1
+      },
+      {
+        "org": "LONT",
+        "material": "12031291",
+        "descricao": "CAFE TM 3C ESTR REAL PREM AL VAC 20X250",
+        "um": "UN",
+        "unidadesPallet": 3360,
+        "loteMinimo": 1
+      },
+      {
+        "org": "BHO",
+        "material": "12034103",
+        "descricao": "CAFE CAPP 3C CLAS SACHE 10X20G",
+        "um": "UN",
+        "unidadesPallet": 1440,
+        "loteMinimo": 1
+      },
+      {
+        "org": "BHO",
+        "material": "12034109",
+        "descricao": "CAFE CAPP 3C BAUN ABRA COR AL PT 24X200G",
+        "um": "UN",
+        "unidadesPallet": 2352,
+        "loteMinimo": 1
+      },
+      {
+        "org": "LONT",
+        "material": "12034109",
+        "descricao": "CAFE CAPP 3C BAUN ABRA COR AL PT 24X200G",
+        "um": "UN",
+        "unidadesPallet": 2352,
+        "loteMinimo": 1
+      },
+      {
+        "org": "BHO",
+        "material": "12037417",
+        "descricao": "FILTRO PAP 3C 102/30 DES AL 40X30UN",
+        "um": "UN",
+        "unidadesPallet": 2730,
+        "loteMinimo": 1
+      },
+      {
+        "org": "LONT",
+        "material": "12037417",
+        "descricao": "FILTRO PAP 3C 102/30 DES AL 40X30UN",
+        "um": "UN",
+        "unidadesPallet": 2730,
+        "loteMinimo": 1
+      },
+      {
+        "org": "BHO",
+        "material": "12037417",
+        "descricao": "FILTRO PAP 3C 102/30 RED DES 40X30UN",
+        "um": "UN",
+        "unidadesPallet": 2730,
+        "loteMinimo": 2
+      },
+      {
+        "org": "LONT",
+        "material": "12037417",
+        "descricao": "FILTRO PAP 3C 102/30 RED DES 40X30UN",
+        "um": "UN",
+        "unidadesPallet": 2730,
+        "loteMinimo": 2
+      },
+      {
+        "org": "LONT",
+        "material": "12142501",
+        "descricao": "CAFE SOL IGUA TRAD REF 24X40G",
+        "um": "UN",
+        "unidadesPallet": 5760,
+        "loteMinimo": 5
+      },
+      {
+        "org": "LONT",
+        "material": "12142146",
+        "descricao": "CAFE SOL IGUA CLAS AL VID 12X160G",
+        "um": "UN",
+        "unidadesPallet": 1440,
+        "loteMinimo": 5
+      },
+      {
+        "org": "BHO",
+        "material": "12144012",
+        "descricao": "CAFE CAPP IGUA CLAS SCH 8X10X10G",
+        "um": "UN",
+        "unidadesPallet": 1672,
+        "loteMinimo": 3.12
+      },
+      {
+        "org": "LONT",
+        "material": "12144012",
+        "descricao": "CAFE CAPP IGUA CLAS SCH 8X10X10G",
+        "um": "UN",
+        "unidadesPallet": 1672,
+        "loteMinimo": 1
+      },
+      {
+        "org": "BHO",
+        "material": "12147801",
+        "descricao": "CAFÉ IGUAÇU TRAD 1,7G (10X24x1,7G)",
+        "um": "UN",
+        "unidadesPallet": 1980,
+        "loteMinimo": 1
+      },
+      {
+        "org": "LONT",
+        "material": "12147801",
+        "descricao": "CAFE SOL IGUA TRAD STICK 24X10X1,7G",
+        "um": "UN",
+        "unidadesPallet": 43200,
+        "loteMinimo": 1
+      },
+      {
+        "org": "BHO",
+        "material": "20908885",
+        "descricao": "PORTA FILTRO 3C PLAST VM 102 C/12",
+        "um": "UN",
+        "unidadesPallet": 924,
+        "loteMinimo": 1
+      },
+      {
+        "org": "LONT",
+        "material": "20908885",
+        "descricao": "Porta Filtro 3C 102",
+        "um": "UN",
+        "unidadesPallet": 924,
+        "loteMinimo": 1
+      },
+      {
+        "org": "NAT",
+        "material": "20908885",
+        "descricao": "Porta Filtro 3C 102",
+        "um": "UN",
+        "unidadesPallet": 924,
+        "loteMinimo": 1
+      }
+    ],
+    "aux": [
+      {
+        "idioma": "PORTUGUÊS",
+        "material": "12031189",
+        "descricao": "CAFE TM 3C TRAD EXP VAC 20X250G",
+        "familia": "CAFES"
+      },
+      {
+        "idioma": "ESPAÑOL",
+        "material": "12031189",
+        "descricao": "CAFE 3C TRADICIONAL VACIO 250G - 20UNI",
+        "familia": "CAFÉ"
+      },
+      {
+        "idioma": "ENGLISH",
+        "material": "12031189",
+        "descricao": "3C TRADITIONAL COFFEE VACUUM 250G - 20UN",
+        "familia": "GROUND COFFEE"
+      },
+      {
+        "idioma": "PORTUGUÊS",
+        "material": "12031291",
+        "descricao": "CAFE TM 3C ESTR REAL PREM AL VAC 20X250",
+        "familia": "CAFES"
+      },
+      {
+        "idioma": "ESPAÑOL",
+        "material": "12031291",
+        "descricao": "CAFE 3C PREMIUM ER VACIO 250G - 20UNI",
+        "familia": "CAFÉ"
+      },
+      {
+        "idioma": "ENGLISH",
+        "material": "12031291",
+        "descricao": "3C PREMIUM ER COFFEE VACUUM 250G - 20UNI",
+        "familia": "GROUND COFFEE"
+      },
+      {
+        "idioma": "PORTUGUÊS",
+        "material": "12034103",
+        "descricao": "CAFE CAPP 3C CLAS SACHE 16X10X20G",
+        "familia": "CAPPUCCINO"
+      },
+      {
+        "idioma": "ESPAÑOL",
+        "material": "12034103",
+        "descricao": "CAPPUCCINO 3C CLASICO SACHET 20G -10UNI",
+        "familia": "CAPPUCCINO"
+      },
+      {
+        "idioma": "ENGLISH",
+        "material": "12034103",
+        "descricao": "3C CAPPUCCINO CLASSIC SACHET 200G -10UNI",
+        "familia": "CAPPUCCINO"
+      },
+      {
+        "idioma": "PORTUGUÊS",
+        "material": "12034109",
+        "descricao": "CAFE CAPP 3C BAUN ABRA COR AL PT 24X200G",
+        "familia": "CAPPUCCINO"
+      },
+      {
+        "idioma": "ESPAÑOL",
+        "material": "12034109",
+        "descricao": "CAPPUCCINO 3C VAINILLA EXP PT 200G-24UNI",
+        "familia": "CAPPUCCINO"
+      },
+      {
+        "idioma": "ENGLISH",
+        "material": "12034109",
+        "descricao": "3C CAPPUCCINO VANILLA JAR 200G - 24UNI",
+        "familia": "CAPPUCCINO"
+      },
+      {
+        "idioma": "PORTUGUÊS",
+        "material": "12037417",
+        "descricao": "FILTRO PAP 3C 102/30 DES AL 40X30UN",
+        "familia": "FILTRO DE PAPEL"
+      },
+      {
+        "idioma": "PORTUGUÊS",
+        "material": "12037417",
+        "descricao": "FILTRO PAP 3C 102/30 RED DES 40X30UN",
+        "familia": "FILTRO"
+      },
+      {
+        "idioma": "ESPAÑOL",
+        "material": "12037417",
+        "descricao": "FILTRO PAPEL 3C #102/30 - 30UNI",
+        "familia": "FILTRO DE PAPEL"
+      },
+      {
+        "idioma": "ENGLISH",
+        "material": "12037417",
+        "descricao": "3C PAPER FILTER #102/30 - 30UNI",
+        "familia": "PAPER FILTER"
+      },
+      {
+        "idioma": "PORTUGUÊS",
+        "material": "12142501",
+        "descricao": "CAFE SOL IGUA TRAD REF 24X40G",
+        "familia": "SOLUVEIS"
+      },
+      {
+        "idioma": "ESPAÑOL",
+        "material": "12142501",
+        "descricao": "CAFE SOL IGUA PO TRAD REF 24X40G",
+        "familia": "SOLUBLE"
+      },
+      {
+        "idioma": "ENGLISH",
+        "material": "12142501",
+        "descricao": "IGUACU TRAD INSTANT COFFEE 40G -24UN",
+        "familia": "INSTANT COFFEE"
+      },
+      {
+        "idioma": "PORTUGUÊS",
+        "material": "12142146",
+        "descricao": "CAFE SOL IGUA CLAS AL VID 12X160G",
+        "familia": "SOLUVEIS"
+      },
+      {
+        "idioma": "PORTUGUÊS",
+        "material": "12144012",
+        "descricao": "CAFE CAPP IGUA CLAS SCH 8X10X10G",
+        "familia": "CAPPUCCINO"
+      },
+      {
+        "idioma": "ESPAÑOL",
+        "material": "12144012",
+        "descricao": "CAPPUCCINO IGUA CLASICO SACHET 10G -10UNI",
+        "familia": "CAPPUCCINO"
+      },
+      {
+        "idioma": "ENGLISH",
+        "material": "12144012",
+        "descricao": "IGUA CAPPUCCINO CLASSIC SACHET 10G -10UNI",
+        "familia": "CAPPUCCINO"
+      },
+      {
+        "idioma": "PORTUGUÊS",
+        "material": "20908885",
+        "descricao": "PORTA FILTRO 3C PLAST VM 102 C/12",
+        "familia": "PORTA FILTRO"
+      },
+      {
+        "idioma": "ESPAÑOL",
+        "material": "20908885",
+        "descricao": "PORTA FILTRO PLASTICO 3C #102 - 12 UNI",
+        "familia": "PUERTA FILTRO"
+      },
+      {
+        "idioma": "ENGLISH",
+        "material": "20908885",
+        "descricao": "3C PLASTIC FILTER HOLDER #102-12UNI",
+        "familia": "FILTER HOLDER"
+      },
+      {
+        "idioma": "PORTUGUÊS",
+        "material": "12147801",
+        "descricao": "CAFÉ IGUAÇU TRAD 1,7G (10X24x1,7G)",
+        "familia": "SOLUVEIS"
+      }
+    ],
+    "ordem": {
+      "totais": {
+        "X2_pesoBruto": 20151.039999999997,
+        "W2_pesoLiquido": 19070,
+        "Y2_valor": 192005.83759999997,
+        "X4_cubagem": 58.882691292,
+        "Y4_pallets": 28.886363149521046,
+        "W4_embarque": "OK"
+      },
+      "itens": [
+        {
+          "material": "12031189",
+          "descricao": "CAFE TM 3C TRAD EXP VAC 20X250G",
+          "familia": "CAFES",
+          "preco": 49.406699999999994,
+          "unidadesCaixa": 20,
+          "brutoUnidade": 0.259,
+          "liquidoUnidade": 0.25,
+          "cxPallet": 168,
+          "caixas": 3528,
+          "loteMinimo": 1,
+          "validado": "SIM"
+        },
+        {
+          "material": "12031291",
+          "descricao": "CAFE TM 3C ESTR REAL PREM AL VAC 20X250",
+          "familia": "CAFES",
+          "preco": 60.17199999999999,
+          "unidadesCaixa": 20,
+          "brutoUnidade": 0.267,
+          "liquidoUnidade": 0.25,
+          "cxPallet": 168,
+          "caixas": null,
+          "loteMinimo": 1,
+          "validado": "NÃO"
+        },
+        {
+          "material": "12142146",
+          "descricao": "CAFE SOL IGUA CLAS AL VID 12X160G",
+          "familia": "SOLUVEIS",
+          "preco": 50.01,
+          "unidadesCaixa": 12,
+          "brutoUnidade": 0.566,
+          "liquidoUnidade": 0.16,
+          "cxPallet": 120,
+          "caixas": null,
+          "loteMinimo": 5,
+          "validado": "NÃO"
+        },
+        {
+          "material": "12034103",
+          "descricao": "CAFE CAPP 3C CLAS SACHE 16X10X20G",
+          "familia": "CAPPUCCINO",
+          "preco": 24.750000000000004,
+          "unidadesCaixa": 160,
+          "brutoUnidade": 0.024,
+          "liquidoUnidade": 0.02,
+          "cxPallet": 81,
+          "caixas": 300,
+          "loteMinimo": 1,
+          "validado": "SIM"
+        },
+        {
+          "material": "12034109",
+          "descricao": "CAFE CAPP 3C BAUN ABRA COR AL PT 24X200G",
+          "familia": "CAPPUCCINO",
+          "preco": 36.96,
+          "unidadesCaixa": 23.999999999999996,
+          "brutoUnidade": 0.257,
+          "liquidoUnidade": 0.2,
+          "cxPallet": 98.00000000000001,
+          "caixas": null,
+          "loteMinimo": 1,
+          "validado": "NÃO"
+        },
+        {
+          "material": "12037417",
+          "descricao": "FILTRO PAP 3C 102/30 DES AL 40X30UN",
+          "familia": "FILTRO DE PAPEL",
+          "preco": 29.480000000000004,
+          "unidadesCaixa": 20,
+          "brutoUnidade": 0.068,
+          "liquidoUnidade": 0.046,
+          "cxPallet": 91,
+          "caixas": 250,
+          "loteMinimo": 1,
+          "validado": "SIM"
+        },
+        {
+          "material": "20908885",
+          "descricao": "PORTA FILTRO 3C PLAST VM 102 C/12",
+          "familia": "PORTA FILTRO",
+          "preco": 17.611000000000004,
+          "unidadesCaixa": 12.000000000000002,
+          "brutoUnidade": 0.075,
+          "liquidoUnidade": 0.046,
+          "cxPallet": 60,
+          "caixas": null,
+          "loteMinimo": 1,
+          "validado": "NÃO"
+        },
+        {
+          "material": "12142501",
+          "descricao": "CAFE SOL IGUA TRAD REF 24X40G",
+          "familia": "SOLUVEIS",
+          "preco": 21.56,
+          "unidadesCaixa": 24,
+          "brutoUnidade": 0.057,
+          "liquidoUnidade": 0.04,
+          "cxPallet": 280,
+          "caixas": null,
+          "loteMinimo": 5,
+          "validado": "NÃO"
+        },
+        {
+          "material": "12144012",
+          "descricao": "CAFE CAPP IGUA CLAS SCH 8X10X10G",
+          "familia": "CAPPUCCINO",
+          "preco": 9.680000000000001,
+          "unidadesCaixa": 80,
+          "brutoUnidade": 0.016,
+          "liquidoUnidade": 0.01,
+          "cxPallet": 209,
+          "caixas": 300,
+          "loteMinimo": 3.12,
+          "validado": "NÃO"
+        },
+        {
+          "material": "12147801",
+          "descricao": "CAFÉ IGUAÇU TRAD 1,7G (10X24x1,7G)",
+          "familia": "SOLUVEIS",
+          "preco": 19.71,
+          "unidadesCaixa": 240,
+          "brutoUnidade": 0.048,
+          "liquidoUnidade": 0.0017,
+          "cxPallet": 180,
+          "caixas": null,
+          "loteMinimo": 1,
+          "validado": "NÃO"
+        }
+      ]
+    }
+  }
+}

@@ -5,7 +5,7 @@ O seed monta o banco do corte a partir das fontes do desafio, das decisões do t
 ## Fluxo
 
 ```
-pre-solucao/*.xlsx|xlsm ──► db/seed/extrair_planilhas.py ──► db/seed/fontes/sap.json, ob.json
+pre-solucao/*.xlsx|xlsm ──► db/seed/extrair_planilhas.py ──► db/seed/fontes/sap_conferencia.json, sap_materiais.json, sap_registros.json, ob.json
 git show f89cef4:index.html ──► scripts/extrair_piloto.ts ──► db/seed/fontes/piloto.json
                                                           └──► packages/engine/test/fixtures/piloto.json
 dados/*.json (Cecília) ─────────────────────────────────────┐
@@ -13,10 +13,11 @@ db/seed/decisoes.ts (decisões do time) ─────────────�
 db/seed/fontes/*.json ──────────────────────────────────────┴──► npm run db:seed ──► banco
 ```
 
-- Os arquivos de `db/seed/fontes/` são gerados e versionados; cada um traz `{ source, file, sha256, extractedAt, rows }`. Não editar à mão. `npm run extract` regenera todos. O `sha256` é dos bytes com `\r\n` trocado por `\n` (README, "Ciclo de vida das fontes"), para valer igual em Windows, Linux e Mac.
+- Os arquivos de `db/seed/fontes/` são gerados e versionados, **um por arquivo de origem** (é o que vira um `import_batch`); cada um traz `{ source, file, sha256, extractedAt, rows }` (o do piloto traz também `commit`, `vehicles`, `clients` e `rules`). Não editar à mão. `npm run extract` regenera todos; `extractedAt` só muda quando o conteúdo muda, então regenerar sem mudança na origem não gera diferença no git. O `sha256` é dos bytes com `\r\n` trocado por `\n` (README, "Ciclo de vida das fontes"), para valer igual em Windows, Linux e Mac.
 - O extrator Python reaproveita a leitura de `verificar_numeros.py` (mesmas colunas, mesma normalização). Ele **nunca grava** a coluna de senha da aba DADOS CLIENTES (ver a autoverificação no fim).
-- O seed (Node) não lê planilhas: carrega os JSON, cria um `import_batch` `ACTIVE` por arquivo de origem (com o `sha256` do arquivo original) e roda o motor para gravar o resultado dos pedidos de exemplo. Por isso depende do motor (fatia S1 do plano).
-- `npm run db:seed` falha se o `sha256` de uma fonte em `fontes/*.json` não bater com o arquivo atual em `pre-solucao/` ou `dados/` (fonte desatualizada: rodar `npm run extract`).
+- O seed (Node) não lê planilhas: carrega os JSON, cria um `import_batch` `ACTIVE` por arquivo de origem (com o `sha256` do arquivo original) e roda o motor para gravar o resultado dos pedidos de exemplo. Por isso depende do motor (fatia S1 do plano). São 10 lotes: 3 do SAP, 1 da OB, 4 `DADOS_JSON` (um por JSON da Cecília), 1 `PILOTO` (`file_name` = `index.html@<commit>`) e 1 `DECISOES` (o `sha256` do próprio `db/seed/decisoes.ts`). O `quality_report` do lote da OB guarda a divergência de idioma da MINOIL e as escolhas de lote mínimo (linha repetida, `DEFAULT`); os de `catalogo.json` e `produtos_internos.json` guardam o `DERIVED_MISMATCH` com os campos que divergem.
+- `npm run db:seed` falha se o `sha256` de uma fonte em `fontes/*.json` não bater com o arquivo atual em `pre-solucao/` (fonte desatualizada: rodar `npm run extract`). Os JSON de `dados/` são lidos direto, e o piloto vem de um commit fixo, então não há o que ficar desatualizado nesses dois.
+- O seed também recusa dados que quebrariam as regras da API: envio de distribuidor com BLOCK, nova versão por quem não é `int_exportacao`, aprovação por quem criou o pedido ou uma versão, aprovação com BLOCK na versão ou no recálculo, override cujo valor do SAP mudou e preço do site (Q6) para SKU que passou a ter preço no SAP.
 
 ## De onde vem cada campo
 
@@ -89,4 +90,6 @@ Em PGlite em memória, rodando o seed completo:
 - conferências da tabela acima contra a fixture do piloto, com uma lista explícita de diferenças esperadas: só `layer_boxes` de 12034109 (14 contra 4) e `layers` de 20908885 (7 contra 10) no catálogo efetivo;
 - `DERIVED_MISMATCH` contra `catalogo.json` e `produtos_internos.json`: exatamente 12142501, 12144012, 12147801 e 20908885.
 
-O extrator Python faz uma autoverificação antes de gravar `ob.json`. A aba DADOS CLIENTES tem a senha na coluna [2] e também **embutida na coluna [0]** ("CHAVE" = código do cliente seguido da senha); por isso o extrator não grava as colunas [0] e [2] e, antes de gravar, procura cada valor de senha como **substring** no JSON serializado. Se achar, aborta sem imprimir o valor.
+O extrator Python faz uma autoverificação antes de gravar `ob.json`. A aba DADOS CLIENTES tem a senha na coluna [2] e também **embutida na coluna [0]** ("CHAVE" = código do cliente seguido da senha); por isso o extrator não grava as colunas [0] e [2] e, antes de gravar, procura cada valor de senha como **substring** no JSON serializado. Se achar, aborta sem imprimir o valor. `python db/seed/extrair_planilhas.py --verificar` repete a busca em todas as fontes já gravadas e confere o próprio detector com um valor plantado; o `seed.test.ts` roda esse modo (pulado só se não houver Python).
+
+Formato do `payload.internal` do evento `APPROVED` (seed e, na S6, a rota): `{ contentHash, recalculatedContentHash, recalculatedBlocking, resultChanged }`, mais `recalculatedResult` (o `EngineResult` recalculado) quando `resultChanged` for verdadeiro.

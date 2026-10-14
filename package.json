@@ -16,7 +16,7 @@
     "test": "tsc --noEmit && node --test \"**/*.test.ts\"",
     "db:migrate": "node --env-file-if-exists=.env scripts/db_migrate.ts",
     "db:seed": "node --env-file-if-exists=.env scripts/db_seed.ts",
-    "extract": "node scripts/pendente.ts S3 extract",
+    "extract": "node scripts/extract.ts",
     "fixtures:piloto": "node scripts/extrair_piloto.ts",
     "contracts:schema": "node scripts/pendente.ts S6 contracts:schema",
     "user:unlock": "node scripts/pendente.ts S4 user:unlock"
