@@ -7,7 +7,7 @@ import {
 } from '#contracts';
 import type { Db, Queryable } from '#server/ports/db.ts';
 import { saoPauloDate } from '#server/domain/time.ts';
-import { Client, errorCode, newKey, seededDb, strictJson, testApp, type TestApp } from './helpers/api.ts';
+import { Client, createUser, errorCode, newKey, seededDb, strictJson, testApp, type TestApp } from './helpers/api.ts';
 
 const CARRETA = { vehicleId: 'carreta_padrao', loadMode: 'PALLETIZED', reference: 'OC-BO', loadingDate: null };
 const C40 = { vehicleId: 'container_40', loadMode: 'PALLETIZED', reference: 'OC-BO-AR', loadingDate: null };
@@ -265,6 +265,41 @@ describe('autor sem ser criador não aprova', () => {
     assert.equal(byLucas.status, 200);
     assert.equal((await view(byLucas)).approvedByLabel, 'Lucas (Exportação)');
   });
+
+  test('autor de uma versão anterior (não da atual) também não aprova; quem não tocou no pedido aprova', async () => {
+    await createUser(db, 'teste.exportacao', 'int_exportacao');
+    const third = await Client.login(t.app, 'teste.exportacao');
+    const id = await portalOrder(martin, '11131', CARRETA, CASO_2);
+    assert.equal((await newVersion(ana, id, { expectedVersion: 1, changes: [{ material: '12031189', boxes: 2520 }] })).status, 200);
+    assert.equal((await newVersion(lucas, id, { expectedVersion: 2, changes: [{ material: '12031189', boxes: 2688 }] })).status, 200);
+    assert.equal((await detail(ana, id)).permissions.canApprove, false, 'Ana é autora da v2, não da v3');
+    const byAna = await approve(ana, id, 3);
+    assert.equal(byAna.status, 403);
+    assert.equal(await errorCode(byAna), 'SELF_APPROVAL_FORBIDDEN');
+    assert.equal(await errorCode(await approve(lucas, id, 3)), 'SELF_APPROVAL_FORBIDDEN');
+    assert.equal((await detail(third, id)).permissions.canApprove, true);
+    assert.equal((await approve(third, id, 3)).status, 200);
+  });
+});
+
+describe('pallet misto: congelado na versão, do cliente na versão nova', () => {
+  test('ligado depois do envio: a aprovação recalcula com o da versão; uma versão nova usa o do cliente agora', async () => {
+    const toApprove = await portalOrder(martin, '11131', CARRETA, CASO_2);
+    const toEdit = await portalOrder(martin, '11131', CARRETA, CASO_2);
+    assert.equal((await ana.put('/v1/backoffice/customers/11131/rules', { mixedPallet: true })).status, 200);
+    try {
+      const approved = await view(await approve(lucas, toApprove, 1));
+      assert.equal(approved.current.header.mixedPallet, false);
+      const internal = approved.events?.at(-1)?.payload.internal as { contentHash: string; recalculatedContentHash: string; resultChanged: boolean };
+      assert.equal(internal.recalculatedContentHash, internal.contentHash, 'mesma entrada, inclusive o pallet misto');
+      assert.equal(internal.resultChanged, false);
+
+      const edited = await view(await newVersion(ana, toEdit, { expectedVersion: 1, changes: [{ material: '12031189', boxes: 2520 }] }));
+      assert.deepEqual(edited.versions?.map((v) => v.header.mixedPallet), [false, true]);
+    } finally {
+      assert.equal((await ana.put('/v1/backoffice/customers/11131/rules', { mixedPallet: false })).status, 200);
+    }
+  });
 });
 
 describe('regras da nova versão', () => {
@@ -316,6 +351,13 @@ describe('regras da nova versão', () => {
     for (const r of [await newVersion(ana, '3CC-2026-9999', { expectedVersion: 1, changes: [{ material: '12031189', boxes: 1 }] }), await approve(lucas, '3CC-2026-9999', 1)]) {
       assert.equal(r.status, 404);
       assert.equal(await errorCode(r), 'NOT_FOUND');
+    }
+    // Material repetido é erro do corpo: 422 antes do 404 e do 409.
+    const dup = [{ material: '12031189', boxes: 1 }, { material: '12031189', boxes: 2 }];
+    for (const target of ['3CC-2026-9999', '3CC-2026-0002']) {
+      const r = await newVersion(ana, target, { expectedVersion: 1, changes: dup });
+      assert.equal(r.status, 422, target);
+      assert.equal((await errorBody(r)).error.details?.[0].code, 'DUPLICATE_MATERIAL');
     }
   });
 
@@ -398,6 +440,20 @@ describe('guarda do recálculo na aprovação', () => {
     } finally {
       await db.query('delete from country_rule where id = $1', [rule.id]);
     }
+  });
+
+  test('material que saiu do catálogo depois do envio → 409 ORDER_BLOCKED com UNKNOWN_MATERIAL; de volta, segue', async () => {
+    const other = await portalOrder(sofia, '11999', C40, [{ material: '12031291', boxes: 1176 }, { material: '12142501', boxes: 1400 }]);
+    await db.query(`update material set active = false where code = '12142501'`);
+    try {
+      const res = await approve(lucas, other, 1);
+      assert.equal(res.status, 409);
+      const { error } = await errorBody(res);
+      assert.deepEqual([error.code, error.details?.map((d) => [d.code, d.material])], ['ORDER_BLOCKED', [['UNKNOWN_MATERIAL', '12142501']]]);
+    } finally {
+      await db.query(`update material set active = true where code = '12142501'`);
+    }
+    assert.equal((await approve(lucas, other, 1)).status, 200, 'controle');
   });
 
   test('preço vigente mudou sem BLOCK: aprova a versão como gravada, com resultChanged e o resultado recalculado no evento', async () => {

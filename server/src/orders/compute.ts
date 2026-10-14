@@ -100,14 +100,19 @@ export function requestHash(customerCode: string, header: HeaderInput, lines: Li
 
 export interface LineChange { material: string; old: number; new: number }
 
+// Materiais únicos no corpo (422 DUPLICATE_MATERIAL), antes de qualquer consulta: é erro do corpo (ordem das recusas).
+export function assertUniqueMaterials(lines: { material: string }[]): void {
+  const seen = new Set<string>();
+  const duplicated = lines.filter((l) => (seen.has(l.material) ? true : (seen.add(l.material), false)));
+  if (duplicated.length) {
+    throw new ApiError('VALIDATION_FAILED', { details: duplicated.map((l) => ({ code: 'DUPLICATE_MATERIAL', material: l.material })) });
+  }
+}
+
 // Nova versão do backoffice: aplica { material, boxes } sobre as linhas atuais (0 remove; material novo entra com old 0).
 // Só as mudanças efetivas entram em changes; nenhuma → 422 NO_CHANGES; nenhuma linha depois → 422.
 export function applyChanges(current: Line[], requested: { material: string; boxes: number }[]): { lines: Line[]; changes: LineChange[] } {
-  const seen = new Set<string>();
-  const duplicated = requested.filter((c) => (seen.has(c.material) ? true : (seen.add(c.material), false)));
-  if (duplicated.length) {
-    throw new ApiError('VALIDATION_FAILED', { details: duplicated.map((c) => ({ code: 'DUPLICATE_MATERIAL', material: c.material })) });
-  }
+  assertUniqueMaterials(requested);
   const next = new Map(current.map((l) => [l.material, l.boxes]));
   const changes: LineChange[] = [];
   for (const c of [...requested].sort(byMaterial)) {

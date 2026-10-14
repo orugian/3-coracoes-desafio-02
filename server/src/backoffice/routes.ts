@@ -16,7 +16,7 @@ import { EXPORT_CHANNEL, FULL_AT } from '../repo/catalog.ts';
 import { allCustomerCodes, customerInternal, ruleChanges, setCustomerRules } from '../repo/customers.ts';
 import { currentVersionOf, insertEvent, insertVersion, loadOrder, loadOrders, lockOrder, type OrderData } from '../repo/orders.ts';
 import { productsInternal, vehicles } from '../repo/products.ts';
-import { applyChanges, blockDetails, checkKnownMaterials, computeVersion, LEAD_DAYS, sameResult, storedResult } from '../orders/compute.ts';
+import { applyChanges, assertUniqueMaterials, blockDetails, checkKnownMaterials, computeVersion, LEAD_DAYS, sameResult, storedResult } from '../orders/compute.ts';
 import { orderAccess, orderView } from '../orders/views.ts';
 
 interface BackofficeDeps { db: Db; now: () => Date }
@@ -88,6 +88,7 @@ export function backofficeRoutes(deps: BackofficeDeps): Hono<AppEnv> {
     const auth = c.get('auth');
     const id = c.req.param('id');
     const body = await readBody(c, BackofficeVersionBody);
+    assertUniqueMaterials(body.changes);
     const now = deps.now();
     await db.tx(async (q) => {
       const data = await lockAndLoad(q, id);
@@ -137,13 +138,15 @@ export function backofficeRoutes(deps: BackofficeDeps): Hono<AppEnv> {
       const result = storedResult(current.engine_result);
       if (current.blocking || result.blocking) throw new ApiError('ORDER_BLOCKED', { status: 409, details: blockDetails(result) });
       const header = { vehicleId: current.vehicle_id, loadMode: current.load_mode, reference: current.customer_reference, loadingDate: current.loading_date };
-      const recalculated = await computeVersion(q, data.order.customer_code, header, current.lines, now, { mixedPallet: current.mixed_pallet });
-      if (recalculated.result.blocking) {
-        throw new ApiError('ORDER_BLOCKED', {
-          status: 409,
-          message: 'Com os dados de hoje, esta versão tem bloqueios. Crie uma nova versão antes de aprovar.',
-          details: blockDetails(recalculated.result),
+      const recalcMessage = 'Com os dados de hoje, esta versão tem bloqueios. Crie uma nova versão antes de aprovar.';
+      // Material que saiu do catálogo depois da versão: a mesma entrada já não roda, então é bloqueio da aprovação (409).
+      const recalculated = await computeVersion(q, data.order.customer_code, header, current.lines, now, { mixedPallet: current.mixed_pallet })
+        .catch((err: unknown) => {
+          if (err instanceof ApiError && err.code === 'VALIDATION_FAILED') throw new ApiError('ORDER_BLOCKED', { status: 409, message: recalcMessage, details: err.details });
+          throw err;
         });
+      if (recalculated.result.blocking) {
+        throw new ApiError('ORDER_BLOCKED', { status: 409, message: recalcMessage, details: blockDetails(recalculated.result) });
       }
       const resultChanged = !sameResult(recalculated.result, result);
       // Mesmo formato do seed (03, "Pedidos de exemplo").
