@@ -124,6 +124,7 @@ describe('item 4: nada interno nem de outro cliente nas respostas do portal', ()
     assert.deepEqual(catalog.customer.restrictedMaterials, []);
     assert.deepEqual(catalog.rules, { fullAt: 0.9, leadDays: 7 });
     assert.deepEqual(catalog.vehicles.map((v) => [v.id, v.palletPositions]), [['carreta_padrao', 28], ['container_40', 20], ['container_20', 10]]);
+    assert.deepEqual(catalog.vehicles[0].assumptions, ['Posições de pallet: artefato 3C Conecta (Q4)']);
   });
 
   test('controle: o catálogo de Sofía traz a lista AR e a restrição do país dela', async () => {

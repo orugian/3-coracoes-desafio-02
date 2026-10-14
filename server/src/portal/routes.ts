@@ -12,7 +12,7 @@ import { lastAutoApproveChange } from '../repo/customers.ts';
 import { findByIdempotencyKey, insertEvent, insertVersion, loadOrder, loadOrders, nextOrderId } from '../repo/orders.ts';
 import { catalogItems, vehicles } from '../repo/products.ts';
 import { customerProfiles } from '../repo/users.ts';
-import { blockDetails, checkLines, checkLoadingDate, computeVersion, isFullLoad, LEAD_DAYS, requestHash } from '../orders/compute.ts';
+import { blockDetails, checkKnownMaterials, checkLines, checkLoadingDate, computeVersion, isFullLoad, LEAD_DAYS, requestHash } from '../orders/compute.ts';
 import { AUTO_APPROVAL_LABEL, orderView } from '../orders/views.ts';
 
 const IDEMPOTENCY_CONSTRAINT = 'sales_order_customer_code_idempotency_key_key';
@@ -63,12 +63,13 @@ export function portalRoutes(deps: PortalDeps): Hono<AppEnv> {
   // Simulação: o mesmo cálculo do envio, sem gravar e sem a regra da data.
   r.post('/quote', async (c) => {
     const body = await readBody(c, OrderBody);
-    const code = scopedCustomer(c.get('auth'), body.customerCode);
     const lines = checkLines(body.lines);
+    const code = scopedCustomer(c.get('auth'), body.customerCode);
     const v = await computeVersion(db, code, body.header, lines, deps.now());
     return c.json(EngineResult.parse(v.result));
   });
 
+  // Ordem das recusas (04): 428, 422 do corpo, 404 do escopo, replay ou 409, 422 de material, 422 da data, 422 do bloqueio.
   r.post('/orders', async (c) => {
     const auth = c.get('auth');
     const key = c.req.header('idempotency-key');
@@ -77,8 +78,8 @@ export function portalRoutes(deps: PortalDeps): Hono<AppEnv> {
       throw new ApiError('VALIDATION_FAILED', { message: 'Idempotency-Key inválida: de 8 a 64 caracteres A-Z, a-z, 0-9, _ ou -.' });
     }
     const body = await readBody(c, OrderBody);
-    const code = scopedCustomer(auth, body.customerCode);
     const lines = checkLines(body.lines);
+    const code = scopedCustomer(auth, body.customerCode);
     const hash = requestHash(code, body.header, lines);
 
     const replay = async (found: { id: string; hash: string | null }) => {
@@ -90,6 +91,7 @@ export function portalRoutes(deps: PortalDeps): Hono<AppEnv> {
     if (existing) return replay(existing);
 
     const now = deps.now();
+    await checkKnownMaterials(db, code, lines);
     checkLoadingDate(body.header.loadingDate, now);
 
     let id: string;

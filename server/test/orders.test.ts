@@ -153,31 +153,46 @@ describe('envio', () => {
 });
 
 describe('validação do corpo', () => {
-  const invalid: [string, unknown][] = [
-    ['sem linhas', body('11131', CARRETA, [])],
-    ['material repetido', body('11131', CARRETA, [{ material: '12031189', boxes: 168 }, { material: '12031189', boxes: 168 }])],
-    ['material inexistente', body('11131', CARRETA, [{ material: '99999999', boxes: 10 }])],
-    ['material sem 8 dígitos', body('11131', CARRETA, [{ material: '1203118', boxes: 10 }])],
-    ['zero caixas', body('11131', CARRETA, [{ material: '12031189', boxes: 0 }])],
-    ['acima de 100.000', body('11131', CARRETA, [{ material: '12031189', boxes: 100_001 }])],
-    ['caixas como texto', body('11131', CARRETA, [{ material: '12031189', boxes: '168' }])],
-    ['mais de 50 linhas', body('11131', CARRETA, Array.from({ length: 51 }, (_, i) => ({ material: String(12000000 + i), boxes: 1 })))],
-    ['referência com 31 caracteres', body('11131', { ...CARRETA, reference: 'x'.repeat(31) }, CASO_2)],
-    ['referência com quebra de linha', body('11131', { ...CARRETA, reference: 'OC\n1' }, CASO_2)],
-    ['veículo desconhecido', body('11131', { vehicleId: 'navio', loadMode: 'PALLETIZED' }, CASO_2)],
-    ['modo desconhecido', body('11131', { vehicleId: 'carreta_padrao', loadMode: 'pal' }, CASO_2)],
-    ['data inexistente', body('11131', { ...CARRETA, loadingDate: '2026-02-30' }, CASO_2)],
-    ['sem cabeçalho', { customerCode: '11131', lines: CASO_2 }],
+  // [nome, corpo, código do detalhe esperado (INVALID_FIELD traz o caminho do campo)]
+  const invalid: [string, unknown, string, string?][] = [
+    ['sem linhas', body('11131', CARRETA, []), 'INVALID_FIELD', 'lines'],
+    ['material repetido', body('11131', CARRETA, [{ material: '12031189', boxes: 168 }, { material: '12031189', boxes: 168 }]), 'DUPLICATE_MATERIAL'],
+    ['material inexistente', body('11131', CARRETA, [{ material: '99999999', boxes: 10 }]), 'UNKNOWN_MATERIAL'],
+    ['material sem 8 dígitos', body('11131', CARRETA, [{ material: '1203118', boxes: 10 }]), 'INVALID_FIELD', 'lines.0.material'],
+    ['zero caixas', body('11131', CARRETA, [{ material: '12031189', boxes: 0 }]), 'INVALID_FIELD', 'lines.0.boxes'],
+    ['acima de 100.000', body('11131', CARRETA, [{ material: '12031189', boxes: 100_001 }]), 'INVALID_FIELD', 'lines.0.boxes'],
+    ['caixas como texto', body('11131', CARRETA, [{ material: '12031189', boxes: '168' }]), 'INVALID_FIELD', 'lines.0.boxes'],
+    ['mais de 50 linhas', body('11131', CARRETA, Array.from({ length: 51 }, (_, i) => ({ material: String(12000000 + i), boxes: 1 }))), 'INVALID_FIELD', 'lines'],
+    ['referência com 31 caracteres', body('11131', { ...CARRETA, reference: 'x'.repeat(31) }, CASO_2), 'INVALID_FIELD', 'header.reference'],
+    ['referência com quebra de linha', body('11131', { ...CARRETA, reference: 'OC\n1' }, CASO_2), 'INVALID_FIELD', 'header.reference'],
+    ['veículo desconhecido', body('11131', { vehicleId: 'navio-secreto', loadMode: 'PALLETIZED' }, CASO_2), 'INVALID_FIELD', 'header.vehicleId'],
+    ['modo desconhecido', body('11131', { vehicleId: 'carreta_padrao', loadMode: 'pal' }, CASO_2), 'INVALID_FIELD', 'header.loadMode'],
+    ['data inexistente', body('11131', { ...CARRETA, loadingDate: '2026-02-30' }, CASO_2), 'INVALID_FIELD', 'header.loadingDate'],
+    ['sem cabeçalho', { customerCode: '11131', lines: CASO_2 }, 'INVALID_FIELD', 'header'],
   ];
-  for (const [name, b] of invalid) {
-    test(`${name} → 422 VALIDATION_FAILED, sem gravar`, async () => {
+  for (const [name, b, detail, path] of invalid) {
+    test(`${name} → 422 VALIDATION_FAILED com ${detail}${path ? ` em ${path}` : ''}, sem gravar`, async () => {
       const before = await countOrders();
       const res = await send(martin, b);
       assert.equal(res.status, 422);
-      assert.equal(await errorCode(res), 'VALIDATION_FAILED');
+      const text = await res.text();
+      const { error } = JSON.parse(text) as Awaited<ReturnType<typeof errorBody>>;
+      assert.equal(error.code, 'VALIDATION_FAILED');
+      assert.ok(error.details?.some((d) => d.code === detail && (path === undefined || d.params?.path === path)), JSON.stringify(error.details));
+      assert.ok(!text.includes('navio-secreto') && !text.includes('xxxxxxxxxxxxxxx'), 'não ecoa o valor recebido');
       assert.equal(await countOrders(), before);
     });
   }
+
+  test('ordem das recusas: corpo inválido com cliente de fora → 422 (não 404); material inexistente com data a 1 dia → 422 de material', async () => {
+    const dup = await send(martin, body('11999', C40, [{ material: '12031189', boxes: 168 }, { material: '12031189', boxes: 168 }]));
+    assert.equal(dup.status, 422);
+    assert.equal(await errorCode(dup), 'VALIDATION_FAILED');
+    const unknown = await send(martin, body('11131', { ...CARRETA, loadingDate: addDays(saoPauloDate(), 1) }, [{ material: '99999999', boxes: 10 }]));
+    assert.equal(unknown.status, 422);
+    const { error } = await errorBody(unknown);
+    assert.deepEqual([error.code, error.details?.[0].code], ['VALIDATION_FAILED', 'UNKNOWN_MATERIAL']);
+  });
 
   test('caixa fracionária → 422 VALIDATION_FAILED com QTY_NOT_MULTIPLE (envio e simulação)', async () => {
     const b = body('11131', CARRETA, [{ material: '12031291', boxes: 50.5 }]);
@@ -247,6 +262,45 @@ describe('idempotência', () => {
     const [oa, oc] = [await strictJson(a, PortalOrderView), await strictJson(c, PortalOrderView)];
     assert.equal(oa.id, oc.id);
     assert.equal(await countOrders('idempotency_key = $1', [key]), 1);
+  });
+
+  // O PGlite serializa tudo, então a corrida acima quase sempre vira replay na busca anterior à transação. Aqui a busca
+  // inicial é escondida, como no pg quando as duas leem antes de qualquer commit: a chave repetida estoura na unicidade
+  // (sales_order, customer_code + idempotency_key) e precisa virar replay ou 409, nunca 500 (02, "Porta Db").
+  test('chave repetida que só aparece na unicidade, dentro da transação → replay 200 ou 409, nunca 500', async () => {
+    let hideNext = false;
+    let hidden = 0;
+    const racing: Db = {
+      ...db,
+      query: (sql, params) => {
+        if (hideNext && sql.includes('idempotency_key = $2')) {
+          hideNext = false;
+          hidden++;
+          return Promise.resolve({ rows: [] });
+        }
+        return db.query(sql, params);
+      },
+    };
+    const race = testApp(racing);
+    const c = await Client.login(race.app, 'martin.minoil');
+    const key = newKey('unicidade');
+    const b = body('11131', CARRETA, CASO_2);
+    const first = await strictJson(await send(martin, b, key), PortalOrderView);
+
+    hideNext = true;
+    const same = await send(c, b, key);
+    assert.equal(hidden, 1, 'a busca anterior à transação foi escondida');
+    assert.equal(same.status, 200);
+    assert.equal(same.headers.get('idempotent-replayed'), 'true');
+    assert.equal((await strictJson(same, PortalOrderView)).id, first.id);
+
+    hideNext = true;
+    const other = await send(c, body('11131', CARRETA, CASO_1.slice(0, 1)), key);
+    assert.equal(hidden, 2);
+    assert.equal(other.status, 409);
+    assert.equal(await errorCode(other), 'IDEMPOTENCY_KEY_REUSED');
+    assert.equal(await countOrders('idempotency_key = $1', [key]), 1);
+    assert.ok(!race.logs.some((l) => l.includes('erro interno')));
   });
 
   test('replay devolve o pedido mesmo que a data de carregamento já não passe na regra dos 7 dias', async () => {
@@ -340,5 +394,14 @@ describe('aprovação automática', () => {
     assert.equal(same.status, 200);
     const after = Number((await db.query<{ n: number }>('select count(*) as n from customer_rule_change')).rows[0].n);
     assert.equal(after, before, 'sem mudança efetiva, sem registro');
+    // int_admin também altera regras (matriz), com registro do ator.
+    const admin = await Client.login(t.app, 'admin.dados');
+    const byAdmin = await admin.put('/v1/backoffice/customers/11999/rules', { mixedPallet: true });
+    assert.equal(byAdmin.status, 200);
+    assert.equal(CustomerInternal.parse(await byAdmin.json()).mixedPallet, true);
+    const { rows: [rc] } = await db.query<{ username: string; field: string }>(
+      `select u.username, r.field from customer_rule_change r join app_user u on u.id = r.actor_id order by r.id desc limit 1`);
+    assert.deepEqual(rc, { username: 'admin.dados', field: 'mixed_pallet' });
+    assert.equal((await admin.put('/v1/backoffice/customers/11999/rules', { mixedPallet: false })).status, 200);
   });
 });

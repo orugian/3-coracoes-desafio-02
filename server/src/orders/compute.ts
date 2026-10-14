@@ -51,6 +51,18 @@ export function checkLoadingDate(loadingDate: string | null, now: Date): void {
   if (loadingDate < min) throw new ApiError('LOADING_DATE_TOO_SOON', { details: [{ code: 'LOADING_DATE_TOO_SOON', params: { minDate: min } }] });
 }
 
+// Material existente e ativo no centro do cliente (o catálogo efetivo que o motor recebe). Roda antes da regra da data,
+// para a ordem das recusas ser a da spec (422 do corpo antes de 422 da data).
+export async function checkKnownMaterials(q: Queryable, customerCode: string, lines: Line[]): Promise<void> {
+  const { rows } = await q.query<{ code: string }>(
+    `select e.code from material_effective e join branch_plant b on b.plant = e.plant join customer c on c.branch = b.branch
+      where c.code = $1 and e.code = any($2::text[])`,
+    [customerCode, lines.map((l) => l.material)]);
+  const known = new Set(rows.map((r) => r.code));
+  const unknown = lines.filter((l) => !known.has(l.material));
+  if (unknown.length) throw new ApiError('VALIDATION_FAILED', { details: unknown.map((l) => ({ code: 'UNKNOWN_MATERIAL', material: l.material })) });
+}
+
 export async function computeVersion(q: Queryable, customerCode: string, header: HeaderInput, lines: Line[], now: Date): Promise<ComputedVersion> {
   const priceDate = saoPauloDate(now);
   const built = await buildEngineInput(q, customerCode, { vehicleId: header.vehicleId, loadMode: header.loadMode }, lines, priceDate);
