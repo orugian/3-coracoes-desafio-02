@@ -1008,20 +1008,20 @@ main.wrap{position:relative}
   body.side-mini .side{width:68px;padding-inline:10px}
   body.side-mini .side .s-close{display:none}
   body.side-mini .side .s-pin{display:grid}
-  body.side-mini .side:hover,body.side-mini .side.peek{width:252px;padding-inline:14px;box-shadow:12px 0 32px rgba(0,0,0,.28)}
-  body.side-mini .side:not(:hover):not(.peek) .s-pin{display:none}
-  body.side-mini .side:not(:hover):not(.peek) .s-open{display:grid}
-  body.side-mini .side:not(:hover):not(.peek) .side-head{flex-direction:column;gap:10px}
-  body.side-mini .side:not(:hover):not(.peek) .side-head .brand{margin:0;flex:none}
-  body.side-mini .side:not(:hover):not(.peek) .brand > div:not(.mark),
-  body.side-mini .side:not(:hover):not(.peek) .sub-brand,
-  body.side-mini .side:not(:hover):not(.peek) nav button span:not(.count),
-  body.side-mini .side:not(:hover):not(.peek) .me > div:not(.av),
-  body.side-mini .side:not(:hover):not(.peek) .me button{display:none}
-  body.side-mini .side:not(:hover):not(.peek) .navh{font-size:0;height:1px;background:var(--admin-seg);margin:12px 6px}
-  body.side-mini .side:not(:hover):not(.peek) nav button{justify-content:center;padding:11px 0}
-  body.side-mini .side:not(:hover):not(.peek) nav .count{position:absolute;top:3px;right:3px;margin:0;min-width:16px;height:16px;padding:0 4px;font-size:10px;line-height:16px}
-  body.side-mini .side:not(:hover):not(.peek) .me{padding:8px;justify-content:center;background:transparent}
+  body.side-mini .side.hov,body.side-mini .side.peek{width:252px;padding-inline:14px;box-shadow:12px 0 32px rgba(0,0,0,.28)}
+  body.side-mini .side:not(.hov):not(.peek) .s-pin{display:none}
+  body.side-mini .side:not(.hov):not(.peek) .s-open{display:grid}
+  body.side-mini .side:not(.hov):not(.peek) .side-head{flex-direction:column;gap:10px}
+  body.side-mini .side:not(.hov):not(.peek) .side-head .brand{margin:0;flex:none}
+  body.side-mini .side:not(.hov):not(.peek) .brand > div:not(.mark),
+  body.side-mini .side:not(.hov):not(.peek) .sub-brand,
+  body.side-mini .side:not(.hov):not(.peek) nav button span:not(.count),
+  body.side-mini .side:not(.hov):not(.peek) .me > div:not(.av),
+  body.side-mini .side:not(.hov):not(.peek) .me button{display:none}
+  body.side-mini .side:not(.hov):not(.peek) .navh{font-size:0;height:1px;background:var(--admin-seg);margin:12px 6px}
+  body.side-mini .side:not(.hov):not(.peek) nav button{justify-content:center;padding:11px 0}
+  body.side-mini .side:not(.hov):not(.peek) nav .count{position:absolute;top:3px;right:3px;margin:0;min-width:16px;height:16px;padding:0 4px;font-size:10px;line-height:16px}
+  body.side-mini .side:not(.hov):not(.peek) .me{padding:8px;justify-content:center;background:transparent}
 }
 
 /* Início v3: coluna da Xica + coluna de pedidos */
@@ -1430,7 +1430,8 @@ const SIDEI={
 function sideSync(){const mini=S.area==="admin"&&!S.sidePin;document.body.classList.toggle("side-mini",mini);const sd=document.getElementById("side");if(sd)sd.classList.toggle("peek",mini&&!!S.sidePeek)}
 function sideSet(mode){
   if(mode==="peek"){S.sidePeek=!S.sidePeek}
-  else{S.sidePin=mode==="pin";S.sidePeek=false;try{localStorage.setItem("3cc-side",S.sidePin?"pin":"mini")}catch(_){}}
+  else{S.sidePin=mode==="pin";S.sidePeek=false;try{localStorage.setItem("3cc-side",S.sidePin?"pin":"mini")}catch(_){}
+    const sd=document.getElementById("side");if(sd){clearTimeout(sd._hovT);sd.classList.remove("hov");if(!S.sidePin){sd.dataset.nohov="1";if(document.activeElement&&sd.contains(document.activeElement))document.activeElement.blur()}}}
   sideSync();setTimeout(()=>window.dispatchEvent(new Event("resize")),220);
 }
 function sideHTML(){
@@ -3566,7 +3567,10 @@ function act(a){
 }
 try{const th=localStorage.getItem("3cc-theme");if(th==="light"||th==="dark")S.theme=th}catch(_){}
 S.sidePin=true;S.sidePeek=false;try{if(localStorage.getItem("3cc-side")==="mini")S.sidePin=false}catch(_){}
-{const sd=document.getElementById("side");sd.addEventListener("mouseleave",()=>{if(S.sidePeek){S.sidePeek=false;sideSync()}})}
+{const sd=document.getElementById("side");
+ /* recolhido: abre ao passar o mouse (com um instante de espera, para dar tempo de clicar em Mostrar menu) */
+ sd.addEventListener("mouseenter",()=>{if(S.sidePin||sd.dataset.nohov)return;clearTimeout(sd._hovT);sd._hovT=setTimeout(()=>{if(!S.sidePin&&!sd.dataset.nohov)sd.classList.add("hov")},260)});
+ sd.addEventListener("mouseleave",()=>{clearTimeout(sd._hovT);sd.classList.remove("hov");delete sd.dataset.nohov;if(S.sidePeek){S.sidePeek=false;sideSync()}})}
 document.addEventListener("click",e=>{if(S.sidePeek&&!e.target.closest("#side")){S.sidePeek=false;sideSync()}},true);
 applyTheme();
 try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{if(!S.theme)render()})}catch(_){}
