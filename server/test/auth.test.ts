@@ -120,6 +120,8 @@ describe('sessão (item 5)', () => {
       outroSegredo: await sign(payload, 'outro-segredo-qualquer-com-mais-de-32-bytes', 'HS256'),
       algNone: `${b64({ alg: 'none', typ: 'JWT' })}.${b64(payload)}.`,
       expirado: await sign({ ...payload, iat: now - 2 * EIGHT_HOURS, exp: now - EIGHT_HOURS }, SECRET, 'HS256'),
+      semExp: await sign({ sub: payload.sub, role: payload.role, sid: payload.sid, iat: payload.iat }, SECRET, 'HS256'),
+      iatNoFuturo: await sign({ ...payload, iat: now + 3600, exp: now + EIGHT_HOURS }, SECRET, 'HS256'),
       sessaoInexistente: await sign({ ...payload, sid: 'nao-existe' }, SECRET, 'HS256'),
       subTrocado: await sign({ ...payload, sub: String(await userId('lucas.exportacao')), role: 'int_exportacao' }, SECRET, 'HS256'),
       lixo: 'abc.def.ghi',

@@ -8,6 +8,8 @@ import type { ContentfulStatusCode } from 'hono/utils/http-status';
 import { ENGINE_VERSION } from '#engine';
 import { authRoutes } from './auth/routes.ts';
 import { requireRole, sessionMiddleware, type SessionConfig } from './auth/session.ts';
+import { backofficeRoutes } from './backoffice/routes.ts';
+import { portalRoutes } from './portal/routes.ts';
 import type { AppDeps, AppEnv } from './http/env.ts';
 import { ApiError } from './http/errors.ts';
 import { apiBodyLimit, mutationGuard, requestLog } from './http/pipeline.ts';
@@ -34,6 +36,8 @@ export function createApp(deps: AppDeps): Hono<AppEnv> {
   // Sem sessão e sem dado: só confirma que o processo está de pé e qual motor ele usa.
   app.get('/v1/health', (c) => c.json({ ok: true, engineVersion: ENGINE_VERSION }));
   app.route('/v1/auth', authRoutes(session, log));
+  app.route('/v1/portal', portalRoutes({ db: deps.db, now: session.now }));
+  app.route('/v1/backoffice', backofficeRoutes({ db: deps.db, now: session.now }));
 
   app.get('*', staticHandler(deps.staticRoot ?? REPO_ROOT));
 

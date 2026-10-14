@@ -133,6 +133,15 @@ type ApiErrorBody = { error: { code: string; message: string; details?: { code: 
 
 O que **nunca** aparece em resposta do portal: `origin` do preço, preço de outra lista, `ob`, `sap`, `overrides`, `autoApprove`, `country`, `isDemo`, `internal` (de versão ou de evento), e qualquer dado de cliente fora do escopo. As respostas do portal passam por um schema zod **estrito** (`.strict()` nos objetos), aplicado na saída: um campo novo que não esteja no contrato do portal gera erro no teste, em vez de vazar. O `actorLabel` de usuários internos aparece para o distribuidor (é o que o piloto já mostra: "Lucas (Exportação)").
 
+Detalhes de implementação dos contratos:
+- A única chave `origin` que o portal recebe é a do topo do `OrderView` (origem do **pedido**: `PORTAL`, `ORDER_BASIS`, `BACKOFFICE`); o teste de isolamento 4 permite só esse caminho.
+- `OrderVersionView.result` é o `EngineResult` sem `inputs` (`priceDate`, veículo e cliente ficam só em `engine_result` no banco).
+- `payload` de evento no portal: só `changes` e `reason`; no backoffice, também `internal`.
+- `submittedAt` é o do último `SUBMITTED` ou `RESUBMITTED`; `approvedAt` e `approvedByLabel`, os do último `APPROVED` ou `AUTO_APPROVED`.
+- `permissions.canReturn` e `canResubmit` ficam falsos enquanto as rotas da S9 não existirem.
+- `Vehicle.assumptions`: os campos que não vêm do `container.json`, com a fonte (no corte, "Posições de pallet: artefato 3C Conecta (Q4)").
+- Catálogo de distribuidor sem nenhum cliente no escopo: 404.
+
 ## Rotas
 
 | Método e rota | Quem | Corpo → resposta | Erros |
@@ -148,7 +157,7 @@ O que **nunca** aparece em resposta do portal: `origin` do preço, preço de out
 | `GET /v1/portal/orders/:id` | ext | → `OrderView` com versões e eventos | 404 |
 | `POST /v1/portal/orders/:id/versions` (desejável) | ext | `{ expectedVersion, header, lines }` → `OrderView` | 404; 409 `INVALID_TRANSITION`, `VERSION_CONFLICT`; 422 `ORDER_BLOCKED` |
 | `GET /v1/backoffice/customers` | int | → `{ customers: CustomerInternal[], ruleChanges: { at, customerCode, field, oldValue, newValue, actorLabel }[] }` (últimas 50) | — |
-| `PUT /v1/backoffice/customers/:code/rules` | int | `{ mixedPallet?, autoApprove? }` (pelo menos um) → `CustomerInternal` | 404; 422 |
+| `PUT /v1/backoffice/customers/:code/rules` | int | `{ mixedPallet?, autoApprove? }` (pelo menos um) → `CustomerInternal`. Só grava e registra em `customer_rule_change` o campo que muda de valor. Entra na S5 (o teste da aprovação automática liga a regra por esta rota) | 404; 422 |
 | `GET /v1/backoffice/products` | int | → `{ items: ProductInternal[], vehicles: Vehicle[], rules }` | — |
 | `GET /v1/backoffice/orders?status=&customer=&q=` | int | → `OrderView[]` (`q` busca em id, referência e nome do cliente) | — |
 | `GET /v1/backoffice/orders/:id` | int | → `OrderView` com versões (com `internal`) e eventos | 404 |
@@ -163,7 +172,7 @@ Não há rota de exportação no corte.
 | De | Para | Ação | Quem e condições | Evento |
 |---|---|---|---|---|
 | — | `SUBMITTED` | `POST /portal/orders` | ext no escopo; motor sem BLOCK; data de carregamento vazia ou ≥ hoje + 7 dias (fuso de São Paulo) | `SUBMITTED` |
-| `SUBMITTED` | `APPROVED` | mesma requisição | `customer.auto_approve`, sem BLOCK, utilização máxima ≥ 0,9 | `AUTO_APPROVED`, ator nulo, rótulo "Regra de aprovação automática", `payload.ruleChangeId` da última mudança que ligou a regra |
+| `SUBMITTED` | `APPROVED` | mesma requisição | `customer.auto_approve`, sem BLOCK, utilização máxima ≥ 0,9 | `AUTO_APPROVED`, ator nulo, rótulo "Regra de aprovação automática", `payload.internal.ruleChangeId` da última mudança que ligou a regra (o portal não recebe `internal`) |
 | `SUBMITTED` | `SUBMITTED`, versão + 1 | `POST /backoffice/.../versions` | `int_exportacao`; a nova versão pode ter BLOCK (é ajuste em andamento) | `VERSION_CREATED`, `payload.changes = [{ material, old, new }]` |
 | `SUBMITTED` | `APPROVED` | `POST /backoffice/.../approve` | `int_exportacao` que não é `created_by` nem `author_id` de nenhuma versão; `expectedVersion` igual à atual; a versão atual sem BLOCK **e** um recálculo da mesma entrada (linhas e cabeçalho da versão, com os dados e o preço vigentes agora) sem BLOCK | `APPROVED`, `payload.internal` com o `content_hash` gravado, o hash e o resultado recalculados, e `resultChanged` |
 | `SUBMITTED` | `CHANGES_REQUESTED` | `POST /backoffice/.../return` | `int_exportacao`; motivo obrigatório | `CHANGES_REQUESTED` |
@@ -177,9 +186,9 @@ A aprovação automática é a exceção à aprovação por segunda pessoa: é u
 ## Regras transversais
 
 - **Recálculo:** o servidor ignora qualquer resultado vindo do navegador. Toda versão é calculada por `buildEngineInput` (02) e `calculate` (01); o pallet misto vem de `customer.mixed_pallet`, nunca do corpo, e fica congelado na versão.
-- **Validação de linhas:** de 1 a 50 linhas, materiais únicos, existentes e ativos, caixas inteiras de 1 a 100.000. Caixa fracionária: 422 `VALIDATION_FAILED` com detalhe `QTY_NOT_MULTIPLE` (a UI resolve o arredondamento antes).
-- **Bloqueio no envio:** 422 `ORDER_BLOCKED` com `details` = alertas BLOCK do motor (`{ code, material, params }`).
-- **Idempotência:** `Idempotency-Key` (8 a 64 caracteres `[A-Za-z0-9_-]`) por cliente. Mesma chave e mesmo corpo (sha256 do JSON canônico): 200 com o pedido já criado e cabeçalho `Idempotent-Replayed: true`. Mesma chave e corpo diferente: 409.
+- **Validação de linhas:** de 1 a 50 linhas, materiais únicos, existentes e ativos, caixas inteiras de 1 a 100.000. Caixa fracionária: 422 `VALIDATION_FAILED` com detalhe `QTY_NOT_MULTIPLE` (a UI resolve o arredondamento antes). Códigos de detalhe do 422: `QTY_NOT_MULTIPLE` (`params.lo`, `params.hi`), `DUPLICATE_MATERIAL`, `UNKNOWN_MATERIAL` (inexistente, inativo ou sem paletização no centro do cliente) e `INVALID_FIELD` (`params.path`, `params.issue`, sem ecoar o valor). Vale para `quote` e para o envio; a simulação não aplica a regra da data.
+- **Bloqueio no envio:** 422 `ORDER_BLOCKED` com `details` = alertas BLOCK do motor (`{ code, material, params }`), na ordem das linhas (catálogo) e depois os do pedido.
+- **Idempotência:** `Idempotency-Key` (8 a 64 caracteres `[A-Za-z0-9_-]`) por cliente; ausente, 428; fora do formato, 422. Mesma chave e mesmo corpo (sha256 do JSON canônico de `customerCode`, cabeçalho e linhas, depois da validação: campos fora do contrato, como `mixedPallet`, não contam): 200 com o pedido já criado e cabeçalho `Idempotent-Replayed: true`. Mesma chave e corpo diferente: 409. A busca pela chave vem antes da regra da data e do motor, então o replay devolve o pedido mesmo depois que a data deixou de passar. Ordem das recusas no envio: 428; 422 do corpo (contrato, materiais repetidos, caixa fracionária); 404 do escopo; replay ou 409; 422 de material inexistente no catálogo do cliente; 422 da data; 422 do bloqueio.
 - **Concorrência otimista:** toda ação sobre pedido existente leva `expectedVersion`; diferente de `current_version`: 409 `VERSION_CONFLICT` com `details[0].params.currentVersion`.
 - **Transação:** cada ação de escrita é um único `db.tx`: trava o pedido (`select … for update`, 02), valida transição e versão, calcula, insere versão e evento, atualiza `sales_order`.
 - **ID do pedido:** `3CC-{ano}-{nextval('sales_order_seq') com 4 dígitos}`.
@@ -216,7 +225,7 @@ Em PGlite em memória com o seed completo; requisições por `app.request()` do 
 1. Martín abre `3CC-2026-0001` → 200 (controle) e `3CC-2026-0003` (Río Claro) → 404; Sofía abre `3CC-2026-0003` → 200 e `3CC-2026-0001` → 404.
 2. Martín pede `GET /portal/catalog` → 200 com `customer.code` 11131 (controle) e `?customer=11999` → 404; envia pedido válido com `customerCode` 11131 → 201 (controle) e com 11999 → 404.
 3. Sessão de Martín em `/v1/backoffice/orders` → 403; sessão de Lucas em `/v1/portal/catalog` → 403; Lucas em `/v1/backoffice/orders` → 200 (controle).
-4. O schema estrito de saída do portal valida todas as respostas do portal nos testes. Além disso, o JSON de `/portal/catalog` e de `/portal/orders/3CC-2026-0001` de Martín não contém as chaves `origin`, `prices`, `ob`, `sap`, `overrides`, `autoApprove`, `country`, `isDemo`, `internal`, nem os textos `11999`, `rioclaro`, `Río Claro`, `Sofía`, `DEMO_DERIVED` e `SITE_3C`; o evento `SUBMITTED` do 0001 chega a Martín sem os totais da OB.
+4. O schema estrito de saída do portal valida todas as respostas do portal nos testes. Além disso, o JSON de `/portal/catalog` e de `/portal/orders/3CC-2026-0001` de Martín não contém as chaves `origin` (salvo a do topo do pedido, ver "Contratos"), `prices`, `ob`, `sap`, `overrides`, `autoApprove`, `country`, `isDemo`, `internal`, nem os textos `11999`, `rioclaro`, `Río Claro`, `Sofía`, `DEMO_DERIVED` e `SITE_3C`; o evento `SUBMITTED` do 0001 chega a Martín sem os totais da OB (os pallets da OB, 28,886, coincidem com o total do próprio motor e não servem de marcador).
 5. Cookie com `HttpOnly`, `SameSite=Strict`, `Path=/`; depois do logout, o mesmo cookie → 401; sessão expirada → 401; usuário desativado no banco com sessão aberta → 401 na próxima requisição; papel trocado no banco vale na próxima requisição (D12).
 6. Cinco senhas erradas e depois a correta → 401 `LOGIN_FAILED`, com corpo idêntico ao de usuário inexistente e ao de senha errada; com `locked_until` vencido, a senha correta entra e o contador zera.
 7. `POST` com corpo JSON mas `Content-Type: text/plain` → 415; `POST` com `application/json` e `Sec-Fetch-Site: cross-site` → 403; sem `Sec-Fetch-Site` e com `Origin` de outro site → 403; sem os dois → 403; mesma origem → passa (controle).

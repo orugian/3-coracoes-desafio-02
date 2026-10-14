@@ -4,7 +4,7 @@ import type { EngineInput, EngineItem, LoadMode } from '#engine';
 import type { Queryable } from '../ports/db.ts';
 
 const EXPORT_CHANNEL = '13'; // Exportação, o único canal dos exports do SAP
-const FULL_AT = 0.9;
+export const FULL_AT = 0.9;
 
 export interface ResolvedPrice { priceCents: number | null; priceId: number | null; batchId: number | null }
 export interface EngineHeader { vehicleId: string; loadMode: LoadMode }
@@ -44,6 +44,23 @@ export async function resolvePrice(q: Queryable, customerCode: string, materialC
   return toResolved((await priceRows(q, customerCode, priceDate, materialCode))[0]);
 }
 
+// Preço vigente de todos os materiais da lista do cliente (catálogo do portal e entrada do motor).
+export async function customerPrices(q: Queryable, customerCode: string, priceDate: string): Promise<Map<string, ResolvedPrice>> {
+  return new Map((await priceRows(q, customerCode, priceDate, null)).map((r) => [r.material_code, toResolved(r)]));
+}
+
+// Materiais bloqueados para o cliente (country_rule do país dele, geral ou só para ele).
+export async function restrictedMaterials(q: Queryable, customerCode: string): Promise<string[]> {
+  const { rows } = await q.query<{ material_code: string }>(
+    `select distinct r.material_code
+       from customer c
+       join country_rule r on r.country = c.country and (r.customer_code is null or r.customer_code = c.code)
+      where c.code = $1 and r.kind = 'BLOCK'
+      order by r.material_code`,
+    [customerCode]);
+  return rows.map((r) => r.material_code);
+}
+
 interface CustomerRow { code: string; mixed_pallet: boolean; plant: string; batch_id: number | string }
 interface ItemRow {
   code: string; family: string; units_per_box: number; net_kg: number | null; gross_kg: number | null; volume_dm3: number | null;
@@ -79,15 +96,8 @@ export async function buildEngineInput(
       order by e.code`,
     [customer.plant]);
 
-  const prices = new Map((await priceRows(q, customerCode, priceDate, null)).map((r) => [r.material_code, toResolved(r)]));
-
-  const { rows: restricted } = await q.query<{ material_code: string }>(
-    `select distinct r.material_code
-       from customer c
-       join country_rule r on r.country = c.country and (r.customer_code is null or r.customer_code = c.code)
-      where c.code = $1 and r.kind = 'BLOCK'
-      order by r.material_code`,
-    [customerCode]);
+  const prices = await customerPrices(q, customerCode, priceDate);
+  const restricted = await restrictedMaterials(q, customerCode);
 
   const items: EngineItem[] = itemRows.map((r) => ({
     material: r.code,
@@ -125,7 +135,7 @@ export async function buildEngineInput(
       vehicle: { id: vehicle.id, palletPositions: Number(vehicle.pallet_positions), volumeM3: Number(vehicle.volume_m3), payloadKg: Number(vehicle.payload_kg) },
       mode: header.loadMode,
       mixedPallet: customer.mixed_pallet, // do cliente, nunca do corpo da requisição (04)
-      restrictedMaterials: restricted.map((r) => r.material_code),
+      restrictedMaterials: restricted,
       lines: lines.map((l) => ({ material: l.material, boxes: l.boxes })),
       rules: { fullAt: FULL_AT },
     },

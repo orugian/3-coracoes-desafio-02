@@ -102,3 +102,27 @@ export async function errorCode(res: Response): Promise<string | undefined> {
   const body = (await res.json()) as { error?: { code?: string } };
   return body.error?.code;
 }
+
+// Resposta do portal validada pelo schema estrito (04, teste de isolamento 4): um campo fora do contrato falha aqui.
+export async function strictJson<S extends { parse: (v: unknown) => unknown }>(res: Response, schema: S): Promise<ReturnType<S['parse']>> {
+  return schema.parse(await res.json()) as ReturnType<S['parse']>;
+}
+
+export function addDays(date: string, days: number): string {
+  const d = new Date(`${date}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
+// Todos os caminhos de chave de um JSON (a.b.0.c vira a.b.c), para procurar campo interno em qualquer nível.
+export function keyPaths(value: unknown, prefix = ''): string[] {
+  if (Array.isArray(value)) return value.flatMap((v) => keyPaths(v, prefix));
+  if (value === null || typeof value !== 'object') return [];
+  return Object.entries(value).flatMap(([k, v]) => {
+    const p = prefix ? `${prefix}.${k}` : k;
+    return [p, ...keyPaths(v, p)];
+  });
+}
+
+let keySeq = 0;
+export const newKey = (label = 'k') => `${label}-${process.pid}-${Date.now()}-${++keySeq}`.replace(/[^A-Za-z0-9_-]/g, '').slice(0, 64);
