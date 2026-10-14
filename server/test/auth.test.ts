@@ -240,6 +240,17 @@ describe('bloqueio de login (item 6)', () => {
     assert.deepEqual(await state('teste.bloqueio'), { failed_logins: 1, locked_until: null });
   });
 
+  test('rajada simultânea: o bloqueio para no 5º erro, não prolonga, e a senha certa no fim da rajada não o apaga', async () => {
+    await createUser(db, 'teste.rajada', 'ext_distribuidor', ['11131']);
+    // A certa vai por último: o scrypt dela termina depois dos erros, como na tentativa de força bruta em paralelo.
+    const attempts = [...Array.from({ length: 30 }, () => login('teste.rajada', 'senha-errada')), login('teste.rajada', PASSWORD)];
+    const statuses = (await Promise.all(attempts)).map((r) => r.status);
+    assert.deepEqual([...new Set(statuses)], [401]);
+    const s = await state('teste.rajada');
+    assert.equal(s.failed_logins, 5, 'erros durante o bloqueio não contam');
+    assert.ok(s.locked_until instanceof Date && s.locked_until.getTime() > Date.now());
+  });
+
   test('unlockUser (npm run user:unlock) zera o contador e o bloqueio', async () => {
     for (let i = 0; i < 5; i++) await login('teste.bloqueio', 'senha-errada');
     assert.equal((await login('teste.bloqueio', PASSWORD)).status, 401, 'bloqueado');

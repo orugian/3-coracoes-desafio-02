@@ -16,7 +16,7 @@ import { staticHandler } from './http/static.ts';
 export type { AppDeps } from './http/env.ts';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
-const PUBLIC_ROUTES = new Set(['GET /v1/health', 'POST /v1/auth/login']);
+const PUBLIC_ROUTES = new Set(['GET /v1/health', 'HEAD /v1/health', 'POST /v1/auth/login']);
 const isPublic = (c: Context) => PUBLIC_ROUTES.has(`${c.req.method} ${c.req.path}`);
 
 export function createApp(deps: AppDeps): Hono<AppEnv> {

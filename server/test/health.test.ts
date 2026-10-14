@@ -12,6 +12,7 @@ test('GET /v1/health responde ok e a versão do motor, sem dado e sem sessão', 
   assert.equal(res.status, 200);
   assert.match(res.headers.get('content-type') ?? '', /^application\/json/);
   assert.deepEqual(await res.json(), { ok: true, engineVersion: 1 });
+  assert.equal((await app().request('/v1/health', { method: 'HEAD' })).status, 200, 'HEAD também é público');
 });
 
 test('rota desconhecida em /v1 sem sessão responde 401 (não revela se a rota existe)', async () => {

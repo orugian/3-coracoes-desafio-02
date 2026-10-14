@@ -35,18 +35,25 @@ export function authRoutes(cfg: SessionConfig, log: (line: string) => void): Hon
     const user = await findLoginUser(db, body.username);
     const passwordOk = await verifyPassword(body.password, user?.passwordHash ?? DUMMY_HASH);
     if (!user || !user.active) throw new ApiError('LOGIN_FAILED');
+    const lockedLog = (until: Date | null) =>
+      log(`${c.get('requestId')} login recusado: usuário ${user.id} bloqueado${until ? ` até ${until.toISOString()}` : ''}`);
     if (user.lockedUntil && user.lockedUntil > now) {
-      log(`${c.get('requestId')} login recusado: usuário ${user.id} bloqueado até ${user.lockedUntil.toISOString()}`);
+      lockedLog(user.lockedUntil);
       throw new ApiError('LOGIN_FAILED');
     }
+    // O bloqueio é decidido de novo, no próprio UPDATE, depois do scrypt: tentativas simultâneas não passam do 5º erro.
     if (!passwordOk) {
       const after = await recordLoginFailure(db, user.id, now);
-      if (after.lockedUntil && after.lockedUntil > now) {
+      if (after === null) lockedLog(null);
+      else if (after.lockedUntil && after.lockedUntil > now) {
         log(`${c.get('requestId')} login: usuário ${user.id} bloqueado até ${after.lockedUntil.toISOString()} após ${MAX_FAILED_LOGINS} erros seguidos`);
       }
       throw new ApiError('LOGIN_FAILED');
     }
-    await recordLoginSuccess(db, user.id);
+    if (!(await recordLoginSuccess(db, user.id, now))) {
+      lockedLog(null);
+      throw new ApiError('LOGIN_FAILED');
+    }
     await startSession(c, cfg, user);
     c.set('logUser', user.username);
     return c.json(await buildMe(db, { userId: user.id, username: user.username, displayName: user.displayName, role: user.role, customers: await userScope(db, user.id) }));

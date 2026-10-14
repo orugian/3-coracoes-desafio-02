@@ -32,8 +32,9 @@ export async function userScope(q: Queryable, userId: number): Promise<string[]>
 }
 
 // Senha errada: soma 1 (ou recomeça de 1 se o bloqueio anterior já venceu) e bloqueia no 5º erro seguido.
-// Aritmética no SQL: duas tentativas simultâneas não perdem incremento.
-export async function recordLoginFailure(q: Queryable, userId: number, now: Date): Promise<{ failedLogins: number; lockedUntil: Date | null }> {
+// Tudo no mesmo UPDATE condicionado: tentativas simultâneas não perdem incremento e, com a conta já bloqueada
+// (por outra tentativa que terminou antes), não contam nem prolongam o bloqueio. null = estava bloqueada.
+export async function recordLoginFailure(q: Queryable, userId: number, now: Date): Promise<{ failedLogins: number; lockedUntil: Date | null } | null> {
   const { rows: [r] } = await q.query<{ failed_logins: number; locked_until: Date | null }>(
     `update app_user set
        failed_logins = case when locked_until is not null and locked_until <= $2 then 1 else failed_logins + 1 end,
@@ -41,14 +42,20 @@ export async function recordLoginFailure(q: Queryable, userId: number, now: Date
          when locked_until is not null and locked_until <= $2 then null
          when failed_logins + 1 >= $3 then $2::timestamptz + make_interval(mins => $4)
          else locked_until end
-     where id = $1
+     where id = $1 and (locked_until is null or locked_until <= $2)
      returning failed_logins, locked_until`,
     [userId, now, MAX_FAILED_LOGINS, LOCK_MINUTES]);
-  return { failedLogins: Number(r.failed_logins), lockedUntil: r.locked_until };
+  return r ? { failedLogins: Number(r.failed_logins), lockedUntil: r.locked_until } : null;
 }
 
-export async function recordLoginSuccess(q: Queryable, userId: number): Promise<void> {
-  await q.query('update app_user set failed_logins = 0, locked_until = null where id = $1', [userId]);
+// Senha certa: zera o contador só se a conta não estiver bloqueada agora (uma rajada de erros simultâneos pode ter
+// bloqueado depois da primeira leitura). false = bloqueada, o login é recusado.
+export async function recordLoginSuccess(q: Queryable, userId: number, now: Date): Promise<boolean> {
+  const { rows } = await q.query(
+    `update app_user set failed_logins = 0, locked_until = null
+      where id = $1 and active and (locked_until is null or locked_until <= $2) returning id`,
+    [userId, now]);
+  return rows.length > 0;
 }
 
 // npm run user:unlock -- <usuario>. Devolve false se o usuário não existir.
