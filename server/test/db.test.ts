@@ -149,11 +149,13 @@ describe('DDL do corte (001_inicial.sql)', () => {
   });
 
   test('boxes_per_pallet é coluna gerada STORED e não aceita valor explícito', async () => {
+    // attgenerated: 's' = STORED, 'v' = virtual (PG 18 sem a palavra-chave; erro de sintaxe no PG 16). information_schema
+    // diz ALWAYS nos dois casos, então não distingue.
     const { rows } = await db.query<{ generation: string; bpp: number }>(
-      `select c.is_generated as generation, p.boxes_per_pallet as bpp
-         from information_schema.columns c, palletization p
-        where c.table_name = 'palletization' and c.column_name = 'boxes_per_pallet' and p.material_code = '12031189' and p.plant = '2612'`);
-    assert.deepEqual(rows, [{ generation: 'ALWAYS', bpp: 168 }]);
+      `select a.attgenerated as generation, p.boxes_per_pallet as bpp
+         from pg_attribute a, palletization p
+        where a.attrelid = 'palletization'::regclass and a.attname = 'boxes_per_pallet' and p.material_code = '12031189' and p.plant = '2612'`);
+    assert.deepEqual(rows, [{ generation: 's', bpp: 168 }]);
     await rejects(`update palletization set boxes_per_pallet = 1 where material_code = '12031189'`);
   });
 
@@ -191,16 +193,17 @@ describe('DDL do corte (001_inicial.sql)', () => {
 });
 
 // O adaptador pg só roda com um PostgreSQL disponível (sem Docker no corte): TEST_DATABASE_URL aponta para um banco descartável.
+// Schema próprio: concorrencia.test.ts, que roda em paralelo, recria o schema public do mesmo banco.
 describe('porta Db no pg', { skip: process.env.TEST_DATABASE_URL ? false : 'TEST_DATABASE_URL não definida' }, () => {
   test('tx confirma e desfaz; date como YYYY-MM-DD', async () => {
     const db = createPgDb(process.env.TEST_DATABASE_URL!);
     try {
-      await db.exec('drop table if exists psf_probe; create table psf_probe (id integer primary key);');
-      await db.tx(async (q) => { await q.query('insert into psf_probe values (1)'); });
-      await assert.rejects(db.tx(async (q) => { await q.query('insert into psf_probe values (2)'); throw new Error('x'); }));
-      assert.deepEqual((await db.query('select id from psf_probe')).rows, [{ id: 1 }]);
+      await db.exec('drop schema if exists psf_probe_s cascade; create schema psf_probe_s; create table psf_probe_s.probe (id integer primary key);');
+      await db.tx(async (q) => { await q.query('insert into psf_probe_s.probe values (1)'); });
+      await assert.rejects(db.tx(async (q) => { await q.query('insert into psf_probe_s.probe values (2)'); throw new Error('x'); }));
+      assert.deepEqual((await db.query('select id from psf_probe_s.probe')).rows, [{ id: 1 }]);
       assert.deepEqual((await db.query(`select '2026-10-13'::date as d`)).rows, [{ d: '2026-10-13' }]);
-      await db.exec('drop table psf_probe');
+      await db.exec('drop schema psf_probe_s cascade');
     } finally {
       await db.close();
     }

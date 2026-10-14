@@ -24,7 +24,12 @@ Concorrência: o PGlite serializa tudo numa conexão, mas no `pg` (READ COMMITTE
 
 Regras (§5): nenhum módulo fora dos adaptadores escreve `BEGIN`/`COMMIT`; nenhuma transação fica aberta durante leitura de arquivo ou chamada externa; colunas geradas sempre `STORED`; nenhuma extensão no corte. Converter na camada de repositório os tipos que os drivers devolvem como texto: `numeric` (preço) chega como string no PGlite e no `pg` (conferido no PGlite 0.5.9) e vira `Number()`; `bigint` (`nextval`, `count(*)`) chega como número no PGlite e como string no `pg`, então converter sempre. Por isso as medidas físicas são `double precision` e os IDs são `integer`. `date` sai dos dois adaptadores como texto `YYYY-MM-DD` (o padrão dos dois drivers é um `Date` à meia-noite, que muda de dia conforme o fuso).
 
-DDL conferido em 13/10 no PGlite 0.5.9 (PostgreSQL 18.6): aplica numa transação; `boxes_per_pallet` é `STORED`; a view aplica o override (14 × 7 no 12034109); são rejeitados override `ACTIVE` sem confirmação ou confirmado pelo proponente, segundo override ativo no mesmo campo, `UPDATE`/`DELETE` em `order_version` e `order_event`, `origin` fora da lista, preço com chave natural repetida e `Idempotency-Key` repetida no mesmo cliente. Não testado em PostgreSQL 16 (sem Docker); a S2 inclui esse teste quando houver daemon.
+DDL conferido em 13/10 no PGlite 0.5.9 (PostgreSQL 18.6): aplica numa transação; `boxes_per_pallet` é `STORED`; a view aplica o override (14 × 7 no 12034109); são rejeitados override `ACTIVE` sem confirmação ou confirmado pelo proponente, segundo override ativo no mesmo campo, `UPDATE`/`DELETE` em `order_version` e `order_event`, `origin` fora da lista, preço com chave natural repetida e `Idempotency-Key` repetida no mesmo cliente. Não testado em PostgreSQL 16 (sem Docker). O teste já está escrito e roda quando houver um banco: `server/test/concorrencia.test.ts`, suíte "PostgreSQL 16 pelo adaptador pg", com `TEST_DATABASE_URL` apontando para um banco descartável terminado em `_test`. A suíte:
+- recria o schema, aplica as migrações e roda o seed;
+- confere a versão (16 ou mais nova), a segunda execução vazia, o `STORED` (`pg_attribute.attgenerated = 's'`), os triggers e as unicidades;
+- dispara corridas reais: mesma `Idempotency-Key` em paralelo, duas versões, duas aprovações, devolução contra aprovação e dois reenvios.
+
+Sem PostgreSQL, a tradução da PK de `order_version` em 409 é coberta no PGlite com a violação injetada, e o `STORED` com `attgenerated` (o `information_schema` diz `ALWAYS` também para coluna virtual).
 
 ## Migrações
 
