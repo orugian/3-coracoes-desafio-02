@@ -8,8 +8,12 @@ function env(name: string): string | undefined {
   return value ? value : undefined;
 }
 
+export const MIN_SECRET_BYTES = 32;
+
 export interface Config extends DatabaseConfig {
   port: number;
+  sessionSecret: string;
+  cookieSecure: boolean;
 }
 
 export function loadDatabaseConfig(): DatabaseConfig {
@@ -26,5 +30,12 @@ export function loadConfig(): Config {
   if (!Number.isInteger(port) || port < 1 || port > 65535) {
     throw new Error(`PORT inválida: ${rawPort}`);
   }
-  return { port, ...loadDatabaseConfig() };
+  const sessionSecret = env('SESSION_SECRET');
+  if (!sessionSecret || Buffer.byteLength(sessionSecret, 'utf8') < MIN_SECRET_BYTES) {
+    throw new Error(`SESSION_SECRET ausente ou com menos de ${MIN_SECRET_BYTES} bytes. Gere uma no .env com: `
+      + `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"`);
+  }
+  const rawSecure = env('COOKIE_SECURE') ?? 'false';
+  if (rawSecure !== 'true' && rawSecure !== 'false') throw new Error(`COOKIE_SECURE inválida: ${rawSecure} (true ou false)`);
+  return { port, sessionSecret, cookieSecure: rawSecure === 'true', ...loadDatabaseConfig() };
 }
