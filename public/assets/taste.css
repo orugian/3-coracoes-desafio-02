@@ -803,3 +803,13 @@ table.cat2 td.ph{min-width:60px}
 
 /* login: confirmação depois de "Preencher" (role=status) */
 .fill-note{margin:0;font-size:var(--t-small);color:var(--ok);font-weight:500}
+
+/* item sem preço na tabela do cliente */
+.prod .price .np{font-size:var(--t-small);font-weight:600;color:var(--warn);line-height:1.3;display:block;max-width:12ch}
+.np-box{grid-column:1 / -1;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:4px}
+.np-box .note{white-space:normal}
+.np-box .btn-soft{min-height:40px}
+.np-box .btn-soft:disabled{opacity:1;cursor:default;color:var(--ok)}
+/* painel: solicitações de cadastro de preço */
+.preq{display:grid;gap:8px}
+.preq-h{font-size:15px;font-weight:600;margin:0;display:flex;align-items:center;gap:8px}

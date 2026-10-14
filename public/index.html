@@ -941,7 +941,8 @@ footer > div{justify-content:flex-start;padding-right:230px}
 <script>
 /* ============ DADOS (extraídos das planilhas da 3corações) ============ */
 // Peso/volume por caixa: Conferência de produtos (SAP). Cx/pallet: lastro x altura (Materiais, SAP).
-// Preço: Registros (lista US / EXP-MINOIL); quando ausente, preço manual da Order Basis.
+// Preço: Registros (lista do cliente no SAP). Sem preço na lista, o item fica "sem preço na sua tabela" (o preço manual da Order Basis não é usado).
+// Lote mínimo: planilha do Planejamento (um valor por SKU, definido pela unidade produtora).
 const ICON = {
   CAFES:'<path d="M7 3h10l1.5 4.5V19a2 2 0 0 1-2 2h-9a2 2 0 0 1-2-2V7.5z"/><path d="M5.5 7.5h13"/><path d="M12 11c-1.6 1-1.6 4 0 5 1.6-1 1.6-4 0-5z"/>',
   CAPPUCCINO:'<path d="M4 9h13v4a6 6 0 0 1-6 6h-1a6 6 0 0 1-6-6z"/><path d="M17 10.5h1.5a2.5 2.5 0 0 1 0 5H16.5"/><path d="M8.5 3.5c0 1 1 1.2 1 2.2s-1 1.2-1 2.2M12.5 3.5c0 1 1 1.2 1 2.2s-1 1.2-1 2.2"/>',
@@ -988,14 +989,21 @@ const BY = Object.fromEntries(P.map(p=>[p.code,p]));
 const P_DEF=Object.fromEntries(P.map(p=>[p.code,{lastro:p.lastro,alt:p.alt,loteMin:p.loteMin,gross:p.gross}]));
 
 const VEH = {
-  carreta:{pt:"Carreta",es:"Camión",en:"Truck",pos:28,m3:72,kg:25000,cols:14,cab:true,kind:"trailer",active:true},
+  carreta:{pt:"Carreta",es:"Camión",en:"Truck",pos:28,m3:72,kg:26500,cols:14,cab:true,kind:"trailer",active:true},
   c40:{pt:"Contêiner 40'",es:"Contenedor 40'",en:"40' container",pos:20,m3:60.84,kg:25000,cols:10,cab:false,kind:"container",active:true},
   c20:{pt:"Contêiner 20'",es:"Contenedor 20'",en:"20' container",pos:10,m3:29.7,kg:25000,cols:5,cab:false,kind:"container",active:true}
 };
-/* Regras do negócio. Valores de fábrica; a Exportação ajusta tudo na aba Parâmetros, com validação e histórico. */
-const RULES = {fullAt:0.90, leadDays:7, lateH:4, minLotBlock:true, fullPalBlock:false};
+/* Regras do negócio. Valores de fábrica; a Exportação ajusta tudo na aba Parâmetros, com validação e histórico.
+   fullAt: carga completa só em 100% do recurso limitante (abaixo é carga incompleta e pode ser enviada).
+   cutDay/leadMonths: janela de pedido. Pedido até o dia cutDay carrega a partir do 1º dia de leadMonths meses depois;
+   depois do corte, a partir do 1º dia de leadMonths+1 meses depois. */
+const RULES = {fullAt:1, cutDay:14, leadMonths:2, lateH:4, minLotBlock:true, fullPalBlock:false};
 const RULES_DEF={...RULES}, VEH_DEF=JSON.parse(JSON.stringify(VEH));
 const vehOn=k=>!!VEH[k]&&VEH[k].active!==false;
+/* Incoterm pelo veículo: carreta (rodoviário) usa FCA; contêiner 20' ou 40' (marítimo) usa FOB.
+   Pedido aprovado guarda o incoterm da aprovação (o.incSnap) e não muda depois. */
+const incOf=k=>VEH[k]&&VEH[k].kind==="container"?"FOB":"FCA";
+const orderInc=o=>o&&o.incSnap?o.incSnap:incOf(o&&o.veh);
 const activeVeh=()=>Object.keys(VEH).filter(vehOn);
 function bigVeh(){const a=activeVeh(),l=a.length?a:Object.keys(VEH);return [...l].sort((x,y)=>VEH[y].pos-VEH[x].pos||VEH[y].kg-VEH[x].kg)[0]}
 const lateMs=()=>RULES.lateH*3600*1000;
@@ -1010,11 +1018,15 @@ const CLIENTS = {
 const BLOCK_DEF=Object.fromEntries(Object.entries(CLIENTS).map(([k,c])=>[k,[...c.blocked]]));
 
 /* ============ TEXTOS PT / ES ============ */
+/* "dois meses", "dos meses", "two months" para os textos da janela de pedido */
+const MW={pt:m=>(["","um mês","dois meses","três meses","quatro meses","cinco meses","seis meses"][m]||m+" meses"),
+  es:m=>(["","un mes","dos meses","tres meses","cuatro meses","cinco meses","seis meses"][m]||m+" meses"),
+  en:m=>(["","one month","two months","three months","four months","five months","six months"][m]||m+" months")};
 const T = {
- pt:{fCode:"Código 3C",fProduct:"Produto (SAP)",fFamily:"Família",fPrice:"Preço / caixa",fUnits:"Nº unidades/embalagem",fEan:"EAN (código de barras do produto)",fDun:"DUN (código de barras da caixa master)",fGross:"Peso bruto (caixa)",fNet:"Peso líquido (caixa)",fCube:"Cubagem (caixa)",fDims:"C × L × A",fNcm:"NCM",fLine:"Linha",fBoxPal:"Caixas / pallet",ficha:"Ficha técnica",fichaHide:"Fechar ficha",illus:"Imagem ilustrativa",prods:"produtos",portal:"Portal do distribuidor",hello:n=>`Olá, ${n}`,heroSub:"Monte seu pedido e veja na hora quantos pallets ele forma e quanto do veículo ocupa.",
+ pt:{fCode:"Código 3C",fProduct:"Produto (SAP)",fFamily:"Família",fPrice:"Preço / caixa",fUnits:"Nº unidades/embalagem",fEan:"EAN (código de barras do produto)",fDun:"DUN (código de barras da caixa master)",fGross:"Peso bruto (caixa)",fNet:"Peso líquido (caixa)",fCube:"Cubagem (caixa)",fDims:"C × L × A",fNcm:"NCM",fLine:"Linha",fBoxPal:"Caixas / pallet",fLot:"Lote mínimo (Planejamento)",ficha:"Ficha técnica",fichaHide:"Fechar ficha",illus:"Imagem ilustrativa",prods:"produtos",portal:"Portal do distribuidor",hello:n=>`Olá, ${n}`,heroSub:"Monte seu pedido e veja na hora quantos pallets ele forma e quanto do veículo ocupa.",
   code:"Cód.",catalog:"Catálogo de exportação",items:n=>`${n} produtos`,search:"Buscar produto ou código",all:"Todos",
   perBox:"por caixa",boxPal:"cx/pallet",minLot:"lote mín.",pallets:"pallets",
-  missing:(n,k)=>`Faltam ${n} cx para fechar o ${k}º pallet`,belowMin:(m)=>`Abaixo do lote mínimo de ${fmt(m,0)} pallet${m===1?"":"s"}`,blocked:"Não liberado para o destino",palFull:"Pallets fechados",closePal:n=>`Fechar pallet (+${n})`,
+  missing:(n,k)=>`Pallet incompleto: faltam ${n} caixas para fechar o pallet. Se enviar assim, você paga frete morto.`,belowMin:(m)=>`Abaixo do lote mínimo de ${fmt(m,0)} pallet${m===1?"":"s"}`,blocked:"Não liberado para o destino",palFull:"Pallets fechados",closePal:n=>`Fechar pallet (+${n})`,
   shipment:"Embarque",paletizada:"Paletizada",estivada:"Estivada",mixed:"Permitir pallet misto",stick:"Sem pallets. A alocação usa a cubagem total.",
   weight:"Peso bruto",volume:"Cubagem",positions:"Posições de pallet",value:"Valor do pedido",net:"Peso líquido",totalPal:"Pallets",
   st_empty:"Monte seu pedido",st_empty_s:"Adicione produtos do catálogo",st_full:"Carga completa",st_full_s:"Veículo bem aproveitado",st_partial:"Carga incompleta",st_partial_s:p=>`Sobra ${p}% de espaço no veículo`,st_excess:"Excesso de carga",st_excess_s:"O pedido não cabe neste veículo",
@@ -1023,11 +1035,11 @@ const T = {
   errPos:n=>`Faltam ${n} posições de pallet no veículo`,errKg:n=>`Peso bruto excede em ${n} kg`,errM3:n=>`Cubagem excede em ${n} m³`,
   rvTitle:"Revise e confirme",rvSub:"Depois de confirmado, o pedido vai direto para a equipe de Exportação, já validado.",ref:"Sua referência (opcional)",date:"Data desejada de carregamento",client:"Cliente",vehicle:"Veículo",inc:"Incoterm",pay:"Pagamento",
   product:"Produto",boxes:"Caixas",unitPrice:"Preço/cx",total:"Total",confirm:"Confirmar pedido",back:"Voltar",cannot:"Corrija os bloqueios antes de confirmar",
-  okTitle:n=>`Pedido ${n} enviado`,okSub:"A equipe de Exportação já recebeu o pedido validado. Você acompanha o status por aqui.",tl:["Enviado","Em análise","Aprovado","Em preparação","Embarcado"],newOrder:"Novo pedido",seeExp:"Ver no painel 3corações",seeMine:"Ver meus pedidos",navNew:"Novo pedido",navOrders:"Meus pedidos",logout:"Sair",areaName:"Área do cliente",myTitle:"Meus pedidos",mySub:"Acompanhe cada pedido desde o envio até o embarque.",noOrders:"Você ainda não enviou pedidos pelo portal.",loading:"Carregamento",ordered:"Enviado em",noPrice:"Sem preço para sua lista",inactive:"Fora de linha no momento",s1:"Monte o pedido",s2:"Revise e confirme",s3:"Acompanhe",tApplied:"Sugestão aplicada",tAdj:n=>`Quantidade ajustada para ${n} cx`,uCX:"cx",uUN:"un",uKG:"kg",eq:n=>`= ${n} cx`,perBox2:(un,kg)=>`1 cx = ${un} un · ${kg} kg`,boxMult:n=>`Não fecha caixa (${n} cx)`,box:"Caixa",perLayer:"cx por camada",layers:"camadas",seeShip:"Ver embarque",unitHint:"Peça em caixas, unidades ou quilos",kOpen:"Pedidos enviados",kOcc:"Ocupação média dos embarques",kBought:"Comprado no ano",kFirst:"Aprovados sem ajuste",kNone:"sem pedidos aprovados ainda",journey:"Jornada do pedido",mixedOn:"Aceita pallet misto",mixedOff:"Sem pallet misto",mixedRule:"regra definida pela 3corações para o seu cadastro",v3dHint:"Arraste para girar",v3dExpand:"Ampliar",v3dTitle:"Plano de carga",v3dOut:n=>`${n} pallet${n>1?"s":""} fora do veículo`,vPersp:"Perspectiva",vSide:"Lateral",vTop:"De cima",view2d:"Ver em 2D",close:"Fechar",emptyT:"Nenhum pedido ainda",emptyS:"Monte o primeiro pedido no catálogo. Você vê os pallets e a ocupação do veículo enquanto escolhe os produtos.",blockT:"Para confirmar, resolva:",dateMin:d=>`Escolha uma data a partir de ${d}`,adjusted:n=>`A Exportação ajustou ${n} item${n>1?"s":""}`,sending:"Enviando…",noRes:"Nenhum produto encontrado.",navHome:"Início",sugT:"Pedido sugerido",sugS:(n,v,p,val)=>`Montado a partir do seu histórico: ${n} pallets, ${v} com ${p}% de ocupação, ${val}.`,sugUse:"Usar pedido sugerido",draftT:"Rascunho atual",draftEmpty:"Nenhum item no rascunho ainda.",draftS:(n,v,p,s)=>`${n} pallets · ${v} ${p}% · ${s}`,cont:"Continuar pedido",lastT:"Último pedido",lastNone:"Você ainda não enviou pedidos pelo portal.",alertsT:"Alertas",allGood:"Tudo certo por aqui.",insT:"Dicas da Xica",recentT:"Pedidos recentes",seeAll:"Ver todos",aDraftT:"Bloqueio no rascunho",aPartT:"Carga incompleta no rascunho",aPartS:(p,f)=>`O rascunho ocupa ${p}% do veículo. Cabem mais ${f} pallets.`,aAdjT:id=>`Pedido ${id} ajustado`,aOkT:id=>`Pedido ${id} aprovado`,aRevT:id=>`Pedido ${id} em análise`,aRevS:w=>`Enviado em ${w}. A Exportação já recebeu validado.`,aBlkT:"Produto indisponível para o destino",aBlkS:(n,d)=>`${n} não está liberado para ${d}.`,aNpT:"Produtos sem preço",aNpS:n=>`${n} produtos não têm preço na sua lista.`,resolve:"Resolver",view:"Ver",iOcc:(a,m)=>`Seus embarques ocupam em média ${a}% do veículo. A meta de carga completa é ${m}%.`,iFreight:p=>`Com o veículo completo, o frete por pallet cai até ${p}%.`,iBest:(v,p)=>`O veículo mais bem aproveitado para este pedido é ${v} (${p}%).`,iBind:(r,p)=>`Recurso que limita a carga: ${r} (${p}% usado).`,iTop:(n,q)=>`Seu produto mais pedido é ${n}, com ${q} pallets no histórico.`,iLead:n=>`O carregamento precisa de pelo menos ${n} dias a partir do pedido.`,iFree:n=>`Cabem mais ${n} pallets neste veículo.`,iFull:"Carga completa: o frete está bem diluído.",resPos:"posições de pallet",resKg:"peso",resM3:"cubagem",assistT:"A Xica sugere",aRound:"Fechar pallets",aFill:"Completar carga",aVeh:(v,p)=>`Usar ${v} (${p}%)`,aReduce:n=>`Reduzir ${n}`,tFilled:n=>`${n} pallets adicionados mantendo o seu mix`,okAuto:"Aprovado automaticamente: sem bloqueios e com carga completa.",tSug:"Pedido sugerido carregado no rascunho",account:"Conta",saved:"Rascunho salvo automaticamente",impBtn:"Importar planilha",impTitle:"Importar pedido",impSub:"Cole as linhas do Excel ou envie a planilha que você já usa. Reconhecemos o código 3C, o EAN ou o DUN e a quantidade em caixas, unidades ou quilos.",impPaste:"Colar do Excel",impFile:"Ou envie o arquivo",impDrop:"Arraste a planilha aqui",impDropSub:"ou clique para escolher · .xlsx, .xls ou .csv",impSample:"Usar exemplo",impFound:n=>`${n} itens reconhecidos`,impAdj:n=>`${n} arredondados para caixa fechada`,impMiss:n=>`${n} não encontrados`,impBlk:n=>`${n} indisponíveis para o seu destino`,impAdd:"Somar ao pedido",impReplace:"Substituir pedido",impNone:"Nenhuma linha reconhecida. Use uma coluna com o código 3C, EAN ou DUN e outra com a quantidade.",impRow:"Linha",impQty:"Na planilha",impStatus:"Situação",impOk:"OK",impRounded:n=>`arredondado para ${n} cx`,impNotFound:"não encontrado",impBlocked:"indisponível",impReadErr:"Não foi possível ler o arquivo.",impSheet:"aba",tImported:n=>`${n} itens importados para o pedido`,recommended:"Recomendado",splitT:"Não cabe em um único veículo",splitS:n=>`Sugestão: dividir em ${n} embarques`,repeat:"Repetir pedido",tRepeat:"Pedido copiado para um novo rascunho",prefs:"Preferências",ordersNav:"Pedidos",subPortal:"Portal do distribuidor",capShort:(p,t2)=>`${p} pallets · ${t2} t`,palletsOf:n=>`${n} pallets`},
- es:{fCode:"Código 3C",fProduct:"Producto (SAP)",fFamily:"Familia",fPrice:"Precio / caja",fUnits:"Nº unidades/embalaje",fEan:"EAN (código de barra del producto)",fDun:"DUN (código de barra de la caja master)",fGross:"Peso bruto (caja)",fNet:"Peso neto (caja)",fCube:"Cubicación (caja)",fDims:"Medida del embalaje",fNcm:"NCM",fLine:"Línea",fBoxPal:"Cajas / pallet",ficha:"Ficha técnica",fichaHide:"Cerrar ficha",illus:"Imagen ilustrativa",prods:"productos",portal:"Portal del distribuidor",hello:n=>`Hola, ${n}`,heroSub:"Arma tu pedido y ve al instante cuántos pallets forma y cuánto del vehículo ocupa.",
+  okTitle:n=>`Pedido ${n} enviado`,okSub:"A equipe de Exportação já recebeu o pedido validado. Você acompanha o status por aqui.",tl:["Enviado","Em análise","Aprovado","Em preparação","Embarcado"],newOrder:"Novo pedido",seeExp:"Ver no painel 3corações",seeMine:"Ver meus pedidos",navNew:"Novo pedido",navOrders:"Meus pedidos",logout:"Sair",areaName:"Área do cliente",myTitle:"Meus pedidos",mySub:"Acompanhe cada pedido desde o envio até o embarque.",noOrders:"Você ainda não enviou pedidos pelo portal.",loading:"Carregamento",ordered:"Enviado em",noPrice:"Sem preço na sua tabela",noPriceMsg:"Este item ainda não está cadastrado na sua tabela de preço. Avise a 3corações para cadastrar.",noPriceBlock:"Remova o item sem preço ou aguarde o cadastro na sua tabela",reqPrice:"Avisar a 3corações",reqPriceDone:"3corações avisada",reqPriceOk:"Pronto, a 3corações foi avisada",inactive:"Fora de linha no momento",s1:"Monte o pedido",s2:"Revise e confirme",s3:"Acompanhe",tApplied:"Sugestão aplicada",tAdj:n=>`Quantidade ajustada para ${n} cx`,uCX:"cx",uUN:"un",uKG:"kg",eq:n=>`= ${n} cx`,perBox2:(un,kg)=>`1 cx = ${un} un · ${kg} kg`,boxMult:n=>`Não fecha caixa (${n} cx)`,box:"Caixa",perLayer:"cx por camada",layers:"camadas",seeShip:"Ver embarque",unitHint:"Peça em caixas, unidades ou quilos",kOpen:"Pedidos enviados",kOcc:"Ocupação média dos embarques",kBought:"Comprado no ano",kFirst:"Aprovados sem ajuste",kNone:"sem pedidos aprovados ainda",journey:"Jornada do pedido",mixedOn:"Aceita pallet misto",mixedOff:"Sem pallet misto",mixedRule:"regra definida pela 3corações para o seu cadastro",v3dHint:"Arraste para girar",v3dExpand:"Ampliar",v3dTitle:"Plano de carga",v3dOut:n=>`${n} pallet${n>1?"s":""} fora do veículo`,vPersp:"Perspectiva",vSide:"Lateral",vTop:"De cima",view2d:"Ver em 2D",close:"Fechar",emptyT:"Nenhum pedido ainda",emptyS:"Monte o primeiro pedido no catálogo. Você vê os pallets e a ocupação do veículo enquanto escolhe os produtos.",blockT:"Para confirmar, resolva:",dateMin:d=>`Escolha uma data a partir de ${d}`,adjusted:n=>`A Exportação ajustou ${n} item${n>1?"s":""}`,sending:"Enviando…",noRes:"Nenhum produto encontrado.",navHome:"Início",sugT:"Pedido sugerido",sugS:(n,v,p,val)=>`Montado a partir do seu histórico: ${n} pallets, ${v} com ${p}% de ocupação, ${val}.`,sugUse:"Usar pedido sugerido",draftT:"Rascunho atual",draftEmpty:"Nenhum item no rascunho ainda.",draftS:(n,v,p,s)=>`${n} pallets · ${v} ${p}% · ${s}`,cont:"Continuar pedido",lastT:"Último pedido",lastNone:"Você ainda não enviou pedidos pelo portal.",alertsT:"Alertas",allGood:"Tudo certo por aqui.",insT:"Dicas da Xica",recentT:"Pedidos recentes",seeAll:"Ver todos",aDraftT:"Bloqueio no rascunho",aPartT:"Carga incompleta no rascunho",aPartS:(p,f)=>`O rascunho ocupa ${p}% do veículo. Cabem mais ${f} pallets.`,aAdjT:id=>`Pedido ${id} ajustado`,aOkT:id=>`Pedido ${id} aprovado`,aRevT:id=>`Pedido ${id} em análise`,aRevS:w=>`Enviado em ${w}. A Exportação já recebeu validado.`,aBlkT:"Produto indisponível para o destino",aBlkS:(n,d)=>`${n} não está liberado para ${d}.`,aNpT:"Produtos sem preço",aNpS:n=>`${n} produtos não têm preço na sua lista.`,resolve:"Resolver",view:"Ver",iOcc:(a,m)=>`Seus embarques ocupam em média ${a}% do veículo. A meta de carga completa é ${m}%.`,iFreight:p=>`Com o veículo completo, o frete por pallet cai até ${p}%.`,iBest:(v,p)=>`O veículo mais bem aproveitado para este pedido é ${v} (${p}%).`,iBind:(r,p)=>`Recurso que limita a carga: ${r} (${p}% usado).`,iTop:(n,q)=>`Seu produto mais pedido é ${n}, com ${q} pallets no histórico.`,iLead:(c,m,d)=>`Pedidos feitos até o dia ${c} carregam ${MW.pt(m)} depois. Primeira data disponível: ${d}.`,dateHelp:(c,m,d)=>`Pedidos feitos até o dia ${c} carregam ${MW.pt(m)} depois. Primeira data disponível: ${d}.`,iFree:n=>`Cabem mais ${n} pallets neste veículo.`,iFull:"Carga completa: o frete está bem diluído.",resPos:"posições de pallet",resKg:"peso",resM3:"cubagem",assistT:"A Xica sugere",aRound:"Fechar pallets",aFill:"Completar carga",aVeh:(v,p)=>`Usar ${v} (${p}%)`,aReduce:n=>`Reduzir ${n}`,tFilled:n=>`${n} pallets adicionados mantendo o seu mix`,okAuto:"Aprovado automaticamente: sem bloqueios e com carga completa.",tSug:"Pedido sugerido carregado no rascunho",account:"Conta",saved:"Rascunho salvo automaticamente",impBtn:"Importar planilha",impTitle:"Importar pedido",impSub:"Cole as linhas do Excel ou envie a planilha que você já usa. Reconhecemos o código 3C, o EAN ou o DUN e a quantidade em caixas, unidades ou quilos.",impPaste:"Colar do Excel",impFile:"Ou envie o arquivo",impDrop:"Arraste a planilha aqui",impDropSub:"ou clique para escolher · .xlsx, .xls ou .csv",impSample:"Usar exemplo",impFound:n=>`${n} itens reconhecidos`,impAdj:n=>`${n} arredondados para caixa fechada`,impMiss:n=>`${n} não encontrados`,impBlk:n=>`${n} indisponíveis para o seu destino`,impAdd:"Somar ao pedido",impReplace:"Substituir pedido",impNone:"Nenhuma linha reconhecida. Use uma coluna com o código 3C, EAN ou DUN e outra com a quantidade.",impRow:"Linha",impQty:"Na planilha",impStatus:"Situação",impOk:"OK",impRounded:n=>`arredondado para ${n} cx`,impNotFound:"não encontrado",impBlocked:"indisponível",impReadErr:"Não foi possível ler o arquivo.",impSheet:"aba",tImported:n=>`${n} itens importados para o pedido`,recommended:"Recomendado",splitT:"Não cabe em um único veículo",splitS:n=>`Sugestão: dividir em ${n} embarques`,repeat:"Repetir pedido",tRepeat:"Pedido copiado para um novo rascunho",prefs:"Preferências",ordersNav:"Pedidos",subPortal:"Portal do distribuidor",capShort:(p,t2)=>`${p} pallets · ${t2} t`,palletsOf:n=>`${n} pallets`},
+ es:{fCode:"Código 3C",fProduct:"Producto (SAP)",fFamily:"Familia",fPrice:"Precio / caja",fUnits:"Nº unidades/embalaje",fEan:"EAN (código de barra del producto)",fDun:"DUN (código de barra de la caja master)",fGross:"Peso bruto (caja)",fNet:"Peso neto (caja)",fCube:"Cubicación (caja)",fDims:"Medida del embalaje",fNcm:"NCM",fLine:"Línea",fBoxPal:"Cajas / pallet",fLot:"Lote mínimo (Planificación)",ficha:"Ficha técnica",fichaHide:"Cerrar ficha",illus:"Imagen ilustrativa",prods:"productos",portal:"Portal del distribuidor",hello:n=>`Hola, ${n}`,heroSub:"Arma tu pedido y ve al instante cuántos pallets forma y cuánto del vehículo ocupa.",
   code:"Cód.",catalog:"Catálogo de exportación",items:n=>`${n} productos`,search:"Buscar producto o código",all:"Todos",
   perBox:"por caja",boxPal:"cajas/pallet",minLot:"lote mín.",pallets:"pallets",
-  missing:(n,k)=>`Faltan ${n} cajas para cerrar el ${k}º pallet`,belowMin:(m)=>`Debajo del lote mínimo de ${fmt(m,0)} pallet${m===1?"":"s"}`,blocked:"No habilitado para el destino",palFull:"Pallets cerrados",closePal:n=>`Cerrar pallet (+${n})`,
+  missing:(n,k)=>`Pallet incompleto: faltan ${n} cajas para cerrar el pallet. Si lo envías así, pagarás falso flete.`,belowMin:(m)=>`Debajo del lote mínimo de ${fmt(m,0)} pallet${m===1?"":"s"}`,blocked:"No habilitado para el destino",palFull:"Pallets cerrados",closePal:n=>`Cerrar pallet (+${n})`,
   shipment:"Despacho",paletizada:"Paletizada",estivada:"Estibada",mixed:"Permitir pallet mixto",stick:"Sin pallets. La asignación usa la cubicación total.",
   weight:"Peso bruto",volume:"Cubicación",positions:"Posiciones de pallet",value:"Valor del pedido",net:"Peso neto",totalPal:"Pallets",
   st_empty:"Arma tu pedido",st_empty_s:"Agrega productos del catálogo",st_full:"Carga completa",st_full_s:"Vehículo bien aprovechado",st_partial:"Carga incompleta",st_partial_s:p=>`Sobra ${p}% de espacio en el vehículo`,st_excess:"Exceso de carga",st_excess_s:"El pedido no cabe en este vehículo",
@@ -1036,12 +1048,12 @@ const T = {
   errPos:n=>`Faltan ${n} posiciones de pallet en el vehículo`,errKg:n=>`El peso bruto excede en ${n} kg`,errM3:n=>`La cubicación excede en ${n} m³`,
   rvTitle:"Revisa y confirma",rvSub:"Una vez confirmado, el pedido va directo al equipo de Exportación, ya validado.",ref:"Tu referencia (opcional)",date:"Fecha deseada de carga",client:"Cliente",vehicle:"Vehículo",inc:"Incoterm",pay:"Pago",
   product:"Producto",boxes:"Cajas",unitPrice:"Precio/caja",total:"Total",confirm:"Confirmar pedido",back:"Volver",cannot:"Corrige los bloqueos antes de confirmar",
-  okTitle:n=>`Pedido ${n} enviado`,okSub:"El equipo de Exportación ya recibió el pedido validado. Sigues el estado por aquí.",tl:["Enviado","En análisis","Aprobado","En preparación","Despachado"],newOrder:"Nuevo pedido",seeExp:"Ver en el panel 3corações",seeMine:"Ver mis pedidos",navNew:"Nuevo pedido",navOrders:"Mis pedidos",logout:"Salir",areaName:"Área del cliente",myTitle:"Mis pedidos",mySub:"Sigue cada pedido desde el envío hasta el despacho.",noOrders:"Todavía no enviaste pedidos por el portal.",loading:"Carga",ordered:"Enviado el",noPrice:"Sin precio para tu lista",inactive:"Fuera de línea por ahora",s1:"Arma el pedido",s2:"Revisa y confirma",s3:"Sigue el estado",tApplied:"Sugerencia aplicada",tAdj:n=>`Cantidad ajustada a ${n} cajas`,uCX:"caja",uUN:"un",uKG:"kg",eq:n=>`= ${n} cajas`,perBox2:(un,kg)=>`1 caja = ${un} un · ${kg} kg`,boxMult:n=>`No cierra caja (${n} cajas)`,box:"Caja",perLayer:"cajas por capa",layers:"capas",seeShip:"Ver despacho",unitHint:"Pide en cajas, unidades o kilos",kOpen:"Pedidos enviados",kOcc:"Ocupación media de los despachos",kBought:"Comprado en el año",kFirst:"Aprobados sin ajuste",kNone:"todavía sin pedidos aprobados",journey:"Recorrido del pedido",mixedOn:"Acepta pallet mixto",mixedOff:"Sin pallet mixto",mixedRule:"regla definida por 3corações para tu cuenta",v3dHint:"Arrastra para girar",v3dExpand:"Ampliar",v3dTitle:"Plan de carga",v3dOut:n=>`${n} pallet${n>1?"s":""} fuera del vehículo`,vPersp:"Perspectiva",vSide:"Lateral",vTop:"Desde arriba",view2d:"Ver en 2D",close:"Cerrar",emptyT:"Todavía no hay pedidos",emptyS:"Arma el primer pedido en el catálogo. Ves los pallets y la ocupación del vehículo mientras eliges los productos.",blockT:"Para confirmar, resuelve:",dateMin:d=>`Elige una fecha a partir del ${d}`,adjusted:n=>`Exportación ajustó ${n} ítem${n>1?"s":""}`,sending:"Enviando…",noRes:"Ningún producto encontrado.",navHome:"Inicio",sugT:"Pedido sugerido",sugS:(n,v,p,val)=>`Armado a partir de tu historial: ${n} pallets, ${v} con ${p}% de ocupación, ${val}.`,sugUse:"Usar pedido sugerido",draftT:"Borrador actual",draftEmpty:"Todavía no hay ítems en el borrador.",draftS:(n,v,p,s)=>`${n} pallets · ${v} ${p}% · ${s}`,cont:"Continuar pedido",lastT:"Último pedido",lastNone:"Todavía no enviaste pedidos por el portal.",alertsT:"Alertas",allGood:"Todo en orden.",insT:"Consejos de Xica",recentT:"Pedidos recientes",seeAll:"Ver todos",aDraftT:"Bloqueo en el borrador",aPartT:"Carga incompleta en el borrador",aPartS:(p,f)=>`El borrador ocupa ${p}% del vehículo. Caben ${f} pallets más.`,aAdjT:id=>`Pedido ${id} ajustado`,aOkT:id=>`Pedido ${id} aprobado`,aRevT:id=>`Pedido ${id} en análisis`,aRevS:w=>`Enviado el ${w}. Exportación ya lo recibió validado.`,aBlkT:"Producto no disponible para el destino",aBlkS:(n,d)=>`${n} no está habilitado para ${d}.`,aNpT:"Productos sin precio",aNpS:n=>`${n} productos no tienen precio en tu lista.`,resolve:"Resolver",view:"Ver",iOcc:(a,m)=>`Tus despachos ocupan en promedio ${a}% del vehículo. La meta de carga completa es ${m}%.`,iFreight:p=>`Con el vehículo completo, el flete por pallet baja hasta ${p}%.`,iBest:(v,p)=>`El vehículo mejor aprovechado para este pedido es ${v} (${p}%).`,iBind:(r,p)=>`Recurso que limita la carga: ${r} (${p}% usado).`,iTop:(n,q)=>`Tu producto más pedido es ${n}, con ${q} pallets en el historial.`,iLead:n=>`La carga necesita al menos ${n} días desde el pedido.`,iFree:n=>`Caben ${n} pallets más en este vehículo.`,iFull:"Carga completa: el flete está bien diluido.",resPos:"posiciones de pallet",resKg:"peso",resM3:"cubicación",assistT:"Xica sugiere",aRound:"Cerrar pallets",aFill:"Completar carga",aVeh:(v,p)=>`Usar ${v} (${p}%)`,aReduce:n=>`Reducir ${n}`,tFilled:n=>`${n} pallets agregados manteniendo tu mix`,okAuto:"Aprobado automáticamente: sin bloqueos y con carga completa.",tSug:"Pedido sugerido cargado en el borrador",account:"Cuenta",saved:"Borrador guardado automáticamente",impBtn:"Importar planilla",impTitle:"Importar pedido",impSub:"Pega las líneas de Excel o sube la planilla que ya usas. Reconocemos el código 3C, el EAN o el DUN y la cantidad en cajas, unidades o kilos.",impPaste:"Pegar desde Excel",impFile:"O sube el archivo",impDrop:"Arrastra la planilla aquí",impDropSub:"o haz clic para elegir · .xlsx, .xls o .csv",impSample:"Usar ejemplo",impFound:n=>`${n} ítems reconocidos`,impAdj:n=>`${n} redondeados a caja cerrada`,impMiss:n=>`${n} no encontrados`,impBlk:n=>`${n} no disponibles para tu destino`,impAdd:"Sumar al pedido",impReplace:"Reemplazar pedido",impNone:"Ninguna línea reconocida. Usa una columna con el código 3C, EAN o DUN y otra con la cantidad.",impRow:"Fila",impQty:"En la planilla",impStatus:"Estado",impOk:"OK",impRounded:n=>`redondeado a ${n} cajas`,impNotFound:"no encontrado",impBlocked:"no disponible",impReadErr:"No se pudo leer el archivo.",impSheet:"hoja",tImported:n=>`${n} ítems importados al pedido`,recommended:"Recomendado",splitT:"No cabe en un solo vehículo",splitS:n=>`Sugerencia: dividir en ${n} despachos`,repeat:"Repetir pedido",tRepeat:"Pedido copiado a un nuevo borrador",prefs:"Preferencias",ordersNav:"Pedidos",subPortal:"Portal del distribuidor",capShort:(p,t2)=>`${p} pallets · ${t2} t`,palletsOf:n=>`${n} pallets`},
- en:{fCode:"3C code",fProduct:"Product (SAP)",fFamily:"Family",fPrice:"Price / case",fUnits:"Units per case",fEan:"EAN (product bar code)",fDun:"DUN (master box bar code)",fGross:"Gross weight (case)",fNet:"Net weight (case)",fCube:"Cubage (case)",fDims:"Packaging measurement",fNcm:"NCM",fLine:"Line",fBoxPal:"Cases / pallet",ficha:"Technical sheet",fichaHide:"Close sheet",illus:"Illustrative image",prods:"products",
+  okTitle:n=>`Pedido ${n} enviado`,okSub:"El equipo de Exportación ya recibió el pedido validado. Sigues el estado por aquí.",tl:["Enviado","En análisis","Aprobado","En preparación","Despachado"],newOrder:"Nuevo pedido",seeExp:"Ver en el panel 3corações",seeMine:"Ver mis pedidos",navNew:"Nuevo pedido",navOrders:"Mis pedidos",logout:"Salir",areaName:"Área del cliente",myTitle:"Mis pedidos",mySub:"Sigue cada pedido desde el envío hasta el despacho.",noOrders:"Todavía no enviaste pedidos por el portal.",loading:"Carga",ordered:"Enviado el",noPrice:"Sin precio en tu tabla",noPriceMsg:"Este ítem aún no está registrado en tu tabla de precios. Avisa a 3corações para registrarlo.",noPriceBlock:"Quita el ítem sin precio o espera el registro en tu tabla",reqPrice:"Avisar a 3corações",reqPriceDone:"3corações avisada",reqPriceOk:"Listo, 3corações fue avisada",inactive:"Fuera de línea por ahora",s1:"Arma el pedido",s2:"Revisa y confirma",s3:"Sigue el estado",tApplied:"Sugerencia aplicada",tAdj:n=>`Cantidad ajustada a ${n} cajas`,uCX:"caja",uUN:"un",uKG:"kg",eq:n=>`= ${n} cajas`,perBox2:(un,kg)=>`1 caja = ${un} un · ${kg} kg`,boxMult:n=>`No cierra caja (${n} cajas)`,box:"Caja",perLayer:"cajas por capa",layers:"capas",seeShip:"Ver despacho",unitHint:"Pide en cajas, unidades o kilos",kOpen:"Pedidos enviados",kOcc:"Ocupación media de los despachos",kBought:"Comprado en el año",kFirst:"Aprobados sin ajuste",kNone:"todavía sin pedidos aprobados",journey:"Recorrido del pedido",mixedOn:"Acepta pallet mixto",mixedOff:"Sin pallet mixto",mixedRule:"regla definida por 3corações para tu cuenta",v3dHint:"Arrastra para girar",v3dExpand:"Ampliar",v3dTitle:"Plan de carga",v3dOut:n=>`${n} pallet${n>1?"s":""} fuera del vehículo`,vPersp:"Perspectiva",vSide:"Lateral",vTop:"Desde arriba",view2d:"Ver en 2D",close:"Cerrar",emptyT:"Todavía no hay pedidos",emptyS:"Arma el primer pedido en el catálogo. Ves los pallets y la ocupación del vehículo mientras eliges los productos.",blockT:"Para confirmar, resuelve:",dateMin:d=>`Elige una fecha a partir del ${d}`,adjusted:n=>`Exportación ajustó ${n} ítem${n>1?"s":""}`,sending:"Enviando…",noRes:"Ningún producto encontrado.",navHome:"Inicio",sugT:"Pedido sugerido",sugS:(n,v,p,val)=>`Armado a partir de tu historial: ${n} pallets, ${v} con ${p}% de ocupación, ${val}.`,sugUse:"Usar pedido sugerido",draftT:"Borrador actual",draftEmpty:"Todavía no hay ítems en el borrador.",draftS:(n,v,p,s)=>`${n} pallets · ${v} ${p}% · ${s}`,cont:"Continuar pedido",lastT:"Último pedido",lastNone:"Todavía no enviaste pedidos por el portal.",alertsT:"Alertas",allGood:"Todo en orden.",insT:"Consejos de Xica",recentT:"Pedidos recientes",seeAll:"Ver todos",aDraftT:"Bloqueo en el borrador",aPartT:"Carga incompleta en el borrador",aPartS:(p,f)=>`El borrador ocupa ${p}% del vehículo. Caben ${f} pallets más.`,aAdjT:id=>`Pedido ${id} ajustado`,aOkT:id=>`Pedido ${id} aprobado`,aRevT:id=>`Pedido ${id} en análisis`,aRevS:w=>`Enviado el ${w}. Exportación ya lo recibió validado.`,aBlkT:"Producto no disponible para el destino",aBlkS:(n,d)=>`${n} no está habilitado para ${d}.`,aNpT:"Productos sin precio",aNpS:n=>`${n} productos no tienen precio en tu lista.`,resolve:"Resolver",view:"Ver",iOcc:(a,m)=>`Tus despachos ocupan en promedio ${a}% del vehículo. La meta de carga completa es ${m}%.`,iFreight:p=>`Con el vehículo completo, el flete por pallet baja hasta ${p}%.`,iBest:(v,p)=>`El vehículo mejor aprovechado para este pedido es ${v} (${p}%).`,iBind:(r,p)=>`Recurso que limita la carga: ${r} (${p}% usado).`,iTop:(n,q)=>`Tu producto más pedido es ${n}, con ${q} pallets en el historial.`,iLead:(c,m,d)=>`Los pedidos hechos hasta el día ${c} se cargan ${MW.es(m)} después. Primera fecha disponible: ${d}.`,dateHelp:(c,m,d)=>`Los pedidos hechos hasta el día ${c} se cargan ${MW.es(m)} después. Primera fecha disponible: ${d}.`,iFree:n=>`Caben ${n} pallets más en este vehículo.`,iFull:"Carga completa: el flete está bien diluido.",resPos:"posiciones de pallet",resKg:"peso",resM3:"cubicación",assistT:"Xica sugiere",aRound:"Cerrar pallets",aFill:"Completar carga",aVeh:(v,p)=>`Usar ${v} (${p}%)`,aReduce:n=>`Reducir ${n}`,tFilled:n=>`${n} pallets agregados manteniendo tu mix`,okAuto:"Aprobado automáticamente: sin bloqueos y con carga completa.",tSug:"Pedido sugerido cargado en el borrador",account:"Cuenta",saved:"Borrador guardado automáticamente",impBtn:"Importar planilla",impTitle:"Importar pedido",impSub:"Pega las líneas de Excel o sube la planilla que ya usas. Reconocemos el código 3C, el EAN o el DUN y la cantidad en cajas, unidades o kilos.",impPaste:"Pegar desde Excel",impFile:"O sube el archivo",impDrop:"Arrastra la planilla aquí",impDropSub:"o haz clic para elegir · .xlsx, .xls o .csv",impSample:"Usar ejemplo",impFound:n=>`${n} ítems reconocidos`,impAdj:n=>`${n} redondeados a caja cerrada`,impMiss:n=>`${n} no encontrados`,impBlk:n=>`${n} no disponibles para tu destino`,impAdd:"Sumar al pedido",impReplace:"Reemplazar pedido",impNone:"Ninguna línea reconocida. Usa una columna con el código 3C, EAN o DUN y otra con la cantidad.",impRow:"Fila",impQty:"En la planilla",impStatus:"Estado",impOk:"OK",impRounded:n=>`redondeado a ${n} cajas`,impNotFound:"no encontrado",impBlocked:"no disponible",impReadErr:"No se pudo leer el archivo.",impSheet:"hoja",tImported:n=>`${n} ítems importados al pedido`,recommended:"Recomendado",splitT:"No cabe en un solo vehículo",splitS:n=>`Sugerencia: dividir en ${n} despachos`,repeat:"Repetir pedido",tRepeat:"Pedido copiado a un nuevo borrador",prefs:"Preferencias",ordersNav:"Pedidos",subPortal:"Portal del distribuidor",capShort:(p,t2)=>`${p} pallets · ${t2} t`,palletsOf:n=>`${n} pallets`},
+ en:{fCode:"3C code",fProduct:"Product (SAP)",fFamily:"Family",fPrice:"Price / case",fUnits:"Units per case",fEan:"EAN (product bar code)",fDun:"DUN (master box bar code)",fGross:"Gross weight (case)",fNet:"Net weight (case)",fCube:"Cubage (case)",fDims:"Packaging measurement",fNcm:"NCM",fLine:"Line",fBoxPal:"Cases / pallet",fLot:"Minimum lot (Planning)",ficha:"Technical sheet",fichaHide:"Close sheet",illus:"Illustrative image",prods:"products",
   portal:"Distributor portal",hello:n=>`Hello, ${n}`,heroSub:"Build your order and see instantly how many pallets it forms and how much of the vehicle it fills.",
   code:"Code",catalog:"Export catalog",items:n=>`${n} products`,search:"Search product or code",all:"All",
   perBox:"per case",boxPal:"cases/pallet",minLot:"min. lot",pallets:"pallets",
-  missing:(n,k)=>`${n} cases missing to close pallet ${k}`,belowMin:(m)=>`Below the minimum lot of ${fmt(m,0)} pallet${m===1?"":"s"}`,blocked:"Not approved for this destination",palFull:"Full pallets",closePal:n=>`Close pallet (+${n})`,
+  missing:(n,k)=>`Incomplete pallet: ${n} boxes missing to close the pallet. If you send it like this, you will pay dead freight.`,belowMin:(m)=>`Below the minimum lot of ${fmt(m,0)} pallet${m===1?"":"s"}`,blocked:"Not approved for this destination",palFull:"Full pallets",closePal:n=>`Close pallet (+${n})`,
   shipment:"Shipment",paletizada:"Palletized",estivada:"Floor loaded",mixed:"Allow mixed pallets",stick:"No pallets. Allocation uses the total cubage.",
   weight:"Gross weight",volume:"Cubage",positions:"Pallet positions",value:"Order value",net:"Net weight",totalPal:"Pallets",
   st_empty:"Build your order",st_empty_s:"Add products from the catalog",st_full:"Full load",st_full_s:"Vehicle well used",st_partial:"Partial load",st_partial_s:p=>`${p}% of the vehicle is still free`,st_excess:"Overload",st_excess_s:"The order does not fit this vehicle",
@@ -1050,14 +1062,14 @@ const T = {
   errPos:n=>`${n} pallet positions missing in the vehicle`,errKg:n=>`Gross weight exceeds by ${n} kg`,errM3:n=>`Cubage exceeds by ${n} m³`,
   rvTitle:"Review and confirm",rvSub:"Once confirmed, the order goes straight to the Export team, already validated.",ref:"Your reference (optional)",date:"Desired loading date",client:"Customer",vehicle:"Vehicle",inc:"Incoterm",pay:"Payment",
   product:"Product",boxes:"Cases",unitPrice:"Price/case",total:"Total",confirm:"Confirm order",back:"Back",cannot:"Fix the blocking issues before confirming",
-  okTitle:n=>`Order ${n} sent`,okSub:"The Export team has already received your validated order. Track its status here.",tl:["Sent","Under review","Approved","In preparation","Shipped"],newOrder:"New order",seeExp:"See it in the 3corações panel",seeMine:"See my orders",navNew:"New order",navOrders:"My orders",logout:"Sign out",areaName:"Customer area",myTitle:"My orders",mySub:"Follow each order from submission to shipment.",noOrders:"You have not sent any orders through the portal yet.",loading:"Loading",ordered:"Sent on",noPrice:"No price for your list",inactive:"Discontinued for now",s1:"Build the order",s2:"Review and confirm",s3:"Track",tApplied:"Suggestion applied",tAdj:n=>`Quantity set to ${n} cases`,uCX:"cs",uUN:"un",uKG:"kg",eq:n=>`= ${n} cases`,perBox2:(un,kg)=>`1 case = ${un} un · ${kg} kg`,boxMult:n=>`Does not close a case (${n} cases)`,box:"Case",perLayer:"cases per layer",layers:"layers",seeShip:"See shipment",unitHint:"Order in cases, units or kilos",kOpen:"Orders sent",kOcc:"Average shipment occupancy",kBought:"Bought this year",kFirst:"Approved without changes",kNone:"no approved orders yet",journey:"Order journey",mixedOn:"Mixed pallets accepted",mixedOff:"No mixed pallets",mixedRule:"rule set by 3corações for your account",v3dHint:"Drag to rotate",v3dExpand:"Expand",v3dTitle:"Load plan",v3dOut:n=>`${n} pallet${n>1?"s":""} outside the vehicle`,vPersp:"Perspective",vSide:"Side",vTop:"Top",view2d:"Show in 2D",close:"Close",emptyT:"No orders yet",emptyS:"Build your first order from the catalog. You see pallets and vehicle occupancy while you pick products.",blockT:"To confirm, fix:",dateMin:d=>`Choose a date from ${d}`,adjusted:n=>`Export adjusted ${n} item${n>1?"s":""}`,sending:"Sending…",noRes:"No products found.",navHome:"Home",sugT:"Suggested order",sugS:(n,v,p,val)=>`Built from your history: ${n} pallets, ${v} at ${p}% occupancy, ${val}.`,sugUse:"Use suggested order",draftT:"Current draft",draftEmpty:"No items in the draft yet.",draftS:(n,v,p,s)=>`${n} pallets · ${v} ${p}% · ${s}`,cont:"Continue order",lastT:"Last order",lastNone:"You have not sent any orders through the portal yet.",alertsT:"Alerts",allGood:"All good here.",insT:"Xica's tips",recentT:"Recent orders",seeAll:"See all",aDraftT:"Blocking issue in the draft",aPartT:"Partial load in the draft",aPartS:(p,f)=>`The draft fills ${p}% of the vehicle. ${f} more pallets fit.`,aAdjT:id=>`Order ${id} adjusted`,aOkT:id=>`Order ${id} approved`,aRevT:id=>`Order ${id} under review`,aRevS:w=>`Sent on ${w}. Export already received it validated.`,aBlkT:"Product unavailable for the destination",aBlkS:(n,d)=>`${n} is not approved for ${d}.`,aNpT:"Products without price",aNpS:n=>`${n} products have no price in your list.`,resolve:"Fix",view:"View",iOcc:(a,m)=>`Your shipments fill ${a}% of the vehicle on average. The full load target is ${m}%.`,iFreight:p=>`With a full vehicle, freight per pallet drops by up to ${p}%.`,iBest:(v,p)=>`The best-used vehicle for this order is ${v} (${p}%).`,iBind:(r,p)=>`Limiting resource: ${r} (${p}% used).`,iTop:(n,q)=>`Your most ordered product is ${n}, with ${q} pallets in your history.`,iLead:n=>`Loading needs at least ${n} days from the order.`,iFree:n=>`${n} more pallets fit in this vehicle.`,iFull:"Full load: freight is well diluted.",resPos:"pallet positions",resKg:"weight",resM3:"cubage",assistT:"Xica suggests",aRound:"Close pallets",aFill:"Fill the load",aVeh:(v,p)=>`Use ${v} (${p}%)`,aReduce:n=>`Reduce ${n}`,tFilled:n=>`${n} pallets added keeping your mix`,okAuto:"Approved automatically: no blocking issues and a full load.",tSug:"Suggested order loaded into the draft",account:"Account",saved:"Draft saved automatically",impBtn:"Import spreadsheet",impTitle:"Import order",impSub:"Paste rows from Excel or upload the spreadsheet you already use. We recognize the 3C code, EAN or DUN and the quantity in cases, units or kilos.",impPaste:"Paste from Excel",impFile:"Or upload the file",impDrop:"Drop the spreadsheet here",impDropSub:"or click to choose · .xlsx, .xls or .csv",impSample:"Use sample",impFound:n=>`${n} items recognized`,impAdj:n=>`${n} rounded to full cases`,impMiss:n=>`${n} not found`,impBlk:n=>`${n} unavailable for your destination`,impAdd:"Add to order",impReplace:"Replace order",impNone:"No rows recognized. Use one column with the 3C code, EAN or DUN and another with the quantity.",impRow:"Row",impQty:"In the file",impStatus:"Status",impOk:"OK",impRounded:n=>`rounded to ${n} cases`,impNotFound:"not found",impBlocked:"unavailable",impReadErr:"The file could not be read.",impSheet:"sheet",tImported:n=>`${n} items imported into the order`,recommended:"Recommended",splitT:"Does not fit a single vehicle",splitS:n=>`Suggestion: split into ${n} shipments`,repeat:"Repeat order",tRepeat:"Order copied to a new draft",prefs:"Preferences",ordersNav:"Orders",subPortal:"Distributor portal",capShort:(p,t2)=>`${p} pallets · ${t2} t`,palletsOf:n=>`${n} pallets`}
+  okTitle:n=>`Order ${n} sent`,okSub:"The Export team has already received your validated order. Track its status here.",tl:["Sent","Under review","Approved","In preparation","Shipped"],newOrder:"New order",seeExp:"See it in the 3corações panel",seeMine:"See my orders",navNew:"New order",navOrders:"My orders",logout:"Sign out",areaName:"Customer area",myTitle:"My orders",mySub:"Follow each order from submission to shipment.",noOrders:"You have not sent any orders through the portal yet.",loading:"Loading",ordered:"Sent on",noPrice:"No price in your price list",noPriceMsg:"This item is not in your price list yet. Let 3corações know so they can add it.",noPriceBlock:"Remove the item without a price or wait until it is added to your price list",reqPrice:"Notify 3corações",reqPriceDone:"3corações notified",reqPriceOk:"Done, 3corações has been notified",inactive:"Discontinued for now",s1:"Build the order",s2:"Review and confirm",s3:"Track",tApplied:"Suggestion applied",tAdj:n=>`Quantity set to ${n} cases`,uCX:"cs",uUN:"un",uKG:"kg",eq:n=>`= ${n} cases`,perBox2:(un,kg)=>`1 case = ${un} un · ${kg} kg`,boxMult:n=>`Does not close a case (${n} cases)`,box:"Case",perLayer:"cases per layer",layers:"layers",seeShip:"See shipment",unitHint:"Order in cases, units or kilos",kOpen:"Orders sent",kOcc:"Average shipment occupancy",kBought:"Bought this year",kFirst:"Approved without changes",kNone:"no approved orders yet",journey:"Order journey",mixedOn:"Mixed pallets accepted",mixedOff:"No mixed pallets",mixedRule:"rule set by 3corações for your account",v3dHint:"Drag to rotate",v3dExpand:"Expand",v3dTitle:"Load plan",v3dOut:n=>`${n} pallet${n>1?"s":""} outside the vehicle`,vPersp:"Perspective",vSide:"Side",vTop:"Top",view2d:"Show in 2D",close:"Close",emptyT:"No orders yet",emptyS:"Build your first order from the catalog. You see pallets and vehicle occupancy while you pick products.",blockT:"To confirm, fix:",dateMin:d=>`Choose a date from ${d}`,adjusted:n=>`Export adjusted ${n} item${n>1?"s":""}`,sending:"Sending…",noRes:"No products found.",navHome:"Home",sugT:"Suggested order",sugS:(n,v,p,val)=>`Built from your history: ${n} pallets, ${v} at ${p}% occupancy, ${val}.`,sugUse:"Use suggested order",draftT:"Current draft",draftEmpty:"No items in the draft yet.",draftS:(n,v,p,s)=>`${n} pallets · ${v} ${p}% · ${s}`,cont:"Continue order",lastT:"Last order",lastNone:"You have not sent any orders through the portal yet.",alertsT:"Alerts",allGood:"All good here.",insT:"Xica's tips",recentT:"Recent orders",seeAll:"See all",aDraftT:"Blocking issue in the draft",aPartT:"Partial load in the draft",aPartS:(p,f)=>`The draft fills ${p}% of the vehicle. ${f} more pallets fit.`,aAdjT:id=>`Order ${id} adjusted`,aOkT:id=>`Order ${id} approved`,aRevT:id=>`Order ${id} under review`,aRevS:w=>`Sent on ${w}. Export already received it validated.`,aBlkT:"Product unavailable for the destination",aBlkS:(n,d)=>`${n} is not approved for ${d}.`,aNpT:"Products without price",aNpS:n=>`${n} products have no price in your list.`,resolve:"Fix",view:"View",iOcc:(a,m)=>`Your shipments fill ${a}% of the vehicle on average. The full load target is ${m}%.`,iFreight:p=>`With a full vehicle, freight per pallet drops by up to ${p}%.`,iBest:(v,p)=>`The best-used vehicle for this order is ${v} (${p}%).`,iBind:(r,p)=>`Limiting resource: ${r} (${p}% used).`,iTop:(n,q)=>`Your most ordered product is ${n}, with ${q} pallets in your history.`,iLead:(c,m,d)=>`Orders placed by day ${c} load ${MW.en(m)} later. First available date: ${d}.`,dateHelp:(c,m,d)=>`Orders placed by day ${c} load ${MW.en(m)} later. First available date: ${d}.`,iFree:n=>`${n} more pallets fit in this vehicle.`,iFull:"Full load: freight is well diluted.",resPos:"pallet positions",resKg:"weight",resM3:"cubage",assistT:"Xica suggests",aRound:"Close pallets",aFill:"Fill the load",aVeh:(v,p)=>`Use ${v} (${p}%)`,aReduce:n=>`Reduce ${n}`,tFilled:n=>`${n} pallets added keeping your mix`,okAuto:"Approved automatically: no blocking issues and a full load.",tSug:"Suggested order loaded into the draft",account:"Account",saved:"Draft saved automatically",impBtn:"Import spreadsheet",impTitle:"Import order",impSub:"Paste rows from Excel or upload the spreadsheet you already use. We recognize the 3C code, EAN or DUN and the quantity in cases, units or kilos.",impPaste:"Paste from Excel",impFile:"Or upload the file",impDrop:"Drop the spreadsheet here",impDropSub:"or click to choose · .xlsx, .xls or .csv",impSample:"Use sample",impFound:n=>`${n} items recognized`,impAdj:n=>`${n} rounded to full cases`,impMiss:n=>`${n} not found`,impBlk:n=>`${n} unavailable for your destination`,impAdd:"Add to order",impReplace:"Replace order",impNone:"No rows recognized. Use one column with the 3C code, EAN or DUN and another with the quantity.",impRow:"Row",impQty:"In the file",impStatus:"Status",impOk:"OK",impRounded:n=>`rounded to ${n} cases`,impNotFound:"not found",impBlocked:"unavailable",impReadErr:"The file could not be read.",impSheet:"sheet",tImported:n=>`${n} items imported into the order`,recommended:"Recommended",splitT:"Does not fit a single vehicle",splitS:n=>`Suggestion: split into ${n} shipments`,repeat:"Repeat order",tRepeat:"Order copied to a new draft",prefs:"Preferences",ordersNav:"Orders",subPortal:"Distributor portal",capShort:(p,t2)=>`${p} pallets · ${t2} t`,palletsOf:n=>`${n} pallets`}
 };
 
 /* ============ ESTADO ============ */
 const S = {
   theme:null, area:null, view:"entry", lang:"pt", client:"minoil", veh:"carreta", mode:"pal", fam:"ALL", q:"", unit:{}, open:{}, csvKind:"sap", view3d:"3d", qf:"all", qs:"", big:"dist", resetArm:false, drafts:[], draftId:null, hopen:null, ddelArm:null, ptab:"rules", pd:{}, pbad:{}, praw:{}, presetArm:false, vdelArm:null,
   qty:{"12031189":1680,"12034109":84,"12142501":560},
-  orders:[], sel:null, csvFor:null
+  orders:[], sel:null, csvFor:null, priceReq:[]
 };
 const t = k => T[S.lang][k];
 const L = () => S.lang==="es"?"es-AR":S.lang==="en"?"en-US":"pt-BR";
@@ -1082,16 +1094,21 @@ const SVG={
 };
 const tile = f => `<div class="tile" style="background:color-mix(in srgb,${famColor(f)} 14%,var(--surface));color:${famColor(f)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${ICON[f]||ICON.OUTROS}</svg></div>`;
 function thumb(p){const src=IMG[p.code];return src?`<div class="tile photo"><img src="${src}" alt="${esc(p[S.lang]||p.pt)}"></div>`:tile(p.fam)}
-function prodFields(p,clientId){return [["fCode",p.code],["fProduct",p.sap],["fFamily",FAM[p.fam]?(FAM[p.fam][S.lang]||FAM[p.fam].pt):p.fam],["fPrice",(p.price==null&&!(p.prices&&p.prices[CLIENTS[clientId].list]!=null))?"—":money(priceFor(p,clientId))],["fUnits",fmt(p.un,0)],["fEan",p.ean||"—"],["fDun",p.dun||"—"],["fGross",fmt(p.gross,3)+" kg"],["fNet",fmt(p.net,3)+" kg"],["fCube",fmt(p.m3,4)+" m³"],["fDims",(p.dims||"—")+" mm"],["fNcm",p.ncm||"—"],["fLine",p.linha||"—"],["fBoxPal",`${p.cxPal} (${p.lastro} × ${p.alt})`]]}
+function prodFields(p,clientId){return [["fCode",p.code],["fProduct",p.sap],["fFamily",FAM[p.fam]?(FAM[p.fam][S.lang]||FAM[p.fam].pt):p.fam],["fPrice",hasPrice(p,CLIENTS[clientId])?money(priceFor(p,clientId)):t("noPrice")],["fUnits",fmt(p.un,0)],["fEan",p.ean||"—"],["fDun",p.dun||"—"],["fGross",fmt(p.gross,3)+" kg"],["fNet",fmt(p.net,3)+" kg"],["fCube",fmt(p.m3,4)+" m³"],["fDims",(p.dims||"—")+" mm"],["fNcm",p.ncm||"—"],["fLine",p.linha||"—"],["fBoxPal",`${p.cxPal} (${p.lastro} × ${p.alt})`],["fLot",`${fmt(p.loteMin,p.loteMin%1?2:0)} pallet${p.loteMin===1?"":"s"}`]]}
 function fichaHTML(p){const src=IMG[p.code];return `<div class="ficha">${src?`<div class="ph"><div style="display:grid;gap:4px;justify-items:center;height:100%"><img src="${src}" alt="${esc(p[S.lang]||p.pt)}" style="max-height:${IMGNOTE[p.code]?118:134}px">${IMGNOTE[p.code]?`<small>${t("illus")}</small>`:""}</div></div>`:`<div class="ph">${tile(p.fam)}</div>`}<dl class="fgrid">${prodFields(p,S.client).map(([k,v])=>`<div><dt>${t(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>${palletHTML(p,p.lastro,p.alt)}</div>`}
 function nowStamp(){const d=new Date();return d.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"})+" "+d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}
-function priceFor(p,clientId){const cl=CLIENTS[clientId];if(p.prices&&p.prices[cl.list]!=null)return p.prices[cl.list];if(p.price==null)return 0;return Math.round(p.price*cl.factor*100)/100}
+/* Preço só da lista do cliente (SAP). Preço digitado à mão (priceSrc "manual") não vale mais: o item fica
+   "sem preço na sua tabela", não soma no valor e impede o envio até a 3corações cadastrar. */
+function hasPrice(p,cl){if(p.prices&&p.prices[cl.list]!=null)return true;return p.price!=null&&p.priceSrc==="sap"}
+function priceFor(p,clientId){const cl=CLIENTS[clientId];if(p.prices&&p.prices[cl.list]!=null)return p.prices[cl.list];if(!hasPrice(p,cl))return 0;return Math.round(p.price*cl.factor*100)/100}
+/* Preço da regra antiga (com o manual), só para pedidos aprovados antes desta mudança */
+function legacyPrice(p,clientId){const cl=CLIENTS[clientId];if(p.prices&&p.prices[cl.list]!=null)return p.prices[cl.list];if(p.price==null)return 0;return Math.round(p.price*cl.factor*100)/100}
 
 const UF={CX:p=>1,UN:p=>p.un,KG:p=>p.net};
 function unitOf(code){return S.unit[code]||"CX"}
 function fmtUnit(v,u){const d=u==="KG"?3:2;const r=Math.round(v*1000)/1000;return Number.isInteger(r)?String(r):r.toLocaleString(L(),{maximumFractionDigits:d,useGrouping:false})}
 function parseNum(v){v=String(v).trim().replace(/\s/g,"");if(v.includes(","))v=v.replace(/\./g,"").replace(",",".");else v=v.replace(/\.(?=\d{3}(\D|$))/g,"");const n=parseFloat(v);return isFinite(n)?n:0}
-function issueText(l,i){return i.k==="noPrice"?t("noPrice"):i.k==="blocked"?t("blocked"):i.k==="inactive"?t("inactive"):i.k==="missing"?t("missing")(i.v,i.n):i.k==="boxMult"?t("boxMult")(fmt(i.raw)):t("belowMin")(i.v)}
+function issueText(l,i){return i.k==="noPrice"?t("noPriceBlock"):i.k==="blocked"?t("blocked"):i.k==="inactive"?t("inactive"):i.k==="missing"?t("missing")(i.v,i.n):i.k==="boxMult"?t("boxMult")(fmt(i.raw)):t("belowMin")(i.v)}
 
 function toast(msg,kind){const box=document.getElementById("toasts");const el=document.createElement("div");el.className="toast"+(kind==="err"?" err":"");el.setAttribute("role",kind==="err"?"alert":"status");el.innerHTML=(kind==="err"?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5h.01"/></svg>':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></svg>')+`<span>${esc(msg)}</span>`;box.appendChild(el);setTimeout(()=>el.remove(),kind==="err"?4200:2600)}
 
@@ -1105,12 +1122,13 @@ function calc(qty,o){
     const pallets=cx/p.cxPal, full=Math.floor(pallets+EPS), frac=pallets-full;
     const hasFrac=frac>EPS;
     const missing=hasFrac?Math.ceil(p.cxPal*(full+1)-cx-EPS):0;
-    const price=priceFor(p,o.client);
-    const l={p,cx,pallets,full,frac:hasFrac?frac:0,missing,net:cx*p.net,gross:cx*p.gross,m3:cx*p.m3,price,value:cx*price,issues:[]};
+    const snap=o.priceSnap&&o.priceSnap[p.code]!=null;
+    const price=snap?o.priceSnap[p.code]:priceFor(p,o.client);
+    const l={p,cx,pallets,full,frac:hasFrac?frac:0,missing,net:cx*p.net,gross:cx*p.gross,m3:cx*p.m3,price,value:cx*price,noPrice:!snap&&!hasPrice(p,cl),issues:[]};
     if(!isInt) l.issues.push({lv:"err",k:"boxMult",raw,lo:Math.floor(raw),hi:Math.ceil(raw)});
     if(cl.blocked.includes(p.code)) l.issues.push({lv:"err",k:"blocked"});
     if(p.off) l.issues.push({lv:"err",k:"inactive"});
-    if(p.price==null&&!(p.prices&&p.prices[cl.list]!=null)) l.issues.push({lv:"err",k:"noPrice"});
+    if(l.noPrice) l.issues.push({lv:"err",k:"noPrice"});
     if(pallets+EPS<p.loteMin) l.issues.push({lv:RULES.minLotBlock?"err":"warn",k:"belowMin",v:p.loteMin});
     if(hasFrac && o.mode==="pal") l.issues.push({lv:RULES.fullPalBlock?"err":"warn",k:"missing",v:missing,n:full+1});
     lines.push(l);
@@ -1122,7 +1140,7 @@ function calc(qty,o){
   const keys=o.mode==="pal"?["kg","m3","pos"]:["kg","m3"];
   const bind=keys.reduce((a,b)=>u[b]>u[a]?b:a,keys[0]);
   const maxU=u[bind];
-  const status=!lines.length?"empty":maxU>1+EPS?"excess":maxU>=RULES.fullAt?"full":"partial";
+  const status=!lines.length?"empty":maxU>1+EPS?"excess":maxU>=RULES.fullAt-EPS?"full":"partial";
   const over={pos:o.mode==="pal"?Math.max(0,tot.positions-v.pos):0,kg:Math.max(0,tot.gross-v.kg),m3:Math.max(0,tot.m3-v.m3)};
   const blocking=!lines.length||lines.some(l=>l.issues.some(i=>i.lv==="err"))||status==="excess";
   const fams={}; lines.forEach(l=>{const f=l.p.fam;fams[f]=fams[f]||{kg:0,val:0,pal:0};fams[f].kg+=l.net;fams[f].val+=l.value;fams[f].pal+=l.pallets});
@@ -1489,10 +1507,10 @@ function renderClients(){
   <div class="hero"><div><h1>Clientes e preços</h1><p>Cada distribuidor tem sua lista de preço, Incoterm, condição de pagamento, restrições por destino e regra de pallet misto. O cadastro vem do SAP (relatório ZSDR059A, citado na Order Basis) e a tabela de preços, da extração Registros.</p></div></div>
   <div class="card card-pad" style="display:grid;gap:12px"><h3 style="font-size:18px">Distribuidores</h3><div class="tbl-wrap"><table class="data">
     <thead><tr><th>Cliente</th><th>Código</th><th>Destino</th><th>Idioma</th><th>Lista</th><th>Incoterm</th><th>Pagamento</th><th>Restrições</th><th>Pallet misto</th><th>Aprovação automática</th><th class="r">Pedidos</th></tr></thead>
-    <tbody>${cls.map(([k,c])=>`<tr><td><b>${esc(c.name)}</b><div class="label">Contato: ${c.contact}</div></td><td class="num">${c.code}</td><td>${c.dest}</td><td>${c.lang==="es"||c.dest==="Mercosul"?"Espanhol":"Português"}</td><td><span class="chip neutral">${c.list}</span></td><td>${c.inc}</td><td>${c.pay}</td><td>${c.blocked.length?c.blocked.map(b=>`<span class="note err">${BY[b].pt}</span>`).join(""):'<span class="label">Nenhuma</span>'}</td><td><label class="switch"><input type="checkbox" data-mixclient="${k}" ${c.mixed?"checked":""} aria-label="Pallet misto para ${esc(c.name)}"> ${c.mixed?"Aceita":"Não aceita"}</label></td><td><label class="switch"><input type="checkbox" data-autoclient="${k}" ${c.autoApprove?"checked":""} aria-label="Aprovação automática para ${esc(c.name)}"> ${c.autoApprove?"Ativa":"Desligada"}</label></td><td class="r num">${S.orders.filter(o=>o.client===k).length}</td></tr>`).join("")}</tbody></table></div><div class="label">A regra de pallet misto vale para os próximos pedidos do cliente e aparece para ele no portal. Com a aprovação automática ativa, pedido sem bloqueio e com carga completa entra aprovado, sem passar pela fila, e a auditoria registra a regra.</div>${RLOG.some(a=>a.kind!=="param")?`<div><h4 class="sec-title">Histórico de regras</h4><div class="audit">${RLOG.filter(a=>a.kind!=="param").slice(0,6).map(a=>`<div><time>${a.at}</time><span><b>${esc(a.who)}</b> · ${esc(a.what)}</span></div>`).join("")}</div></div>`:""}</div>
+    <tbody>${cls.map(([k,c])=>`<tr><td><b>${esc(c.name)}</b><div class="label">Contato: ${c.contact}</div></td><td class="num">${c.code}</td><td>${c.dest}</td><td>${c.lang==="es"||c.dest==="Mercosul"?"Espanhol":"Português"}</td><td><span class="chip neutral">${c.list}</span></td><td>FCA (carreta) · FOB (contêiner)</td><td>${c.pay}</td><td>${c.blocked.length?c.blocked.map(b=>`<span class="note err">${BY[b].pt}</span>`).join(""):'<span class="label">Nenhuma</span>'}</td><td><label class="switch"><input type="checkbox" data-mixclient="${k}" ${c.mixed?"checked":""} aria-label="Pallet misto para ${esc(c.name)}"> ${c.mixed?"Aceita":"Não aceita"}</label></td><td><label class="switch"><input type="checkbox" data-autoclient="${k}" ${c.autoApprove?"checked":""} aria-label="Aprovação automática para ${esc(c.name)}"> ${c.autoApprove?"Ativa":"Desligada"}</label></td><td class="r num">${S.orders.filter(o=>o.client===k).length}</td></tr>`).join("")}</tbody></table></div><div class="label">A regra de pallet misto vale para os próximos pedidos do cliente e aparece para ele no portal. Com a aprovação automática ativa, pedido sem bloqueio e com carga completa entra aprovado, sem passar pela fila, e a auditoria registra a regra.</div>${RLOG.some(a=>a.kind!=="param")?`<div><h4 class="sec-title">Histórico de regras</h4><div class="audit">${RLOG.filter(a=>a.kind!=="param").slice(0,6).map(a=>`<div><time>${a.at}</time><span><b>${esc(a.who)}</b> · ${esc(a.what)}</span></div>`).join("")}</div></div>`:""}</div>
   <div class="card card-pad" style="display:grid;gap:12px"><div class="p-head"><h3 style="font-size:18px">Tabela de preços por cliente</h3><span class="label">USD por caixa · CD Londrina (2612)</span></div><div class="tbl-wrap"><table class="data prices">
     <thead><tr><th>Produto</th>${cls.map(([k,c])=>`<th class="r">${esc(c.name.split(" ")[0])} · lista ${c.list}</th>`).join("")}<th class="r">Fonte</th></tr></thead>
-    <tbody>${P.map(p=>`<tr><td><div style="display:flex;gap:10px;align-items:center"><span class="dot" style="background:${famColor(p.fam)}"></span><div>${esc(p.pt)}<div class="code">${p.code}</div></div></div></td>${cls.map(([k,c])=>`<td class="r num">${c.blocked.includes(p.code)?'<span class="label">bloqueado</span>':(p.price==null&&!(p.prices&&p.prices[c.list]!=null))?'<span class="label">—</span>':money(priceFor(p,k),"pt-BR")}</td>`).join("")}<td class="r">${p.priceSrc==="missing"?'<span class="note err">sem preço</span>':p.priceSrc==="manual"?'<span class="note warn">manual</span>':'<span class="note ok">SAP</span>'}</td></tr>`).join("")}</tbody></table></div>
+    <tbody>${P.map(p=>`<tr><td><div style="display:flex;gap:10px;align-items:center"><span class="dot" style="background:${famColor(p.fam)}"></span><div>${esc(p.pt)}<div class="code">${p.code}</div></div></div></td>${cls.map(([k,c])=>`<td class="r num">${c.blocked.includes(p.code)?'<span class="label">bloqueado</span>':!hasPrice(p,c)?'<span class="label">sem preço na tabela</span>':money(priceFor(p,k),"pt-BR")}</td>`).join("")}<td class="r">${srcNote(p)}</td></tr>`).join("")}</tbody></table></div>
     <div class="label">Lista US vem da extração Registros (EXP-MINOIL). Três produtos não têm preço no SAP e usam o valor digitado na Order Basis.</div></div>`;
 }
 
@@ -1511,7 +1529,7 @@ function initials(n){return String(n).replace(/[^A-Za-zÀ-ÿ ]/g,"").split(/\s+/
 function langName(c){return {es:"Espanhol",pt:"Português",en:"Inglês"}[c.lang||"es"]}
 function listsInfo(){const m={};Object.entries(CLIENTS).forEach(([k,c])=>{(m[c.list]=m[c.list]||{list:c.list,clients:[],factor:c.factor,cur:c.cur}).clients.push(k)});return m}
 function listPrice(p,l){if(p.prices&&p.prices[l]!=null)return p.prices[l];if(p.price==null)return null;const L=listsInfo()[l];return Math.round(p.price*(L?L.factor:1)*100)/100}
-function srcNote(p){return p.priceSrc==="missing"?'<span class="note err">sem preço</span>':p.priceSrc==="manual"?'<span class="note warn">manual</span>':'<span class="note ok">SAP</span>'}
+function srcNote(p){return p.priceSrc==="sap"||(p.prices&&Object.keys(p.prices).length)?'<span class="note ok">SAP</span>':p.priceSrc==="manual"?'<span class="note err" title="O preço digitado à mão não é mais usado">sem preço no SAP</span>':'<span class="note err">sem preço</span>'}
 const CHEV='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
 
 /* ---------- qualidade do cadastro: SAP (fonte usada) x Order Basis (planilha de hoje) ---------- */
@@ -1521,9 +1539,9 @@ function qualityIssues(){
   P.forEach(p=>{const o=p.ob;if(!o)return;
     if(d(o.cxPal,p.cxPal))out.push({p,cat:"pal",imp:"carga",t:`Caixas por pallet: a Order Basis usa ${f(o.cxPal)}, mas o SAP tem ${p.cxPal} (${p.lastro} caixas × ${p.alt} camadas).`,use:`${p.cxPal} cx por pallet`});
     if(d(o.palz,p.cxPal))out.push({p,cat:"pal",imp:"carga",t:`A aba de paletização da planilha traz ${f(o.palz)} cx por pallet${o.palz%1?", um valor quebrado":""}; o SAP tem ${p.cxPal}.`,use:`${p.cxPal} cx por pallet`});
-    if(p.priceSrc==="manual")out.push({p,cat:"price",imp:"valor",t:`Sem preço vigente no SAP: a Order Basis usa US$ ${fmtPT(o.price)}, digitado à mão.`,use:`US$ ${fmtPT(p.price)} manual, até o SAP ter preço`});
+    if(p.priceSrc==="manual")out.push({p,cat:"price",imp:"valor",t:`Sem preço vigente no SAP: a Order Basis usa US$ ${fmtPT(o.price)}, digitado à mão. O preço manual não é mais usado.`,use:`Sem preço: o cliente vê "Sem preço na sua tabela" até o cadastro no SAP`});
     else if(d(o.price,p.price))out.push({p,cat:"price",imp:"valor",t:`Preço: a Order Basis usa US$ ${fmtPT(o.price)}, mas o SAP tem US$ ${fmtPT(p.price)}.`,use:`US$ ${fmtPT(p.price)}`});
-    if(d(o.lote,p.loteMin))out.push({p,cat:"lot",imp:"carga",t:`Lote mínimo: a Order Basis pega ${f(o.lote)}, o primeiro valor que encontra (filial BHO); para Londrina o SAP tem ${f(p.loteMin)} pallet${p.loteMin>1?"s":""}.`,use:`${f(p.loteMin)} pallet${p.loteMin>1?"s":""}`});
+    if(d(o.lote,p.loteMin))out.push({p,cat:"lot",imp:"carga",t:`Lote mínimo diferente entre Londrina e BHO para o mesmo SKU (${f(p.loteMin)} e ${f(o.lote)} pallets). O lote é definido pela unidade produtora e deve ser igual nos dois locais. O 3C Conecta usa o valor da planilha do Planejamento.`,use:`${f(p.loteMin)} pallet${p.loteMin>1?"s":""} (planilha do Planejamento)`});
     if(d(o.grossCx,p.gross,0.05)){const r=o.grossCx/p.gross;
       out.push({p,cat:"kg",imp:"carga",t:r>3?`Peso bruto por caixa: a Order Basis usa ${fmtPT(o.grossCx,2)} kg, quase ${Math.round(r)} vezes o do SAP (${fmtPT(p.gross,2)} kg). A unidade cadastrada é o display, não o stick.`:o.grossCx<p.gross?`Peso bruto por caixa: a Order Basis usa ${fmtPT(o.grossCx,2)} kg porque soma só o produto e ignora a caixa de papelão; o SAP tem ${fmtPT(p.gross,2)} kg.`:`Peso bruto por caixa: a Order Basis usa ${fmtPT(o.grossCx,2)} kg, mas o SAP tem ${fmtPT(p.gross,2)} kg.`,use:`${fmtPT(p.gross,2)} kg por caixa`})}
   });
@@ -1590,7 +1608,7 @@ function renderDist(){
   el.innerHTML=`
   <div class="hero">
     <div><h1>${t("navNew")}</h1>
-      <div class="acct-line"><span>${t("account")}</span><select id="clientSel" aria-label="${t("account")}">${Object.entries(CLIENTS).map(([k,c])=>`<option value="${k}" ${k===S.client?"selected":""}>${esc(c.name)}</option>`).join("")}</select><span class="num">${t("code")} ${cl.code} · ${cl.dest} · ${cl.cur} · ${cl.inc} · ${cl.pay}</span></div>
+      <div class="acct-line"><span>${t("account")}</span><select id="clientSel" aria-label="${t("account")}">${Object.entries(CLIENTS).map(([k,c])=>`<option value="${k}" ${k===S.client?"selected":""}>${esc(c.name)}</option>`).join("")}</select><span class="num">${t("code")} ${cl.code} · ${cl.dest} · ${cl.cur} · ${incOf(S.veh)} · ${cl.pay}</span></div>
       <div class="acct-line"><span>${tr("Rascunho","Borrador","Draft")}</span><select id="draftSel" aria-label="${tr("Rascunho","Borrador","Draft")}">${myDrafts().filter(d=>hasItems(d)||d.id===S.draftId).sort((a,b)=>b.updated-a.updated).map(d=>`<option value="${d.id}" ${d.id===S.draftId?"selected":""}>${esc(d.name)}${hasItems(d)?"":` (${tr("vazio","vacío","empty")})`}</option>`).join("")}</select><button class="link" data-dnew>+ ${tr("Novo rascunho","Nuevo borrador","New draft")}</button></div></div>
     <div class="ph-actions">${r.lines.length?`<span class="saved">${SVG.check} ${t("saved")}</span>`:""}<button class="btn-soft" data-import>${UPLOAD} ${t("impBtn")}</button></div>
   </div>
@@ -1608,7 +1626,9 @@ function renderDist(){
 
 function itemHTML(p,r,cl){
   const l=r.lines.find(x=>x.p.code===p.code); const raw=S.qty[p.code]||0;
-  const noPrice=p.price==null&&!(p.prices&&p.prices[cl.list]!=null); const blocked=cl.blocked.includes(p.code)||noPrice||(!!p.off&&!raw); const u=unitOf(p.code); const f=UF[u](p);
+  const noPrice=!hasPrice(p,cl); const blocked=cl.blocked.includes(p.code)||(!!p.off&&!raw); const u=unitOf(p.code); const f=UF[u](p);
+  const asked=API.priceRequested(S.client,p.code);
+  const npBox=noPrice&&!cl.blocked.includes(p.code)&&!p.off?`<div class="np-box" role="note"><span class="note warn">${t("noPriceMsg")}</span> <button class="btn-soft sm" data-reqprice="${p.code}" ${asked?'disabled aria-disabled="true"':""}>${asked?`${SVG.check.replace("<svg ",'<svg width="14" height="14" ')} ${t("reqPriceDone")}`:t("reqPrice")}</button></div>`:"";
   const dims=p.dims.split("×").map(x=>fmt(parseInt(x)/10,1)).join(" × ");
   let foot="";
   if(l){
@@ -1617,17 +1637,19 @@ function itemHTML(p,r,cl){
     const notes=l.issues.map(i=>{
       if(i.k==="missing")return `<span class="note ${i.lv==="err"?"err":"warn"}">${t("missing")(i.v,i.n)}</span> <button class="link" data-close="${p.code}">${t("closePal")(i.v)}</button>`;
       if(i.k==="boxMult"){const lab=n=>u==="CX"?`${n} ${t("uCX")}`:`${n} ${t("uCX")} · ${fmtUnit(n*f,u)} ${t("u"+u)}`;return `<span class="note err">${t("boxMult")(fmt(i.raw))}</span> ${i.lo>0?`<button class="opt alt" data-setcx="${p.code}:${i.lo}">${lab(i.lo)}</button>`:""}<button class="opt" data-setcx="${p.code}:${i.hi}">${lab(i.hi)}</button>`}
+      if(i.k==="noPrice")return "";
       return `<span class="note ${i.lv==="warn"?"warn":"err"}">${issueText(l,i)}</span>`}).join(" ");
-    foot=`<div class="prod-foot"><span class="pbar" aria-hidden="true">${cells.join("")}${n>24?`<span class="label">+${n-24}</span>`:""}</span><span class="num"><b>${fmt(l.pallets)}</b> ${t("pallets")}</span>${notes||`<span class="note ok">${t("palFull")}</span>`}</div>`;
-  } else if(blocked){foot=`<div class="prod-foot"><span class="note err">${p.off?t("inactive"):noPrice?t("noPrice"):t("blocked")}</span></div>`}
+    foot=`<div class="prod-foot"><span class="pbar" aria-hidden="true">${cells.join("")}${n>24?`<span class="label">+${n-24}</span>`:""}</span><span class="num"><b>${fmt(l.pallets)}</b> ${t("pallets")}</span>${notes.trim()||(noPrice?"":`<span class="note ok">${t("palFull")}</span>`)}</div>${npBox}`;
+  } else if(blocked){foot=`<div class="prod-foot"><span class="note err">${p.off?t("inactive"):t("blocked")}</span></div>`}
+  else if(npBox){foot=npBox}
   const shown=raw?fmtUnit(raw*f,u):"";
-  return `<article class="prod ${raw?"on":""} ${blocked?"blocked":""}">
+  return `<article class="prod ${raw?"on":""} ${blocked?"blocked":""} ${noPrice?"noprice":""}">
     ${thumb(p)}
     <div style="min-width:0"><h3>${esc(p[S.lang])}</h3>
       <div class="sub"><span>${p.brand}</span><span>${p.unLbl}</span><span class="num">${t("perBox2")(p.un,fmt(p.net,p.net<1?3:1))}</span><span class="num">NCM ${p.ncm||"—"}</span></div>
       <div class="build"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 7.5L12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5l9 4.5 9-4.5M12 12v9"/></svg><b class="num" style="color:var(--ink)">${p.cxPal} ${t("boxPal")}</b><span class="num">(${p.lastro} ${t("perLayer")} × ${p.alt} ${t("layers")})</span><span class="num">· ${t("minLot")} ${fmt(p.loteMin,0)} pallet${p.loteMin===1?"":"s"}</span><button class="link" data-ficha="${p.code}" aria-expanded="${!!S.open[p.code]}">${S.open[p.code]?t("fichaHide"):t("ficha")}</button></div>
       </div>
-    <div class="price"><b class="num">${noPrice?"—":money(priceFor(p,S.client))}</b><span>${t("perBox")}</span></div>
+    <div class="price">${noPrice?`<b class="np">${t("noPrice")}</b>`:`<b class="num">${money(priceFor(p,S.client))}</b><span>${t("perBox")}</span>`}</div>
     <div class="qcol">
       <div class="useg" role="group" aria-label="${t("unitHint")}">${["CX","UN","KG"].map(x=>`<button data-unit="${p.code}:${x}" aria-pressed="${u===x}" ${blocked?"disabled":""}>${t("u"+x).toUpperCase()}</button>`).join("")}</div>
       <div class="stepper"><button data-dec="${p.code}" aria-label="−1 pallet" ${blocked?"disabled":""}>−</button><input id="q-${p.code}" data-q="${p.code}" inputmode="decimal" value="${shown}" placeholder="0" aria-label="${esc(p[S.lang])} (${t("u"+u)})" ${blocked?"disabled":""}><button data-inc="${p.code}" aria-label="+1 pallet" ${blocked?"disabled":""}>+</button></div>
@@ -1715,7 +1737,7 @@ function panelHTML(r){
   return `
   <div class="p-cta"><div><span class="label">${t("value")}</span><b class="num">${money(tot.value)}</b></div><button class="btn sm" id="reviewBtn" ${r.lines.length?"":"disabled"}>${t("review")} ${SVG.arrow}</button></div>
   <div class="p-sec p-load">
-    <div class="p-head"><h2>${t("shipment")}</h2><span class="label">${CLIENTS[S.client].inc} · ${CLIENTS[S.client].filial}</span></div>
+    <div class="p-head"><h2>${t("shipment")}</h2><span class="label" data-inc-head>${incOf(S.veh)} · ${CLIENTS[S.client].filial}</span></div>
     <div class="status st-${r.status}"><div class="ring">${st[2]}</div><div><b>${st[0]}</b><small>${st[1]}</small></div></div>
     ${truckBox(r,"dist")}
     ${S.mode==="pal"&&r.lines.length&&v3Supported()&&S.view3d!=="2d"?floorHTML(r):""}
@@ -1759,17 +1781,17 @@ function blockersOf(r){
 }
 function openReview(){
   const d=draft(), r=calc(d.qty,d), cl=CLIENTS[S.client], ov=document.getElementById("overlay"), bl=blockersOf(r);
-  const dd=new Date();dd.setDate(dd.getDate()+21);const iso=isoLocal(dd);
+  const iso=minDate();
   ov.dataset.draft="d"+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
   ov.innerHTML=`<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="rvT">
     <div class="d-head"><div><h2 id="rvT" style="font-size:24px">${t("rvTitle")}</h2><div class="muted">${t("rvSub")}</div></div><button class="x" data-close-ov aria-label="${t("close")}">${ICO_X}</button></div>
     <div class="info">
       <div><span class="label">${t("client")}</span><b>${esc(cl.name)}</b></div>
       <div><span class="label">${t("vehicle")}</span><b>${r.v[S.lang]} · ${S.mode==="pal"?t("paletizada"):t("estivada")}</b></div>
-      <div><span class="label">${t("inc")} · ${t("pay")}</span><b>${cl.inc} · ${cl.pay}</b></div>
+      <div><span class="label">${t("inc")} · ${t("pay")}</span><b data-inc-review>${incOf(d.veh)} · ${cl.pay}</b></div>
     </div>
     <div class="tbl-wrap"><table class="data"><thead><tr><th>${t("product")}</th><th class="r">${t("boxes")}</th><th class="r">${t("totalPal")}</th><th class="r">${t("unitPrice")}</th><th class="r">${t("total")}</th></tr></thead>
-    <tbody>${r.lines.map(l=>`<tr><td><div style="display:flex;gap:10px;align-items:center"><span class="dot" style="background:${famColor(l.p.fam)}"></span><div>${esc(l.p[S.lang]||l.p.pt)}<div class="code">${l.p.code}</div></div></div></td><td class="r num">${fmt(l.cx,0)}</td><td class="r num">${fmt(l.pallets)}</td><td class="r num">${money(l.price)}</td><td class="r num">${money(l.value)}</td></tr>`).join("")}</tbody>
+    <tbody>${r.lines.map(l=>`<tr><td><div style="display:flex;gap:10px;align-items:center"><span class="dot" style="background:${famColor(l.p.fam)}"></span><div>${esc(l.p[S.lang]||l.p.pt)}<div class="code">${l.p.code}</div></div></div></td><td class="r num">${fmt(l.cx,0)}</td><td class="r num">${fmt(l.pallets)}</td><td class="r num">${l.noPrice?`<span class="note warn">${t("noPrice")}</span>`:money(l.price)}</td><td class="r num">${l.noPrice?"—":money(l.value)}</td></tr>`).join("")}</tbody>
     <tfoot><tr><td>${t("total")}</td><td class="r num">${fmt(r.tot.cx,0)}</td><td class="r num">${fmt(r.tot.pallets)}</td><td></td><td class="r num">${money(r.tot.value)}</td></tr></tfoot></table></div>
     <div class="info">
       <div><span class="label">${t("weight")} / ${t("net")}</span><b class="num">${fmt(r.tot.gross,0)} / ${fmt(r.tot.net,0)} kg</b></div>
@@ -1778,10 +1800,11 @@ function openReview(){
     </div>
     <div class="info">
       <label class="field"><span class="label">${t("ref")}</span><input id="rvRef" maxlength="30" autocomplete="off" placeholder="OC-2026-118"></label>
-      <label class="field"><span class="label">${t("date")}</span><input id="rvDate" type="date" min="${minDate()}" value="${iso}"></label>
+      <label class="field"><span class="label">${t("date")}</span><input id="rvDate" type="date" min="${minDate()}" value="${iso}" aria-describedby="rvDateHelp"><small class="label" id="rvDateHelp" style="display:block;margin-top:4px">${t("dateHelp")(RULES.cutDay,RULES.leadMonths,dmy(minDate()))}</small></label>
     </div>
     <div id="rvErr" class="alert err" role="alert" hidden></div>
     ${bl.length?`<div class="blockers"><b>${t("blockT")}</b><ul>${bl.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`:""}
+    ${(()=>{const w=r.lines.flatMap(l=>l.issues.filter(i=>i.lv==="warn"&&i.k==="missing").map(i=>`${l.p[S.lang]||l.p.pt}: ${issueText(l,i)}`));return w.length?`<div class="alerts" data-rv-warn>${w.map(x=>`<div class="alert warn">${SVG.info}<span>${esc(x)}</span></div>`).join("")}</div>`:""})()}
     <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end"><button class="btn-soft" id="rvBack" data-close-ov>${t("back")}</button><button class="btn sm" id="confirmBtn" ${bl.length||!r.lines.length?"disabled":""}>${t("confirm")}</button></div>
   </div>`;
   ov.hidden=false;
@@ -1844,7 +1867,7 @@ function expDetail(o,r){
   const action=o.status==="analise"?`<button class="btn sm" data-approve ${r.blocking?'disabled title="Resolva os bloqueios para aprovar"':""}>Aprovar pedido</button>`:`<button class="btn sm dark" data-csv>${o.status==="sap"?"Ver arquivo para o SAP":"Gerar arquivo para o SAP"}</button>`;
   return `<div class="card card-pad" style="display:grid;gap:22px">
     <div class="d-head"><div style="min-width:0"><span class="label">${o.origin==="Order Basis"?"Importado da planilha Order Basis":"Recebido pelo portal"}</span><h3>${o.id} · ${esc(cl.name)}</h3>
-      <div class="label" style="margin-top:2px">Cód. ${cl.code} · ${cl.inc} · ${cl.pay} · Lista ${cl.list} · ${cl.filial}${o.ref?` · Ref. ${esc(o.ref)}`:""}${o.date?` · Carregamento ${o.date.split("-").reverse().join("/")}`:""}</div></div>
+      <div class="label" style="margin-top:2px">Cód. ${cl.code} · <span data-inc-detail>${orderInc(o)}</span> · ${cl.pay} · Lista ${cl.list} · ${cl.filial}${o.ref?` · Ref. ${esc(o.ref)}`:""}${o.date?` · Carregamento ${o.date.split("-").reverse().join("/")}`:""}</div></div>
       <div class="d-actions"><span class="chip ${ST[o.status][1]}">${ST[o.status][0]}</span><span class="ver">versão ${o.v||1}</span>${action}</div></div>
     ${journeyHTML(o,r)}
     ${o.origin==="Order Basis"?`<div class="callout"><b>Este é o pedido teste da Order Basis.</b> A planilha marcou o embarque como "OK" porque só confere peso e cubagem. O 3C Conecta também conta as posições de pallet: são ${r.tot.positions} pallets para ${v.pos} posições na carreta. O pedido não cabe.</div>`:""}
@@ -1865,7 +1888,7 @@ function expDetail(o,r){
         </div>
       </div></div>
     <div style="display:grid;gap:8px"><div class="tbl-wrap"><table class="data"><thead><tr><th>Produto</th><th class="r">Caixas</th><th class="r">Pallets</th><th class="r">Peso bruto</th><th class="r">Cubagem</th><th class="r">Preço/cx</th><th class="r">Total</th></tr></thead>
-      <tbody>${r.lines.map(l=>`<tr><td><div style="display:flex;gap:10px;align-items:center"><span class="dot" style="background:${famColor(l.p.fam)}"></span><div>${esc(l.p.pt)}<div class="code">${l.p.code}</div></div></div></td><td class="r"><input class="mini-in" id="e-${o.id}-${l.p.code}" data-edit="${l.p.code}" value="${l.cx}" inputmode="numeric" ${o.status!=="analise"?"disabled":""} aria-label="Caixas ${esc(l.p.pt)}"></td><td class="r num">${fmtPT(l.pallets)}</td><td class="r num">${fmtPT(l.gross,0)} kg</td><td class="r num">${fmtPT(l.m3,2)} m³</td><td class="r num">${money(l.price,"pt-BR")}</td><td class="r num">${money(l.value,"pt-BR")}</td></tr>`).join("")}</tbody>
+      <tbody>${r.lines.map(l=>`<tr><td><div style="display:flex;gap:10px;align-items:center"><span class="dot" style="background:${famColor(l.p.fam)}"></span><div>${esc(l.p.pt)}<div class="code">${l.p.code}</div></div></div></td><td class="r"><input class="mini-in" id="e-${o.id}-${l.p.code}" data-edit="${l.p.code}" value="${l.cx}" inputmode="numeric" ${o.status!=="analise"?"disabled":""} aria-label="Caixas ${esc(l.p.pt)}"></td><td class="r num">${fmtPT(l.pallets)}</td><td class="r num">${fmtPT(l.gross,0)} kg</td><td class="r num">${fmtPT(l.m3,2)} m³</td><td class="r num">${l.noPrice?'<span class="note warn">sem preço na tabela</span>':money(l.price,"pt-BR")}</td><td class="r num">${l.noPrice?"—":money(l.value,"pt-BR")}</td></tr>`).join("")}</tbody>
       <tfoot><tr><td>Total</td><td class="r num">${fmtPT(r.tot.cx,0)}</td><td class="r num">${fmtPT(r.tot.pallets)}</td><td class="r num">${fmtPT(r.tot.gross,0)} kg</td><td class="r num">${fmtPT(r.tot.m3,2)} m³</td><td></td><td class="r num">${money(r.tot.value,"pt-BR")}</td></tr></tfoot></table></div>
       ${o.status==="analise"?`<span class="label">${r.blocking?"Ajuste as quantidades na tabela para liberar a aprovação. ":""}Cada alteração recalcula o pedido e fica registrada na auditoria.</span>`:""}</div>
     ${csv?`<div style="display:grid;gap:8px"><div class="p-head"><div style="display:grid;gap:6px"><div class="seg sm" role="group" aria-label="Formato"><button data-csvkind="sap" aria-pressed="${S.csvKind!=="ob"}">Arquivo SAP</button><button data-csvkind="ob" aria-pressed="${S.csvKind==="ob"}">Pedido completo · padrão Order Basis</button></div><span class="label">${S.csvKind==="ob"?"Todos os campos da Order Basis por item: códigos, EAN, DUN, pesos, cubagem, medidas, NCM, linha e totais":"Layout sugerido, a substituir pelo layout oficial de importação do SAP"}</span></div><span style="display:flex;gap:8px"><button class="btn-soft" data-copy>Copiar CSV</button><button class="btn sm" data-download>Baixar CSV</button></span></div><pre class="csv" id="csvBox">${esc(csv)}</pre></div>`:""}
@@ -1880,7 +1903,7 @@ function buildOB(o,r){
 function buildCSV(o,r){
   const cl=CLIENTS[o.client];
   const h="PEDIDO_PORTAL;COD_CLIENTE;REF_CLIENTE;CANAL;CENTRO;LISTA_PRECO;MATERIAL;DESCRICAO_SAP;QTD;UM;PRECO_UNIT;MOEDA;VALOR_TOTAL;INCOTERM;COND_PAGTO;DATA_CARREGAMENTO";
-  return [h,...r.lines.map(l=>[o.id,cl.code,o.ref,"13","2612",cl.list,l.p.code,l.p.sap,l.cx,"CX",l.price.toFixed(2),cl.cur,l.value.toFixed(2),cl.inc,cl.payCode,o.date||""].join(";"))].join("\n");
+  return [h,...r.lines.map(l=>[o.id,cl.code,o.ref,"13","2612",cl.list,l.p.code,l.p.sap,l.cx,"CX",l.price.toFixed(2),cl.cur,l.value.toFixed(2),orderInc(o),cl.payCode,o.date||""].join(";"))].join("\n");
 }
 
 /* ---------- Base e regras ---------- */
@@ -1891,7 +1914,7 @@ function renderBase(){
   <div class="kpis mini">
     <div class="kpi"><span class="label">Produtos no catálogo</span><b class="num">${act}</b><small>${P.length-act?`${P.length-act} fora de linha`:"todos ativos"}</small></div>
     <div class="kpi"><span class="label">Pendências no cadastro</span><b class="num" style="${qi.length?"color:var(--err)":""}">${qi.length}</b><small>em ${qprods} produto${qprods===1?"":"s"} · SAP × Order Basis</small></div>
-    <div class="kpi"><span class="label">Sem preço no SAP</span><b class="num">${P.filter(p=>p.priceSrc!=="sap").length}</b><small>usando preço manual</small></div>
+    <div class="kpi"><span class="label">Sem preço no SAP</span><b class="num">${P.filter(p=>p.priceSrc!=="sap").length}</b><small>ficam sem preço para o cliente até o cadastro</small></div>
     <div class="kpi"><span class="label">Última carga do SAP</span><b class="num">${last?esc(last.at.split(" ")[0]):"09/10"}</b><small>${last?`${last.n} produtos importados`:"carga inicial do catálogo"}</small></div>
   </div>
   <nav class="ptabs" role="tablist" aria-label="Seções">${[["prod","Produtos",P.length],["imp","Importar do SAP",0]].map(([k,l,n])=>`<button role="tab" aria-selected="${tab===k}" data-btab="${k}">${l}${n?`<span class="count">${n}</span>`:""}</button>`).join("")}</nav>
@@ -1921,7 +1944,7 @@ function catProdHTML(qi){
 function fichaAdmHTML(p,iss){
   const f=(l,v)=>`<div><span class="label">${l}</span><b>${v==null||v===""?"-":v}</b></div>`;
   return `<div class="afi"><div class="fi-ph">${IMG[p.code]?`<img src="${IMG[p.code]}" alt="${esc(p.pt)}">`:`<span class="dot" style="background:${famColor(p.fam)};width:18px;height:18px"></span>`}<label class="link" style="cursor:pointer">Trocar foto<input type="file" accept="image/*" data-photo="${p.code}" hidden></label></div>
-    <div class="fi-grid">${f("Código 3C",p.code)}${f("Descrição SAP",esc(p.sap))}${f("Marca",esc(p.brand||""))}${f("Linha",esc(p.linha||""))}${f("Unidades por caixa",esc(p.unLbl))}${f("EAN",p.ean)}${f("DUN",p.dun)}${f("NCM",p.ncm)}${f("Peso líquido/cx",fmtPT(p.net,3)+" kg")}${f("Peso bruto/cx",fmtPT(p.gross,3)+" kg")}${f("Cubagem/cx",fmtPT(p.m3,4)+" m³")}${f("Dimensões (CxLxA)",p.dims?p.dims+" mm":"")}${f("Lastro × camadas",p.lastro+" × "+p.alt)}${f("Caixas por pallet",p.cxPal)}${f("Lote mínimo",fmtPT(p.loteMin,p.loteMin%1?2:0)+" pallet"+(p.loteMin>1?"s":""))}${f("Validade",p.shelf?p.shelf+" dias":"")}</div>
+    <div class="fi-grid">${f("Código 3C",p.code)}${f("Descrição SAP",esc(p.sap))}${f("Marca",esc(p.brand||""))}${f("Linha",esc(p.linha||""))}${f("Unidades por caixa",esc(p.unLbl))}${f("EAN",p.ean)}${f("DUN",p.dun)}${f("NCM",p.ncm)}${f("Peso líquido/cx",fmtPT(p.net,3)+" kg")}${f("Peso bruto/cx",fmtPT(p.gross,3)+" kg")}${f("Cubagem/cx",fmtPT(p.m3,4)+" m³")}${f("Dimensões (CxLxA)",p.dims?p.dims+" mm":"")}${f("Lastro × camadas",p.lastro+" × "+p.alt)}${f("Caixas por pallet",p.cxPal)}${f("Lote mínimo (Planejamento)",fmtPT(p.loteMin,p.loteMin%1?2:0)+" pallet"+(p.loteMin>1?"s":""))}${f("Validade",p.shelf?p.shelf+" dias":"")}</div>
     ${palletHTML(p,p.lastro,p.alt,true)}${iss.length?`<div class="fi-iss"><b>${iss.length} pendência${iss.length>1?"s":""} no cadastro</b>${iss.map(x=>`<span>${x.t}</span>`).join("")}</div>`:""}</div>`;
 }
 /* ============ PARÂMETROS DO NEGÓCIO (painel 3corações) ============ */
@@ -1929,14 +1952,15 @@ function fichaAdmHTML(p,iss){
    A mesma validação (pvalidate) roda na tela e na API, como faria o servidor. */
 const PFIELD={
   "rules.fullAt":{min:0.5,max:1,label:"Carga completa",scale:100,unit:"%"},
-  "rules.leadDays":{min:0,max:60,int:true,label:"Prazo mínimo de carregamento",unit:"dias"},
+  "rules.cutDay":{min:1,max:28,int:true,label:"Dia de corte do pedido",unit:"do mês"},
+  "rules.leadMonths":{min:1,max:6,int:true,label:"Meses de antecedência",unit:"meses"},
   "rules.lateH":{min:1,max:72,label:"Alerta de fila",unit:"h"},
   "veh.*.pos":{min:1,max:60,int:true,label:"Posições de pallet"},
   "veh.*.kg":{min:500,max:60000,label:"Peso máximo",unit:"kg"},
   "veh.*.m3":{min:1,max:150,label:"Cubagem",unit:"m³"},
   "prod.*.lastro":{min:1,max:60,int:true,label:"Lastro"},
   "prod.*.alt":{min:1,max:30,int:true,label:"Camadas"},
-  "prod.*.loteMin":{min:0,max:50,label:"Lote mínimo",unit:"pallets"},
+  "prod.*.loteMin":{min:0,max:50,label:"Lote mínimo (Planejamento)",unit:"pallets"},
   "prod.*.gross":{min:0.01,max:100,label:"Peso bruto por caixa",unit:"kg"}
 };
 const PBOOL=new Set(["rules.minLotBlock","rules.fullPalBlock"]);
@@ -1972,8 +1996,8 @@ function pset(path,v){const [a,b,c]=path.split(".");
 const psame=(a,b)=>typeof a==="number"&&typeof b==="number"?Math.abs(a-b)<1e-9:a===b;
 const pv=(path,cur)=>path in S.pd?S.pd[path]:cur;
 function pdesc(x){const [a,b,c]=x.p.split(".");
-  if(a==="rules"){const L={fullAt:"carga completa a partir de",leadDays:"prazo mínimo de carregamento",lateH:"alerta de pedido parado na fila",minLotBlock:"lote mínimo",fullPalBlock:"pallet incompleto"}[b];
-    const f=v=>b==="fullAt"?nf(v*100)+"%":b==="leadDays"?nf(v)+" dias":b==="lateH"?nf(v)+" h":v?"bloqueia o envio":"só alerta";
+  if(a==="rules"){const L={fullAt:"carga completa a partir de",cutDay:"dia de corte do pedido",leadMonths:"meses de antecedência do carregamento",lateH:"alerta de pedido parado na fila",minLotBlock:"lote mínimo",fullPalBlock:"pallet incompleto"}[b];
+    const f=v=>b==="fullAt"?nf(v*100)+"%":b==="cutDay"?"dia "+nf(v):b==="leadMonths"?nf(v)+(v===1?" mês":" meses"):b==="lateH"?nf(v)+" h":v?"bloqueia o envio":"só alerta";
     return `Regra: ${L} ${f(x.old)} → ${f(x.v)}`}
   if(a==="veh"){const n=VEH[b]?VEH[b].pt:b;
     if(c==="active")return `${n}: ${x.v?"disponível para os clientes":"retirado de uso"}`;
@@ -2037,18 +2061,19 @@ function pRules(){
   const seg=(path,opts)=>{const v=pv(path,pget(path));return `<div class="seg sm ${path in S.pd?"dirty":""}" role="group" aria-label="${esc(opts.label)}">${opts.o.map(([val,l])=>`<button data-pbool="${path}:${val?1:0}" aria-pressed="${v===val}">${l}</button>`).join("")}</div>`};
   return `<div class="pgrid">
     <section class="card card-pad pcard"><div class="sec-h">${ICO.spark}Carga e ocupação</div>
-      <div class="prow"><div><b>Carga completa a partir de</b><span class="label">Percentual do recurso limitante (peso, cubagem ou posições). Abaixo dele o pedido aparece como carga incompleta e não entra na aprovação automática.</span></div>${pin("rules.fullAt",RULES.fullAt,{scale:100,suffix:"%",label:"Carga completa a partir de"})}</div>
+      <div class="prow"><div><b>Carga completa a partir de</b><span class="label">Percentual do recurso limitante (peso, cubagem ou posições). Padrão: 100%. Abaixo dele o pedido aparece como carga incompleta, pode ser enviado (carga parcial é aceita) e não entra na aprovação automática.</span></div>${pin("rules.fullAt",RULES.fullAt,{scale:100,suffix:"%",label:"Carga completa a partir de"})}</div>
     </section>
     <section class="card card-pad pcard"><div class="sec-h">${ICO.bell}Prazos e alertas</div>
-      <div class="prow"><div><b>Prazo mínimo de carregamento</b><span class="label">Primeira data que o cliente pode escolher na revisão do pedido.</span></div>${pin("rules.leadDays",RULES.leadDays,{suffix:"dias",label:"Prazo mínimo de carregamento"})}</div>
+      <div class="prow"><div><b>Dia de corte do pedido</b><span class="label">Pedido feito até este dia do mês (inclusive) carrega a partir do 1º dia, depois dos meses de antecedência. Depois do corte, um mês a mais.</span></div>${pin("rules.cutDay",RULES.cutDay,{suffix:"do mês",label:"Dia de corte do pedido"})}</div>
+      <div class="prow"><div><b>Meses de antecedência</b><span class="label">Hoje, ${dmy(isoLocal(new Date()))}, a primeira data de carregamento é ${dmy(minDate())}.</span></div>${pin("rules.leadMonths",RULES.leadMonths,{suffix:"meses",label:"Meses de antecedência"})}</div>
       <div class="prow"><div><b>Alerta de pedido parado na fila</b><span class="label">Depois desse tempo em análise, o pedido aparece em Atenção agora.</span></div>${pin("rules.lateH",RULES.lateH,{suffix:"h",label:"Alerta de pedido parado na fila"})}</div>
     </section>
     <section class="card card-pad pcard"><div class="sec-h">${SVG.check.replace("<svg ",'<svg width="16" height="16" ')}Validações do pedido</div>
-      <div class="prow"><div><b>Pedido abaixo do lote mínimo</b><span class="label">Lote mínimo por produto, em pallets, definido na aba Produtos.</span></div>${seg("rules.minLotBlock",{label:"Lote mínimo",o:[[true,"Bloqueia o envio"],[false,"Só alerta"]]})}</div>
+      <div class="prow"><div><b>Pedido abaixo do lote mínimo</b><span class="label">Lote mínimo por SKU, em pallets, definido pela unidade produtora (planilha do Planejamento). Vale para qualquer local de embarque.</span></div>${seg("rules.minLotBlock",{label:"Lote mínimo",o:[[true,"Bloqueia o envio"],[false,"Só alerta"]]})}</div>
       <div class="prow"><div><b>Pallet incompleto</b><span class="label">Quando a quantidade não fecha o último pallet do produto.</span></div>${seg("rules.fullPalBlock",{label:"Pallet incompleto",o:[[false,"Só alerta"],[true,"Bloqueia o envio"]]})}</div>
     </section>
     <section class="card card-pad pcard"><div class="sec-h">${NI.clients.replace("<svg ",'<svg width="16" height="16" ')}Regras por cliente</div>
-      ${Object.entries(CLIENTS).map(([k,c])=>`<div class="prow"><div><b>${esc(c.name)}</b><span class="label">${esc(c.dest)} · lista ${c.list} · ${c.inc}</span></div><div class="pcl"><label class="switch"><input type="checkbox" data-mixclient="${k}" ${c.mixed?"checked":""} aria-label="Pallet misto para ${esc(c.name)}"> Pallet misto</label><label class="switch"><input type="checkbox" data-autoclient="${k}" ${c.autoApprove?"checked":""} aria-label="Aprovação automática para ${esc(c.name)}"> Aprovação automática</label></div></div>`).join("")}
+      ${Object.entries(CLIENTS).map(([k,c])=>`<div class="prow"><div><b>${esc(c.name)}</b><span class="label">${esc(c.dest)} · lista ${c.list} · FCA ou FOB pelo veículo</span></div><div class="pcl"><label class="switch"><input type="checkbox" data-mixclient="${k}" ${c.mixed?"checked":""} aria-label="Pallet misto para ${esc(c.name)}"> Pallet misto</label><label class="switch"><input type="checkbox" data-autoclient="${k}" ${c.autoApprove?"checked":""} aria-label="Aprovação automática para ${esc(c.name)}"> Aprovação automática</label></div></div>`).join("")}
       <div class="label">Estas duas valem na hora e ficam no histórico.</div>
     </section>
   </div>`;
@@ -2087,12 +2112,12 @@ function pProd(){
   const pc=BY[S.palCode]?S.palCode:P[0].code, pp=BY[pc];
   return `<section class="card card-pad pal-card"><div class="p-head"><h3>Pallet do produto</h3><label class="pal-sel"><span class="label">Produto</span><select id="palSel" aria-label="Produto do pallet">${P.map(p=>`<option value="${p.code}" ${p.code===pc?"selected":""}>${esc(p.pt)}</option>`).join("")}</select></label></div><p class="label" style="margin:0">Muda na hora quando você edita lastro ou camadas na tabela, antes de salvar.</p>${palletHTML(pp,pv("prod."+pc+".lastro",pp.lastro),pv("prod."+pc+".alt",pp.alt),true)}</section>
   <div class="card"><div class="card-pad p-head" style="padding-bottom:8px"><h3 style="font-size:18px">Paletização e lote por produto</h3><span class="label">Caixas por pallet = lastro × camadas</span></div>
-    <div class="tbl-wrap"><table class="data ptbl"><thead><tr><th>Produto</th><th class="r">Lastro<small>cx por camada</small></th><th class="r">Camadas</th><th class="r">Cx/pallet</th><th class="r">Lote mínimo<small>pallets</small></th><th class="r">Peso bruto<small>por caixa</small></th><th>No catálogo</th></tr></thead>
+    <div class="tbl-wrap"><table class="data ptbl"><thead><tr><th>Produto</th><th class="r">Lastro<small>cx por camada</small></th><th class="r">Camadas</th><th class="r">Cx/pallet</th><th class="r">Lote mínimo (Planejamento)<small>pallets</small></th><th class="r">Peso bruto<small>por caixa</small></th><th>No catálogo</th></tr></thead>
     <tbody>${P.map(p=>{const off=pv("prod."+p.code+".off",!!p.off),cx=pv("prod."+p.code+".lastro",p.lastro)*pv("prod."+p.code+".alt",p.alt);
       return `<tr class="${off?"off":""}"><td><div style="display:flex;gap:10px;align-items:center"><span class="dot" style="background:${famColor(p.fam)}"></span><div>${esc(p.pt)}<div class="code">${p.code} · ${esc(p.unLbl)}</div></div></div></td>
       <td class="r">${pin("prod."+p.code+".lastro",p.lastro,{label:"Lastro: "+p.pt})}</td><td class="r">${pin("prod."+p.code+".alt",p.alt,{label:"Camadas: "+p.pt})}</td>
       <td class="r num"><b id="cxp-${p.code}">${fmtPT(cx,0)}</b></td>
-      <td class="r">${pin("prod."+p.code+".loteMin",p.loteMin,{label:"Lote mínimo: "+p.pt})}</td><td class="r">${pin("prod."+p.code+".gross",p.gross,{suffix:"kg",label:"Peso bruto por caixa: "+p.pt})}</td>
+      <td class="r">${pin("prod."+p.code+".loteMin",p.loteMin,{label:"Lote mínimo (Planejamento): "+p.pt})}</td><td class="r">${pin("prod."+p.code+".gross",p.gross,{suffix:"kg",label:"Peso bruto por caixa: "+p.pt})}</td>
       <td>${sw("prod."+p.code+".off",!off,"Ativo","Fora de linha",true,"No catálogo: "+p.pt)}</td></tr>`}).join("")}</tbody></table></div>
     <div class="card-pad label" style="padding-top:12px">Os valores de fábrica vêm do SAP (Materiais e Conferência de produtos). Um ajuste aqui vale para o portal até a próxima carga do SAP; divergências com a Order Basis continuam em Catálogo e dados. Produto fora de linha some do catálogo do cliente e bloqueia pedidos que ainda o tenham.</div></div>`;
 }
@@ -2127,20 +2152,30 @@ function catalogHTML(){
     <div class="tbl-wrap"><table class="data cat-tbl"><thead><tr>${H.map((h,i)=>`<th class="${i>=4&&i!==6&&i!==7&&i!==11&&i!==12?"r":""}">${h}</th>`).join("")}</tr></thead><tbody>
     ${P.map(p=>`<tr><td><div style="display:grid;gap:4px;justify-items:start"><div class="mini">${IMG[p.code]?`<img src="${IMG[p.code]}" alt="${esc(p.pt)}">`:`<span class="dot" style="background:${famColor(p.fam)}"></span>`}</div><label class="link" style="cursor:pointer;font-size:11.5px">Trocar foto<input type="file" accept="image/*" data-photo="${p.code}" hidden></label></div></td>
       <td class="num">${p.code}</td><td>${esc(p.pt)}<div class="code">${esc(p.sap)}</div></td><td>${FAM[p.fam]?FAM[p.fam].pt:p.fam}</td>
-      <td class="r num">${p.price==null?"sem preço":fmtPT(p.price)}</td><td class="r num">${p.un}</td><td class="num">${p.ean||"—"}</td><td class="num">${p.dun||"—"}</td>
+      <td class="r num">${p.price==null||p.priceSrc!=="sap"?"sem preço no SAP":fmtPT(p.price)}</td><td class="r num">${p.un}</td><td class="num">${p.ean||"—"}</td><td class="num">${p.dun||"—"}</td>
       <td class="r num">${fmtPT(p.gross,3)} kg</td><td class="r num">${fmtPT(p.net,3)} kg</td><td class="r num">${fmtPT(p.m3,4)} m³</td><td class="num">${p.dims||"—"}</td><td class="num">${p.ncm||"—"}</td><td>${esc(p.linha||"—")}</td><td class="r num">${p.cxPal}</td></tr>`).join("")}
     </tbody></table></div></div>`;
 }
 
 /* ============ IMPORTAÇÃO DO SAP ============ */
 const IMP={files:[],preview:null,log:[],error:""};
-const KIND={conferencia:"Conferência de produtos",materiais:"Materiais",registros:"Registros (preços)",desconhecido:"Não reconhecido",erro:"Erro de leitura"};
+const KIND={conferencia:"Conferência de produtos",materiais:"Materiais",registros:"Registros (preços)",planejamento:"Planejamento (lote mínimo)",desconhecido:"Não reconhecido",erro:"Erro de leitura"};
 function num(v){if(typeof v==="number")return v;if(v==null||v==="")return NaN;return parseNum(v)}
 const ok=v=>typeof v==="number"&&isFinite(v)&&v>0;
 function title(s){return String(s).toLowerCase().replace(/(^|\s)\S/g,m=>m.toUpperCase())}
 function mapFam(s){const u=String(s||"").toUpperCase().trim();if(!u)return null;if(u.startsWith("CAF"))return "CAFES";if(u.startsWith("CAPP"))return "CAPPUCCINO";if(u.startsWith("SOL"))return "SOLUVEIS";if(u.startsWith("PORTA"))return "PORTA";if(u.startsWith("FILTRO"))return "FILTROS";return u}
 function mapBrand(s){const u=String(s||"").toUpperCase();if(!u)return null;if(u.includes("IGUA"))return "Iguaçu";if(u.includes("GERAL")||u.startsWith("3C"))return "3corações";return title(u.replace(/\s*\(\d+\)/,""))}
 function unLabel(sap,un){const m=String(sap).match(/(\d+(?:X\d+)*X[\d,]+)(G|KG|ML|UN)\b/i);if(m)return m[1].split(/X/i).join(" × ")+" "+m[2].toLowerCase();const c=String(sap).match(/C\/(\d+)/);if(c)return c[1]+" un";return (un||"?")+" un"}
+/* Planilha do Planejamento: um lote mínimo por SKU, definido pela unidade produtora (vale para Londrina e BHO).
+   Reconhece o cabeçalho pelas colunas de código (SKU, código, material) e de lote mínimo (lote, pallets). */
+function planSheet(rows){
+  const n=v=>nrm(v).replace(/[^a-z0-9]+/g," ").trim();
+  for(let i=0;i<Math.min(rows.length,10);i++){
+    const h=rows[i].map(n), iLot=h.findIndex(x=>/\blote\b/.test(x)), iCode=h.findIndex(x=>/\b(sku|codigo|cod|material)\b/.test(x)&&!/lote|descri/.test(x));
+    if(iLot>=0&&iCode>=0&&iLot!==iCode)return {head:rows[i].map(x=>String(x).trim()),iCode,iLot,body:rows.slice(i+1).filter(r=>r.some(c=>c!==""&&c!=null))};
+  }
+  return null;
+}
 async function readFiles(list){
   IMP.error="";
   if(!window.XLSX){try{await ensureXLSX()}catch(_){}}
@@ -2153,15 +2188,17 @@ async function readFiles(list){
       let hi=-1;for(let i=0;i<Math.min(rows.length,10);i++){if(rows[i].some(c=>String(c).trim()==="Material")){hi=i;break}}
       const head=hi>=0?rows[hi].map(h=>String(h).trim()):[]; const body=hi>=0?rows.slice(hi+1).filter(r=>r.some(c=>c!==""&&c!=null)):[];
       const kind=head.includes("UM alternativa")?"conferencia":head.includes("Lista de Preço")?"registros":head.includes("Lastro")?"materiais":"desconhecido";
+      if(kind==="desconhecido"){const pl=planSheet(rows);if(pl){out.push({name:f.name,kind:"planejamento",...pl});continue}}
       out.push({name:f.name,kind,head,body});
     }catch(e){out.push({name:f.name,kind:"erro",head:[],body:[]})}
   }
   IMP.files=out; IMP.preview=buildPreview(out); render();
 }
 function buildPreview(files){
-  const conf=files.find(f=>f.kind==="conferencia"),mat=files.find(f=>f.kind==="materiais"),reg=files.find(f=>f.kind==="registros");
-  if(!conf&&!mat&&!reg) return {items:[],msg:"Nenhuma extração reconhecida. Use os arquivos Conferência de produtos, Materiais ou Registros, como saem do SAP."};
+  const conf=files.find(f=>f.kind==="conferencia"),mat=files.find(f=>f.kind==="materiais"),reg=files.find(f=>f.kind==="registros"),plan=files.find(f=>f.kind==="planejamento");
+  if(!conf&&!mat&&!reg&&!plan) return {items:[],msg:"Nenhuma planilha reconhecida. Use as extrações Conferência de produtos, Materiais ou Registros, como saem do SAP, ou a planilha do Planejamento (código do SKU e lote mínimo em pallets)."};
   const R={}; const get=c=>R[c]=R[c]||{code:c,alerts:[]};
+  if(plan){const iC=plan.iCode,iL=plan.iLot;plan.body.forEach(r=>{const c=String(r[iC]==null?"":r[iC]).trim().replace(/\.0+$/,"");if(!/^\d{6,10}$/.test(c))return;const v=num(r[iL]);if(!(isFinite(v)&&v>=0&&v<=50))return;get(c).lote=v})}
   if(mat){const h=mat.head,iM=h.indexOf("Material"),iD=h.indexOf("Descrição"),iL=h.indexOf("Lastro"),iA=h.indexOf("Altura");
     mat.body.forEach(r=>{const c=String(r[iM]).trim();if(!c)return;const x=get(c);x.sap=x.sap||String(r[iD]).trim();x.lastro=num(r[iL]);x.alt=num(r[iA])})}
   if(conf){const h=conf.head,iM=h.indexOf("Material"),iD=h.indexOf("Texto breve material"),iU=h.indexOf("UM alternativa"),iC=h.indexOf("Contador"),iJ=h.indexOf("Comprimento"),iK=h.indexOf("Largura"),iH=h.indexOf("Altura"),iV=h.indexOf("Volume"),iN=h.indexOf("Peso líquido"),iG=h.indexOf("Peso bruto"),iW=h.indexOf("Unidade de peso"),iS=h.indexOf("Prazo de validade"),iF=h.indexOf("Denominação"),iB=iF>=0?h.indexOf("Denominação",iF+1):-1,iLn=iB>=0?h.indexOf("Denominação",iB+1):-1,iE=h.indexOf("Código EAN/UPC"),iL=h.indexOf("Lastro"),iA=h.lastIndexOf("Altura");
@@ -2181,16 +2218,16 @@ function buildPreview(files){
     if(ok(x.gross)&&ok(x.net)&&x.gross<x.net){alerts.push("Peso bruto menor que o líquido no SAP (unidade trocada)."+(cur?" Mantido o valor atual.":""));gross=cur?cur.gross:x.net}
     let price,priceSrc,prices=cur&&cur.prices;
     if(x.prices&&Object.keys(x.prices).length){prices=x.prices;price=x.prices.US!=null?x.prices.US:Object.values(x.prices)[0];priceSrc="sap"}
-    else if(cur&&cur.price!=null){price=cur.price;priceSrc=reg?"manual":cur.priceSrc;if(reg)alerts.push("Sem preço vigente no SAP. Mantido o preço manual.")}
+    else if(cur&&cur.price!=null){price=cur.price;priceSrc=reg?"manual":cur.priceSrc;if(reg)alerts.push("Sem preço vigente no SAP. O preço digitado à mão não é usado: o item fica sem preço para o cliente até o cadastro.")}
     else{price=null;priceSrc="missing";alerts.push("Sem preço. Fica indisponível no catálogo até ter preço.")}
-    if(!cur)alerts.push("Lote mínimo não vem do SAP. Usado 1 pallet como padrão.");
+    if(!cur&&x.lote==null)alerts.push("Lote mínimo vem da planilha do Planejamento, não do SAP. Usado 1 pallet até a planilha ser importada.");
     const p={code:x.code,fam:mapFam(x.famRaw)||(cur&&cur.fam)||"OUTROS",brand:mapBrand(x.brandRaw)||(cur&&cur.brand)||"3corações",sap:x.sap||(cur&&cur.sap),
       pt:cur?cur.pt:x.sap,es:cur?cur.es:x.sap,un:ok(x.un)?x.un:cur.un,unLbl:cur?cur.unLbl:unLabel(x.sap,x.un),net:ok(x.net)?x.net:cur.net,gross,dm3:ok(x.dm3)?x.dm3:cur.dm3,
-      lastro:ok(x.lastro)?x.lastro:cur.lastro,alt:ok(x.alt)?x.alt:cur.alt,price,priceSrc,prices,loteMin:cur?cur.loteMin:1,en:cur?cur.en:x.sap,ean:(cur&&cur.ean)||x.ean||"",dun:(cur&&cur.dun)||x.dun||"",linha:x.linha||(cur&&cur.linha)||"",shelf:ok(x.shelf)?x.shelf:cur&&cur.shelf,ncm:cur?cur.ncm:"",dims:x.dims||(cur&&cur.dims),ob:cur?cur.ob:null};
+      lastro:ok(x.lastro)?x.lastro:cur.lastro,alt:ok(x.alt)?x.alt:cur.alt,price,priceSrc,prices,loteMin:x.lote!=null?x.lote:cur?cur.loteMin:1,loteSrc:x.lote!=null?"planejamento":cur?cur.loteSrc:undefined,en:cur?cur.en:x.sap,ean:(cur&&cur.ean)||x.ean||"",dun:(cur&&cur.dun)||x.dun||"",linha:x.linha||(cur&&cur.linha)||"",shelf:ok(x.shelf)?x.shelf:cur&&cur.shelf,ncm:cur?cur.ncm:"",dims:x.dims||(cur&&cur.dims),ob:cur?cur.ob:null};
     p.cxPal=p.lastro*p.alt;p.m3=p.dm3/1000;
     const ch=[];
     if(cur){const cmp=(k,a,b,d)=>{if(a!=null&&b!=null&&Math.abs(a-b)>(d||0.001))ch.push(`${k}: ${fmtPT(a,a%1?2:0)} → ${fmtPT(b,b%1?2:0)}`)};
-      cmp("cx/pallet",cur.cxPal,p.cxPal);cmp("peso bruto/cx",cur.gross,p.gross,0.005);cmp("peso líquido/cx",cur.net,p.net,0.005);cmp("volume/cx (dm³)",cur.dm3,p.dm3,0.01);if(cur.price!=null&&p.price!=null)cmp("preço US$",cur.price,p.price,0.005)}
+      cmp("cx/pallet",cur.cxPal,p.cxPal);cmp("peso bruto/cx",cur.gross,p.gross,0.005);cmp("peso líquido/cx",cur.net,p.net,0.005);cmp("volume/cx (dm³)",cur.dm3,p.dm3,0.01);cmp("lote mínimo (pallets)",cur.loteMin,p.loteMin,0.001);if(cur.price!=null&&p.price!=null)cmp("preço US$",cur.price,p.price,0.005)}
     items.push({p,status:!cur?"novo":ch.length?"alterado":"igual",changes:ch,alerts});
   });
   items.sort((a,b)=>({novo:0,alterado:1,igual:2}[a.status]-{novo:0,alterado:1,igual:2}[b.status]));
@@ -2207,7 +2244,7 @@ function importHTML(){
   const cnt=k=>pv?pv.items.filter(i=>i.status===k).length:0;
   const nAl=pv?pv.items.reduce((a,i)=>a+i.alerts.length,0):0;
   return `<div class="card card-pad" style="display:grid;gap:16px">
-    <div class="p-head"><div><h3 style="font-size:18px">Importar do SAP</h3><div class="label">Arraste as extrações Conferência de produtos, Materiais e Registros, no formato em que saem do SAP. Nada muda no catálogo antes da sua confirmação.</div></div></div>
+    <div class="p-head"><div><h3 style="font-size:18px">Importar do SAP</h3><div class="label">Arraste as extrações Conferência de produtos, Materiais e Registros, no formato em que saem do SAP, e a planilha do Planejamento com o lote mínimo (colunas: código do SKU e lote mínimo em pallets). Nada muda no catálogo antes da sua confirmação.</div></div></div>
     <label class="drop" id="drop"><input type="file" id="sapFiles" multiple accept=".xlsx,.xls,.csv" hidden>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5"/><path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg>
       <b>Arraste as planilhas aqui</b><span class="label">ou clique para escolher · .xlsx, .xls ou .csv</span></label>
@@ -2233,7 +2270,7 @@ const ICO={
   repeat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12"/><path d="M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/></svg>',
   bell:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>'
 };
-function hasPrice(p,cl){return !(p.price==null&&!(p.prices&&p.prices[cl.list]!=null))}
+/* hasPrice(p,cl) fica junto de priceFor, no começo do motor */
 /* Pedido sugerido: mix do histórico do cliente, em pallets fechados, enchendo a carreta dentro de peso, cubagem e lote mínimo */
 function suggestedOrder(){
   const cl=CLIENTS[S.client], hist=S.orders.filter(o=>o.client===S.client), w={};
@@ -2290,11 +2327,11 @@ function clientInsights(){
   if(portal.length){const avg=portal.reduce((a,o)=>a+Math.min(calc(o.qty,o).maxU,1),0)/portal.length;out.push(t("iOcc")(fmt(avg*100,0),fmt(RULES.fullAt*100,0)))}
   const w={}; mine.forEach(o=>Object.entries(o.qty).forEach(([c,q])=>{const p=BY[c];if(p)w[c]=(w[c]||0)+q/p.cxPal}));
   const top=Object.entries(w).sort((a,b)=>b[1]-a[1])[0]; if(top&&BY[top[0]])out.push(t("iTop")(BY[top[0]][S.lang]||BY[top[0]].pt,fmt(top[1],0)));
-  out.push(t("iLead")(RULES.leadDays));
+  out.push(t("iLead")(RULES.cutDay,RULES.leadMonths,dmy(minDate())));
   return out;
 }
 function pallF(x){return fmt(x,2).replace(/[,.]00$/,"")}
-function capBar(r){const p=Math.round(r.maxU*100), c=r.status==="excess"||r.maxU>1+EPS?"err":r.maxU>=RULES.fullAt-1e-9?"ok":"warn";return `<span class="or-cap ${c}" title="${tr("Ocupação do veículo","Ocupación del vehículo","Vehicle occupancy")}"><i><s style="width:${Math.min(100,p)}%"></s></i><em class="num">${p}%</em></span>`}
+function capBar(r){const p=Math.round(r.maxU*100), c=r.status==="excess"||r.maxU>1+EPS?"err":r.status==="full"?"ok":"warn";return `<span class="or-cap ${c}" title="${tr("Ocupação do veículo","Ocupación del vehículo","Vehicle occupancy")}"><i><s style="width:${Math.min(100,p)}%"></s></i><em class="num">${p}%</em></span>`}
 const HHI={prog:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2.5" width="8" height="4" rx="1"/><path d="M16 4.5h2a2 2 0 0 1 2 2V20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6.5a2 2 0 0 1 2-2h2"/><path d="M9 12h6M9 16h4"/></svg>',
   hist:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 2.6-6.4L3 8"/><path d="M3 3v5h5"/><path d="M12 7.5V12l3 2"/></svg>',
   bulb:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 21.5h4"/><path d="M12 2.5a6.5 6.5 0 0 0-3.9 11.7c.6.5.9 1.2.9 2V16h6v-.1c0-.8.3-1.5.9-2A6.5 6.5 0 0 0 12 2.5z"/></svg>'};
@@ -2314,7 +2351,7 @@ function renderHome(){
   const sugOk=sg.r.lines.length>0;
   document.getElementById("v-home").innerHTML=`
   <div class="hero home-hero"><div><h1>${t("hello")(cl.contact)}</h1><p class="hh-sum">${sum}</p>
-    <div class="acct-line"><span>${t("account")}</span><select id="clientSel" aria-label="${t("account")}">${Object.entries(CLIENTS).map(([k,c])=>`<option value="${k}" ${k===S.client?"selected":""}>${esc(c.name)}</option>`).join("")}</select><span class="num">${t("code")} ${cl.code} · ${cl.dest} · ${cl.cur} · ${cl.inc}</span></div></div>
+    <div class="acct-line"><span>${t("account")}</span><select id="clientSel" aria-label="${t("account")}">${Object.entries(CLIENTS).map(([k,c])=>`<option value="${k}" ${k===S.client?"selected":""}>${esc(c.name)}</option>`).join("")}</select><span class="num">${t("code")} ${cl.code} · ${cl.dest} · ${cl.cur} · ${incOf(S.veh)}</span></div></div>
     <div class="ph-actions"><button class="btn sm" data-dnew>${t("navNew")} ${SVG.arrow}</button></div></div>
   <div class="home2">
     <section class="card hx" aria-label="${tr("A Xica sugere","Xica sugiere","Xica suggests")}">
@@ -2419,7 +2456,15 @@ function attnHTML(rs){
     <button class="att ${late?"warn":"ok"}" data-qf="late" aria-pressed="${S.qf==="late"}"><span class="lbl">${QFX.late}</span><b class="num">${late}</b><span class="s">${late?"fora do prazo de resposta ao cliente":"fila dentro do prazo"}</span></button>
     <button class="att info" data-qf="partial" aria-pressed="${S.qf==="partial"}"><span class="lbl">Cargas incompletas</span><b class="num">${part.length}</b><span class="s">${free} posições livres para completar</span></button>
     <button class="att ${di.div?"warn":"ok"}" data-view="base"><span class="lbl">Qualidade de dados</span><b class="num">${di.div}</b><span class="s">divergências SAP × Order Basis · ${di.noPrice} sem preço no SAP</span></button>
-  </div></div>`;
+  </div>${priceReqHTML()}</div>`;
+}
+/* Solicitações de cadastro de preço feitas pelos clientes (botão "Avisar a 3corações" no catálogo) */
+function priceReqHTML(){
+  const rq=API.priceRequests("aberta"); if(!rq.length)return "";
+  return `<section class="preq" aria-labelledby="preqT"><h3 id="preqT" class="preq-h">Cadastro de preço solicitado <span class="chip warn">${rq.length}</span></h3>
+    <div class="tbl-wrap"><table class="data"><thead><tr><th>Cliente</th><th>Produto</th><th>Lista</th><th>Data</th></tr></thead><tbody>
+    ${rq.map(x=>{const c=CLIENTS[x.client],p=BY[x.code];return `<tr><td>${esc(c?c.name:x.client)}</td><td>${esc(p?p.pt:x.code)}<div class="code">${esc(x.code)}</div></td><td>${esc(x.list||(c&&c.list)||"")}</td><td class="num">${esc(x.at)}</td></tr>`}).join("")}
+    </tbody></table></div></section>`;
 }
 function adminInsightsHTML(rs){
   return `<div class="card card-pad" style="display:grid;gap:12px"><div class="sec-h">${xav("feliz")}Insights da Xica</div><div class="insights" style="font-size:13.5px;gap:10px">${adminInsightsList(rs).map(x=>`<div>${esc(x)}</div>`).join("")}</div></div>`;
@@ -2430,7 +2475,7 @@ function bestVehicle(d){let best=null,bu=-1;activeVeh().forEach(k=>{const rr=cal
 function vehPicker(){
   const d=draft(), best=bestVehicle(d);
   return `<div class="vehs" role="radiogroup" aria-label="${t("vehicle")}">${Object.entries(VEH).filter(([k])=>vehOn(k)||k===S.veh).map(([k,x])=>{const rr=calc(d.qty,{...d,veh:k}),pct=rr.maxU*100,c=!rr.lines.length?"var(--surface-3)":rr.status==="excess"?"var(--err)":rr.status==="full"?"var(--ok)":"var(--warn)";
-    return `<button class="veh ${S.veh===k?"on":""}" role="radio" aria-checked="${S.veh===k}" data-veh="${k}"><span class="vn">${x[S.lang]}${k===best?`<span class="rec">${t("recommended")}</span>`:""}<small>${t("capShort")(x.pos,fmt(x.kg/1000,0))} · ${fmt(x.m3,0)} m³</small></span><span class="vbar"><i style="width:${Math.min(pct,100)}%;background:${c}"></i></span><span class="vp" style="${rr.status==="excess"?"color:var(--err)":""}">${rr.lines.length?fmt(pct,0)+"%":"—"}</span></button>`}).join("")}</div>`;
+    return `<button class="veh ${S.veh===k?"on":""}" role="radio" aria-checked="${S.veh===k}" data-veh="${k}"><span class="vn">${x[S.lang]}${k===best?`<span class="rec">${t("recommended")}</span>`:""}<small>${t("capShort")(x.pos,fmt(x.kg/1000,x.kg%1000?1:0))} · ${fmt(x.m3,0)} m³</small></span><span class="vbar"><i style="width:${Math.min(pct,100)}%;background:${c}"></i></span><span class="vp" style="${rr.status==="excess"?"color:var(--err)":""}">${rr.lines.length?fmt(pct,0)+"%":"—"}</span></button>`}).join("")}</div>`;
 }
 function unitLoads(r){
   if(r.mode==="pal")return palletUnits(r).map(u=>({kg:u.reduce((a,s)=>a+s.f*s.p.cxPal*s.p.gross,0),m3:u.reduce((a,s)=>a+s.f*s.p.cxPal*s.p.m3,0),pos:1}));
@@ -2559,17 +2604,17 @@ function applyOrderImport(mode){
 /* Medidas internas em metros. Pallet PBR 1,20 × 1,00 m, duas filas. px = profundidade da posição ao longo do veículo. */
 const V3SPEC={
   carreta:{L:14.6,W:2.48,H:2.7,px:1.0,pz:1.2,floor:1.25,kind:"trailer",axles:[1.1,2.4,3.7],legs:true},
-  c40:{L:12.03,W:2.35,H:2.39,px:1.2,pz:1.0,floor:1.4,kind:"container",axles:[1.0,2.3,3.6],legs:true},
-  c20:{L:6.06,W:2.35,H:2.39,px:1.2,pz:1.0,floor:1.4,kind:"container",axles:[0.9,2.1],legs:false}
+  c40:{L:12.03,W:2.35,H:2.39,px:1.2,pz:1.0,floor:0.3,kind:"container",axles:[],legs:false},
+  c20:{L:6.06,W:2.35,H:2.39,px:1.2,pz:1.0,floor:0.3,kind:"container",axles:[],legs:false}
 };
 /* Veículos cadastrados em Parâmetros ganham medidas derivadas do tipo e do número de posições */
 function v3S(key,pos){
   const b=V3SPEC[key], v=VEH[key]||{pos:pos||28,kind:"trailer"}, n=pos||v.pos, kind=b?b.kind:(v.kind==="container"?"container":"trailer");
-  const base=b||(kind==="container"?{W:2.35,H:2.39,px:1.2,pz:1.0,floor:1.4,kind}:{W:2.48,H:2.7,px:1.0,pz:1.2,floor:1.25,kind});
+  const base=b||(kind==="container"?{W:2.35,H:2.39,px:1.2,pz:1.0,floor:0.3,kind}:{W:2.48,H:2.7,px:1.0,pz:1.2,floor:1.25,kind});
   const rows=Math.ceil(n/2), need=rows*base.px+(rows+1)*0.03;
   if(b&&need<=b.L)return b;
   const L=Math.max(need,3.2);
-  return {...base,L,axles:L>9?[1.1,2.4,3.7]:L>5.5?[1.0,2.3]:[0.9],legs:L>7.5};
+  return {...base,L,axles:kind==="container"?[]:L>9?[1.1,2.4,3.7]:L>5.5?[1.0,2.3]:[0.9],legs:kind!=="container"&&L>7.5};
 }
 const HERO_QTY={"12031189":1680,"12031291":672,"12034103":324,"12142501":1400,"12037417":273};
 const V3P={persp:[1.02,1.06],side:[Math.PI/2,1.42],top:[Math.PI/2,0.16],front:[2.3,1.04],hero:[2.02,1.12]};
@@ -2654,28 +2699,55 @@ function v3Vehicle(key,dark,pos){
   const glass=V3.mats["glass"+dark]||(V3.mats["glass"+dark]=new T3.MeshStandardMaterial({color:dark?0xd5dde6:0xffffff,transparent:true,opacity:dark?0.06:0.2,roughness:.15,depthWrite:false,side:T3.DoubleSide}));
   const edge=V3.mats["edge"+dark]||(V3.mats["edge"+dark]=new T3.LineBasicMaterial({color:dark?0xcdb8aa:0x500f0f,transparent:true,opacity:.75}));
   v3Box(g,floorM,L,0.12,W+0.06,L/2,F-0.06,0);
-  v3Box(g,frame,L,0.24,0.16,L/2,F-0.25,-W/2+0.45); v3Box(g,frame,L,0.24,0.16,L/2,F-0.25,W/2-0.45);
-  const shell=new T3.Mesh(V3.geo,glass); shell.scale.set(L,H,W+0.04); shell.position.set(L/2,F+H/2,0); shell.renderOrder=2; g.add(shell);
-  const ed=new T3.LineSegments(new T3.EdgesGeometry(new T3.BoxGeometry(L,H,W+0.04)),edge); ed.position.copy(shell.position); g.add(ed);
   if(s.kind==="trailer"){
+    v3Box(g,frame,L,0.24,0.16,L/2,F-0.25,-W/2+0.45); v3Box(g,frame,L,0.24,0.16,L/2,F-0.25,W/2-0.45);
+    const shell=new T3.Mesh(V3.geo,glass); shell.scale.set(L,H,W+0.04); shell.position.set(L/2,F+H/2,0); shell.renderOrder=2; g.add(shell);
+    const ed=new T3.LineSegments(new T3.EdgesGeometry(new T3.BoxGeometry(L,H,W+0.04)),edge); ed.position.copy(shell.position); g.add(ed);
     for(let i=0;i<=6;i++){const x=i*L/6;v3Box(g,frame,0.07,H,0.05,x,F+H/2,W/2+0.03,false);v3Box(g,frame,0.07,H,0.05,x,F+H/2,-W/2-0.03,false)}
     v3Box(g,frame,L,0.1,0.07,L/2,F+H,W/2+0.03,false); v3Box(g,frame,L,0.1,0.07,L/2,F+H,-W/2-0.03,false);
     const brand=v3Std("brand",0xFE5C16,{roughness:.5});
     v3Box(g,brand,L,0.16,0.05,L/2,F+0.08,W/2+0.05,false); v3Box(g,brand,L,0.16,0.05,L/2,F+0.08,-W/2-0.05,false);
-  } else {
-    const ct=v3Std("ctn"+dark,dark?0x5a2620:0x3a1512,{roughness:.55,metalness:.3});
-    for(const x of [0,L])for(const z of [-W/2,W/2])v3Box(g,ct,0.16,H+0.12,0.16,x,F+H/2,z);
-    for(const y of [F,F+H])for(const z of [-W/2,W/2])v3Box(g,ct,L,0.14,0.12,L/2,y,z);
-    for(const x of [0,L])for(const y of [F,F+H])v3Box(g,ct,0.14,0.14,W,x,y,0);
-    const rib=v3Std("rib"+dark,dark?0x4a1d18:0x4a1d18,{roughness:.6,metalness:.25});
-    for(let x=0.6;x<L-0.3;x+=0.6)v3Box(g,rib,0.035,H-0.1,0.02,x,F+H/2,-W/2-0.01,false);
-    const brand=v3Std("brand",0xFE5C16,{roughness:.5});
-    v3Box(g,brand,0.06,H*0.55,W*0.42,L+0.04,F+H/2,0,false);
+    s.axles.forEach(a=>{const x=L-a;v3Wheel(g,x,W/2-0.32);v3Wheel(g,x,-W/2+0.32);v3Box(g,frame,0.14,0.14,W-0.5,x,0.5,0,false)});
+    if(s.legs){v3Box(g,frame,0.12,F-0.35,0.12,3.25,(F-0.35)/2+0.05,W/2-0.6);v3Box(g,frame,0.12,F-0.35,0.12,3.25,(F-0.35)/2+0.05,-W/2+0.6)}
+    v3Box(g,frame,0.2,0.2,W,L-0.05,F-0.42,0);
+    v3Tractor(g);
+    return g;
   }
-  s.axles.forEach(a=>{const x=L-a;v3Wheel(g,x,W/2-0.32);v3Wheel(g,x,-W/2+0.32);v3Box(g,frame,0.14,0.14,W-0.5,x,0.5,0,false)});
-  if(s.legs){v3Box(g,frame,0.12,F-0.35,0.12,3.25,(F-0.35)/2+0.05,W/2-0.6);v3Box(g,frame,0.12,F-0.35,0.12,3.25,(F-0.35)/2+0.05,-W/2+0.6)}
-  v3Box(g,frame,0.2,0.2,W,L-0.05,F-0.42,0);
-  v3Tractor(g);
+  /* Contêiner marítimo (ISO), no pátio do porto: sem cavalo nem chassi. Aço corrugado no fundo, na cabeceira e no teto;
+     a lateral voltada para a câmera é translúcida e as portas traseiras ficam abertas, para ver o interior enchendo. */
+  const ct=v3Std("ctn"+dark,dark?0x5a2620:0x3a1512,{roughness:.55,metalness:.3});
+  const ctIn=v3Std("ctnin"+dark,dark?0x6b3a30:0x8a5a48,{roughness:.8,metalness:.1,side:T3.DoubleSide});
+  const rib=v3Std("rib"+dark,0x4a1d18,{roughness:.6,metalness:.25});
+  const side=V3.mats["ctnside"+dark]||(V3.mats["ctnside"+dark]=new T3.MeshStandardMaterial({color:dark?0x8a4a3e:0x5a2620,transparent:true,opacity:dark?0.12:0.16,roughness:.4,depthWrite:false,side:T3.DoubleSide}));
+  const brand=v3Std("brand",0xFE5C16,{roughness:.5});
+  const T=0.05;
+  /* paredes opacas: fundo (z-), cabeceira (x=0) e teto, com corrugação por fora */
+  v3Box(g,ctIn,L,H,T,L/2,F+H/2,-W/2-T/2);
+  v3Box(g,ctIn,T,H,W,-T/2,F+H/2,0);
+  for(let x=0.15;x<L;x+=0.3)v3Box(g,rib,0.12,H-0.08,0.035,x,F+H/2,-W/2-T-0.017,false);
+  for(let z=-W/2+0.15;z<W/2;z+=0.3)v3Box(g,rib,0.035,H-0.08,0.12,-T-0.017,F+H/2,z,false);
+  const roof=new T3.Mesh(V3.geo,side); roof.scale.set(L,T,W); roof.position.set(L/2,F+H+T/2,0); roof.renderOrder=2; g.add(roof);
+  /* lateral translúcida (z+) com a corrugação desenhada em linhas */
+  const sideW=new T3.Mesh(V3.geo,side); sideW.scale.set(L,H,T); sideW.position.set(L/2,F+H/2,W/2+T/2); sideW.renderOrder=2; g.add(sideW);
+  const pts=[]; for(let x=0.3;x<L-0.05;x+=0.3)pts.push(x,F+0.05,W/2+T+0.005,x,F+H-0.05,W/2+T+0.005);
+  const lg=new T3.BufferGeometry(); lg.setAttribute("position",new T3.Float32BufferAttribute(pts,3));
+  const ribLine=V3.mats["ribline"+dark]||(V3.mats["ribline"+dark]=new T3.LineBasicMaterial({color:dark?0xcdb8aa:0x500f0f,transparent:true,opacity:.35}));
+  g.add(new T3.LineSegments(lg,ribLine));
+  const ed=new T3.LineSegments(new T3.EdgesGeometry(new T3.BoxGeometry(L,H,W+0.1)),edge); ed.position.set(L/2,F+H/2,0); g.add(ed);
+  /* estrutura: trilhos de base e de topo, colunas de canto, cantoneiras (corner castings) e calços no chão */
+  for(const z of [-W/2-T/2,W/2+T/2]){v3Box(g,ct,L,0.16,0.12,L/2,F-0.04,z);v3Box(g,ct,L,0.12,0.12,L/2,F+H+0.02,z)}
+  v3Box(g,ct,0.14,0.16,W+0.1,L-0.07,F-0.04,0); v3Box(g,ct,0.14,0.12,W+0.1,L-0.07,F+H+0.02,0);
+  for(const x of [0,L-0.07])for(const z of [-W/2-T/2,W/2+T/2]){v3Box(g,ct,0.14,H+0.14,0.14,x,F+H/2,z);
+    for(const y of [F-0.06,F+H+0.05])v3Box(g,frame,0.18,0.12,0.18,x,y,z,false);
+    v3Box(g,frame,0.24,F-0.12,0.24,x,(F-0.12)/2,z)}
+  v3Box(g,brand,L*0.96,0.1,0.02,L/2,F+0.06,W/2+T+0.07,false);
+  /* portas traseiras abertas a ~110°, com as barras de travamento por fora */
+  const door=(sgn)=>{const pv=new T3.Group(); pv.position.set(L,F,sgn*(W/2+T/2));
+    v3Box(pv,ct,T,H,W/2,0,H/2,-sgn*W/4);
+    for(let z=0.12;z<W/2-0.05;z+=0.26)v3Box(pv,rib,0.03,H-0.12,0.1,T/2+0.015,H/2,-sgn*z,false);
+    for(const zz of [W/8,3*W/8]){v3Box(pv,frame,0.04,H-0.05,0.04,T/2+0.05,H/2,-sgn*zz,false);v3Box(pv,frame,0.06,0.04,0.12,T/2+0.06,H*0.45,-sgn*zz,false)}
+    pv.rotation.y=-sgn*1.92; g.add(pv)};
+  door(1); door(-1);
   return g;
 }
 function v3Cargo(r,units,key){
@@ -2737,8 +2809,8 @@ function v3Build(spec,kind){
   v3Clear(V3.cargo); const c=v3Cargo(spec.r,units,spec.veh); V3.cargo=c.g; V3.scene.add(c.g);
   if(!reducedMotion()){const now=performance.now();c.groups.forEach((pg,i)=>{if(i>=prev){const to=pg.position.y;pg.position.y=to+2.8;V3.anim.push({o:pg,from:to+2.8,to,t0:now+Math.min(i-prev,14)*40,d:460})}})}
   V3.prevN=units.length; V3.prevKey=key; V3.csig=cs;
-  const s=v3S(spec.veh,vp), extra=spec.r.mode==="pal"?Math.max(0,units.length-vp):0, er=Math.ceil(extra/2);
-  V3.bbox=new THREE.Box3(new THREE.Vector3(-3.4,0,-s.W/2-0.35),new THREE.Vector3(s.L+(er?1.7+er*(s.px+0.4)+0.2:0.3),s.floor+s.H+0.15,s.W/2+0.35));
+  const s=v3S(spec.veh,vp), extra=spec.r.mode==="pal"?Math.max(0,units.length-vp):0, er=Math.ceil(extra/2), isC=s.kind==="container";
+  V3.bbox=new THREE.Box3(new THREE.Vector3(isC?-0.4:-3.4,0,-s.W/2-0.35),new THREE.Vector3(s.L+(er?1.7+er*(s.px+0.4)+0.2:isC?1.3:0.3),s.floor+s.H+0.15,s.W/2+0.35+(isC?0.35:0)));
   V3.bsig=spec.veh+"|"+er;
 }
 function mount3D(){
@@ -2950,7 +3022,7 @@ function ruleAnswer(q){
   /* 6. veículos */
   if(has("veh")){
     const b=r.lines.length?bestVehicle(d):null;
-    const li=activeVeh().map(k=>{const v=VEH[k],rr=r.lines.length?calc(d.qty,{...d,veh:k}):null;return `<li><b>${esc(v[S.lang]||v.pt)}</b>: ${t("capShort")(v.pos,fmt(v.kg/1000,0))} · ${fmt(v.m3,0)} m³${rr?` · ${tr("seu pedido","tu pedido","your order")} ${fmt(rr.maxU*100,0)}%${rr.status==="excess"?tr(" (não cabe)"," (no cabe)"," (doesn't fit)"):""}`:""}${k===S.veh?tr(" · atual"," · actual"," · current"):""}</li>`}).join("");
+    const li=activeVeh().map(k=>{const v=VEH[k],rr=r.lines.length?calc(d.qty,{...d,veh:k}):null;return `<li><b>${esc(v[S.lang]||v.pt)}</b>: ${t("capShort")(v.pos,fmt(v.kg/1000,v.kg%1000?1:0))} · ${fmt(v.m3,0)} m³${rr?` · ${tr("seu pedido","tu pedido","your order")} ${fmt(rr.maxU*100,0)}%${rr.status==="excess"?tr(" (não cabe)"," (no cabe)"," (doesn't fit)"):""}`:""}${k===S.veh?tr(" · atual"," · actual"," · current"):""}</li>`}).join("");
     const rec=b?`<p>${tr("Para o seu rascunho, o melhor aproveitamento é","Para tu borrador, el mejor aprovechamiento es","For your draft, the best fit is")} <b>${esc(VEH[b][S.lang]||VEH[b].pt)}</b>.</p>`:r.lines.length?`<p>${tr("Nenhum veículo leva o rascunho inteiro. Veja a divisão em embarques no painel do pedido.","Ningún vehículo lleva el borrador entero. Mira la división en despachos en el panel del pedido.","No single vehicle takes the whole draft. See the shipment split in the order panel.")}</p>`:"";
     return A(`<p>${tr("Veículos disponíveis","Vehículos disponibles","Available vehicles")}:</p><ul>${li}</ul>${rec}`,b&&b!==S.veh?[[tr("Usar ","Usar ","Use ")+(VEH[b][S.lang]||VEH[b].pt),`data-act="veh:${b}"`]]:[]);
   }
@@ -2970,7 +3042,7 @@ function ruleAnswer(q){
     const rule=RULES.minLotBlock?tr("Abaixo do lote mínimo, o pedido não pode ser enviado.","Debajo del lote mínimo, el pedido no se puede enviar.","Below the minimum lot, the order can't be sent."):tr("Abaixo do lote mínimo, o portal só avisa.","Debajo del lote mínimo, el portal solo avisa.","Below the minimum lot, the portal only warns.");
     if(pp.p)return A(`<p>${tr("Lote mínimo de","Lote mínimo de","Minimum lot for")} ${esc(pName(pp.p))}: <b>${fq(pp.p.loteMin)} pallet${pp.p.loteMin===1?"":"s"}</b> (${fmt(Math.ceil(pp.p.loteMin*pp.p.cxPal),0)} ${t("uCX")}).</p><p>${rule}</p>`);
     const big=allowed.filter(p=>p.loteMin>1);
-    return A(`<p>${tr("Lote mínimo é a menor quantidade por produto, em pallets, definida pela 3corações.","El lote mínimo es la menor cantidad por producto, en pallets, definida por 3corações.","The minimum lot is the smallest quantity per product, in pallets, set by 3corações.")} ${rule}</p>${big.length?`<ul>${big.map(p=>`<li>${esc(pName(p))}: ${fq(p.loteMin)} pallets</li>`).join("")}</ul>`:`<p>${tr("Hoje todos os produtos do seu catálogo têm lote mínimo de 1 pallet.","Hoy todos los productos de tu catálogo tienen lote mínimo de 1 pallet.","Today every product in your catalog has a minimum lot of 1 pallet.")}</p>`}`);
+    return A(`<p>${tr("Lote mínimo é a menor quantidade por produto, em pallets, definida pela unidade produtora (planilha do Planejamento). Vale para qualquer local de embarque, Londrina ou BHO.","El lote mínimo es la menor cantidad por producto, en pallets, definida por la unidad productora (planilla de Planificación). Vale para cualquier lugar de embarque, Londrina o BHO.","The minimum lot is the smallest quantity per product, in pallets, set by the producing plant (Planning sheet). It applies to any shipping point, Londrina or BHO.")} ${rule}</p>${big.length?`<ul>${big.map(p=>`<li>${esc(pName(p))}: ${fq(p.loteMin)} pallets</li>`).join("")}</ul>`:`<p>${tr("Hoje todos os produtos do seu catálogo têm lote mínimo de 1 pallet.","Hoy todos los productos de tu catálogo tienen lote mínimo de 1 pallet.","Today every product in your catalog has a minimum lot of 1 pallet.")}</p>`}`);
   }
   /* 13. paletização */
   if(has("pallet")){
@@ -2981,13 +3053,13 @@ function ruleAnswer(q){
   /* 14. preço */
   if(has("price")){
     if(pp.amb.length)return amb(p=>tr("Qual o preço de ","¿Cuál es el precio de ","What is the price of ")+pName(p)+"?");
-    if(pp.p){const p=pp.p;if(!ok(p))return A(`<p>${esc(pName(p))}: ${why(p)}.</p>`);const pr=priceFor(p,S.client);return A(`<p>${esc(pName(p))}: <b>${money(pr)}</b> ${t("perBox")} (${tr("lista","lista","list")} ${cl.list}, ${cl.inc}).</p><p>${tr("Um pallet","Un pallet","One pallet")} (${p.cxPal} ${t("uCX")}) = ${money(pr*p.cxPal)}.</p>`,[[tr("Adicionar 1 pallet","Agregar 1 pallet","Add 1 pallet"),`data-act="add:${p.code}:1"`]])}
-    return A(`<p>${tr(`Seus preços são em ${cl.cur} por caixa, lista ${cl.list}, ${cl.inc}:`,`Tus precios son en ${cl.cur} por caja, lista ${cl.list}, ${cl.inc}:`,`Your prices are in ${cl.cur} per case, list ${cl.list}, ${cl.inc}:`)}</p><ul>${allowed.map(p=>`<li>${esc(pName(p))}: ${money(priceFor(p,S.client))}</li>`).join("")}</ul>${r.lines.length?`<p>${tr("Valor do rascunho","Valor del borrador","Draft value")}: <b>${money(r.tot.value)}</b></p>`:""}`);
+    if(pp.p){const p=pp.p;if(!ok(p))return A(`<p>${esc(pName(p))}: ${why(p)}.</p>`);const pr=priceFor(p,S.client);return A(`<p>${esc(pName(p))}: <b>${money(pr)}</b> ${t("perBox")} (${tr("lista","lista","list")} ${cl.list}, ${incOf(S.veh)}).</p><p>${tr("Um pallet","Un pallet","One pallet")} (${p.cxPal} ${t("uCX")}) = ${money(pr*p.cxPal)}.</p>`,[[tr("Adicionar 1 pallet","Agregar 1 pallet","Add 1 pallet"),`data-act="add:${p.code}:1"`]])}
+    return A(`<p>${tr(`Seus preços são em ${cl.cur} por caixa, lista ${cl.list}, ${incOf(S.veh)}:`,`Tus precios son en ${cl.cur} por caja, lista ${cl.list}, ${incOf(S.veh)}:`,`Your prices are in ${cl.cur} per case, list ${cl.list}, ${incOf(S.veh)}:`)}</p><ul>${allowed.map(p=>`<li>${esc(pName(p))}: ${money(priceFor(p,S.client))}</li>`).join("")}</ul>${r.lines.length?`<p>${tr("Valor do rascunho","Valor del borrador","Draft value")}: <b>${money(r.tot.value)}</b></p>`:""}`);
   }
   /* 15. prazo */
-  if(has("date"))return A(`<p>${tr(`A data mais próxima para carregamento é <b>${dmy(minDate())}</b>, pelo prazo mínimo de ${RULES.leadDays} dias.`,`La fecha más próxima de carga es <b>${dmy(minDate())}</b>, por el plazo mínimo de ${RULES.leadDays} días.`,`The earliest loading date is <b>${dmy(minDate())}</b>, given the ${RULES.leadDays}-day minimum lead time.`)}</p><p>${tr("Você escolhe a data na revisão do pedido.","Eliges la fecha al revisar el pedido.","You pick the date when reviewing the order.")}</p>`);
+  if(has("date"))return A(`<p>${tr(`A primeira data de carregamento é <b>${dmy(minDate())}</b>.`,`La primera fecha de carga es <b>${dmy(minDate())}</b>.`,`The earliest loading date is <b>${dmy(minDate())}</b>.`)} ${t("dateHelp")(RULES.cutDay,RULES.leadMonths,dmy(minDate())).replace(/\s*(Primeira data disponível|Primera fecha disponible|First available date):.*$/,"")}</p><p>${tr("Você escolhe a data na revisão do pedido.","Eliges la fecha al revisar el pedido.","You pick the date when reviewing the order.")}</p>`);
   /* 16. condições comerciais */
-  if(has("pay"))return A(`<p>${tr("Condições da sua conta","Condiciones de tu cuenta","Your account terms")}: <b>${cl.inc}</b> · ${cl.cur} · ${esc(cl.pay)} · ${tr("saída","salida","ships from")} ${esc(cl.filial)}.</p><p>${tr("Mudanças de condição são tratadas com a equipe de Exportação 3corações.","Los cambios de condición se tratan con el equipo de Exportación de 3corações.","Changes to terms are handled with the 3corações Export team.")}</p>`);
+  if(has("pay"))return A(`<p>${tr("Condições da sua conta","Condiciones de tu cuenta","Your account terms")}: <b>${incOf(S.veh)}</b> (${tr("pelo veículo: FCA na carreta, FOB no contêiner","según el vehículo: FCA en camión, FOB en contenedor","by vehicle: FCA by truck, FOB by container")}) · ${cl.cur} · ${esc(cl.pay)} · ${tr("saída","salida","ships from")} ${esc(cl.filial)}.</p><p>${tr("Mudanças de condição são tratadas com a equipe de Exportação 3corações.","Los cambios de condición se tratan con el equipo de Exportación de 3corações.","Changes to terms are handled with the 3corações Export team.")}</p>`);
   /* 17. restrições */
   if(has("blk")){const bl=cl.blocked.map(c=>BY[c]).filter(Boolean),np=P.filter(p=>!p.off&&!hasPrice(p,cl));
     if(!bl.length&&!np.length)return A(tr("Todos os produtos do catálogo estão liberados para a sua conta.","Todos los productos del catálogo están habilitados para tu cuenta.","Every catalog product is available for your account."));
@@ -3070,10 +3142,10 @@ function draftSummary(){const d=draft(),r=calc(d.qty,d);return {veiculo:VEH[S.ve
 function aiContext(){
   const cl=CLIENTS[S.client], mine=S.orders.filter(o=>o.client===S.client&&o.origin!=="Order Basis"), step={analise:1,aprovado:2,sap:3};
   return {hoje:isoLocal(new Date()),tela_atual:{home:"Início",dist:"Novo pedido",myorders:"Meus pedidos"}[S.view]||S.view,
-    cliente:{nome:cl.name,contato:cl.contact,codigo:cl.code,destino:cl.dest,moeda:cl.cur,incoterm:cl.inc,pagamento:cl.pay,filial_saida:cl.filial,lista_preco:cl.list,aceita_pallet_misto:!!cl.mixed},
-    regras:{carga_completa_a_partir_de_pct:Math.round(RULES.fullAt*100),prazo_minimo_dias:RULES.leadDays,data_minima_carregamento:minDate(),abaixo_do_lote_minimo:RULES.minLotBlock?"bloqueia o envio":"só alerta",pallet_incompleto:RULES.fullPalBlock?"bloqueia o envio":"só alerta",pallet:"PBR 1,20 x 1,00 m. Sem pallet misto, pallet incompleto ocupa uma posição inteira"},
+    cliente:{nome:cl.name,contato:cl.contact,codigo:cl.code,destino:cl.dest,moeda:cl.cur,incoterm_do_rascunho:incOf(S.veh),regra_incoterm:"pelo veículo: carreta (rodoviário) FCA; contêiner 20' ou 40' (marítimo) FOB. Muda sozinho ao trocar o veículo",pagamento:cl.pay,filial_saida:cl.filial,lista_preco:cl.list,aceita_pallet_misto:!!cl.mixed},
+    regras:{carga_completa_a_partir_de_pct:Math.round(RULES.fullAt*100),carga_parcial:"aceita: abaixo de 100% é carga incompleta e o pedido pode ser enviado; não há pedido mínimo; acima de 100% é excesso e bloqueia",janela_de_pedido:`pedido feito até o dia ${RULES.cutDay} do mês (inclusive) carrega a partir do 1º dia de ${RULES.leadMonths} meses depois; depois do dia ${RULES.cutDay}, a partir do 1º dia de ${RULES.leadMonths+1} meses depois`,data_minima_carregamento:minDate(),lote_minimo:"por SKU, definido pela unidade produtora (planilha do Planejamento), igual para Londrina e BHO",item_sem_preco:"produto sem preço na tabela do cliente não pode ser enviado: o cliente usa o botão Avisar a 3corações e remove o item ou aguarda o cadastro",abaixo_do_lote_minimo:RULES.minLotBlock?"bloqueia o envio":"só alerta",pallet_incompleto:RULES.fullPalBlock?"bloqueia o envio":"só alerta",pallet:"PBR 1,20 x 1,00 m. Sem pallet misto, pallet incompleto ocupa uma posição inteira"},
     veiculos:activeVeh().map(k=>({id:k,nome:VEH[k][S.lang]||VEH[k].pt,posicoes_pallet:VEH[k].pos,peso_max_kg:VEH[k].kg,cubagem_m3:VEH[k].m3})),
-    catalogo:P.filter(p=>!p.off).map(p=>({codigo:p.code,nome:pName(p),familia:FAM[p.fam]?(FAM[p.fam][S.lang]||FAM[p.fam].pt):p.fam,marca:p.brand,embalagem:p.unLbl,cx_por_pallet:p.cxPal,lastro:p.lastro,camadas:p.alt,lote_min_pallets:p.loteMin,preco_usd_cx:hasPrice(p,cl)?priceFor(p,S.client):null,preco_usd_pallet:hasPrice(p,cl)?Math.round(priceFor(p,S.client)*p.cxPal*100)/100:null,liberado:!cl.blocked.includes(p.code)&&hasPrice(p,cl),peso_bruto_cx_kg:p.gross,ncm:p.ncm})),
+    catalogo:P.filter(p=>!p.off).map(p=>({codigo:p.code,nome:pName(p),familia:FAM[p.fam]?(FAM[p.fam][S.lang]||FAM[p.fam].pt):p.fam,marca:p.brand,embalagem:p.unLbl,cx_por_pallet:p.cxPal,lastro:p.lastro,camadas:p.alt,lote_min_pallets:p.loteMin,preco_usd_cx:hasPrice(p,cl)?priceFor(p,S.client):null,preco_usd_pallet:hasPrice(p,cl)?Math.round(priceFor(p,S.client)*p.cxPal*100)/100:null,liberado:!cl.blocked.includes(p.code)&&hasPrice(p,cl),sem_preco_na_tabela:!hasPrice(p,cl),cadastro_de_preco_solicitado:API.priceRequested(S.client,p.code),peso_bruto_cx_kg:p.gross,ncm:p.ncm})),
     rascunho:draftSummary(),
     pedidos:mine.slice(0,8).map(o=>{const r=calc(o.qty,o);return {id:o.id,etapa:t("tl")[step[o.status]],aprovacao_automatica:!!o.auto,enviado:o.created,carregamento:o.date||null,referencia:o.ref||null,veiculo:VEH[o.veh]?VEH[o.veh][S.lang]:o.veh,ocupacao_pct:Math.round(r.maxU*100),pallets:Math.round(r.tot.pallets*100)/100,valor_usd:Math.round(r.tot.value*100)/100,ajustes_da_exportacao:o.audit.filter(a=>a.kind==="edit").map(a=>({codigo:a.code,de_cx:a.old,para_cx:a.nv}))}})};
 }
@@ -3082,7 +3154,7 @@ function aiTools(onRun){
   return [
     {name:"ajustar_item",description:"Altera a quantidade de um produto no rascunho do pedido. modo 'somar' adiciona à quantidade atual; 'definir' fixa o total (0 remove). Informe pallets OU caixas. Retorna o rascunho atualizado.",
      inputSchema:{type:"object",properties:{codigo:{type:"string",description:"Código 3C de 8 dígitos do catálogo"},pallets:{type:"number"},caixas:{type:"number"},modo:{type:"string",enum:["somar","definir"]}},required:["codigo"]},
-     execute:run(i=>{const p=BY[String(i.codigo||"").trim()],cl=CLIENTS[S.client];if(!p||p.off)throw new Error("Produto não encontrado no catálogo");if(cl.blocked.includes(p.code)||!hasPrice(p,cl))throw new Error("Produto não liberado para este cliente");
+     execute:run(i=>{const p=BY[String(i.codigo||"").trim()],cl=CLIENTS[S.client];if(!p||p.off)throw new Error("Produto não encontrado no catálogo");if(cl.blocked.includes(p.code))throw new Error("Produto não liberado para este cliente");if(!hasPrice(p,cl))throw new Error("Produto sem preço na tabela do cliente: ele não pode ser enviado. O cliente pode usar o botão Avisar a 3corações no catálogo");
        const pal=Number(i.pallets),cx=Number(i.caixas);let n;if(i.pallets!=null&&isFinite(pal))n=Math.round(pal*p.cxPal);else if(i.caixas!=null&&isFinite(cx))n=Math.round(cx);else throw new Error("Informe pallets ou caixas");
        const cur=S.qty[p.code]||0;setQty(p.code,Math.max(0,i.modo==="somar"?cur+n:n));render();const nw=S.qty[p.code]||0,pl=x=>Math.round(x/p.cxPal*100)/100;
        return {alteracao:{codigo:p.code,produto:pName(p),antes_caixas:cur,depois_caixas:nw,antes_pallets:pl(cur),depois_pallets:pl(nw)},rascunho:draftSummary()}})},
@@ -3134,7 +3206,7 @@ function adminInsightsList(rs){
   const part=rs.filter(({r})=>r.status==="partial"); if(part.length){const free=part.reduce((a,{r})=>a+Math.max(0,r.v.pos-r.tot.positions),0);out.push(`${part.length} carga${part.length>1?"s":""} incompleta${part.length>1?"s":""} com ${free} posições livres. Completar dilui o frete por pallet.`)}
   const fam={};let tot=0;rs.forEach(({r})=>Object.entries(r.fams).forEach(([f,x])=>{fam[f]=(fam[f]||0)+x.kg;tot+=x.kg}));
   const top=Object.entries(fam).sort((a,b)=>b[1]-a[1])[0]; if(top&&tot)out.push(`${FAM[top[0]]?FAM[top[0]].pt:top[0]} representam ${fmtPT(top[1]/tot*100,0)}% do volume em carteira.`);
-  const ok=rs.filter(({r})=>!r.blocking&&r.maxU>=RULES.fullAt).length, autoOn=Object.values(CLIENTS).filter(c=>c.autoApprove).length;
+  const ok=rs.filter(({r})=>!r.blocking&&r.status==="full").length, autoOn=Object.values(CLIENTS).filter(c=>c.autoApprove).length;
   out.push(autoOn?`Aprovação automática ativa para ${autoOn} cliente${autoOn>1?"s":""}.`:`${ok} pedido${ok!==1?"s":""} da carteira atende${ok!==1?"m":""} a regra de aprovação automática (sem bloqueio e carga completa). Ative em Clientes e preços.`);
   return out;
 }
@@ -3164,7 +3236,8 @@ function parseImpact(nq){
   const pc=nq.match(/(\d+(?:[.,]\d+)?)\s*%/); if(pc&&/complet|cheia|ocupa/.test(nq))pd["rules.fullAt"]=Math.round(parseNum(pc[1]))/100;
   if(/lote/.test(nq)&&/(alert|avis|nao bloque|so avis|só avis)/.test(nq))pd["rules.minLotBlock"]=false;
   if(/pallet incompleto|pallets incompletos/.test(nq)&&/bloque/.test(nq)&&!/nao bloque/.test(nq))pd["rules.fullPalBlock"]=true;
-  const pz=nq.match(/prazo[^\d]{0,30}(\d+)\s*dias?/); if(pz)pd["rules.leadDays"]=parseInt(pz[1],10);
+  const cd=nq.match(/(?:corte|dia de corte)[^\d]{0,20}(\d{1,2})/); if(cd)pd["rules.cutDay"]=parseInt(cd[1],10);
+  const lm=nq.match(/(\d)\s*mes(?:es)?\s*(?:de\s*)?(?:antecedencia|depois)/); if(lm)pd["rules.leadMonths"]=parseInt(lm[1],10);
   return pd;
 }
 function adminAnswer(q){
@@ -3206,7 +3279,7 @@ function adminAnswer(q){
     const di=dataIssues();return A(`<p>${di.div} divergência${di.div===1?"":"s"} entre SAP e Order Basis e ${di.noPrice} produto${di.noPrice===1?"":"s"} sem preço no SAP.</p><p>Os valores divergentes aparecem em vermelho em Catálogo e dados.</p>`,[["Abrir Catálogo e dados",'data-view="base"']],di.div?"alerta":"feliz")}
   /* regras e veículos */
   if(has(/parametr\w*|regra\w*|veicul\w*|carreta|conteiner|container|capacidade|posic\w*|lote minimo|prazo/)){
-    return A(`<ul>${activeVeh().map(k=>`<li><b>${esc(VEH[k].pt)}</b>: ${VEH[k].pos} posições · ${fmtPT(VEH[k].kg,0)} kg · ${fmtPT(VEH[k].m3,2)} m³</li>`).join("")}</ul><p>Carga completa a partir de ${nf(RULES.fullAt*100)}% · prazo mínimo de ${RULES.leadDays} dias · lote mínimo ${RULES.minLotBlock?"bloqueia":"só alerta"} · pallet incompleto ${RULES.fullPalBlock?"bloqueia":"só alerta"}.</p>`,[["Abrir Parâmetros",'data-view="params"']])}
+    return A(`<ul>${activeVeh().map(k=>`<li><b>${esc(VEH[k].pt)}</b>: ${VEH[k].pos} posições · ${fmtPT(VEH[k].kg,0)} kg · ${fmtPT(VEH[k].m3,2)} m³</li>`).join("")}</ul><p>Carga completa a partir de ${nf(RULES.fullAt*100)}% · pedido até o dia ${RULES.cutDay} carrega ${MW.pt(RULES.leadMonths)} depois (primeira data hoje: ${dmy(minDate())}) · lote mínimo do Planejamento ${RULES.minLotBlock?"bloqueia":"só alerta"} · pallet incompleto ${RULES.fullPalBlock?"bloqueia":"só alerta"} · Incoterm FCA na carreta e FOB nos contêineres.</p>`,[["Abrir Parâmetros",'data-view="params"']])}
   /* produto */
   const pp=inPT(()=>pickProduct(nq));
   if(pp.p){const p=pp.p,inq=d.rs.filter(x=>x.o.qty[p.code]),pal=inq.reduce((a,x)=>a+(x.o.qty[p.code]||0)/p.cxPal,0);
@@ -3222,16 +3295,17 @@ function adminAnswer(q){
 function aiContextAdmin(){
   const d=admData();
   return inPT(()=>({hoje:isoLocal(new Date()),
-    regras:{carga_completa_a_partir_de_pct:Math.round(RULES.fullAt*100),prazo_minimo_dias:RULES.leadDays,alerta_fila_horas:RULES.lateH,lote_minimo:RULES.minLotBlock?"bloqueia":"só alerta",pallet_incompleto:RULES.fullPalBlock?"bloqueia":"só alerta"},
+    regras:{carga_completa_a_partir_de_pct:Math.round(RULES.fullAt*100),dia_de_corte:RULES.cutDay,meses_de_antecedencia:RULES.leadMonths,data_minima_carregamento_hoje:minDate(),incoterm:"FCA na carreta, FOB nos contêineres; pedido aprovado mantém o incoterm da aprovação",lote_minimo_origem:"planilha do Planejamento (unidade produtora), igual para Londrina e BHO",alerta_fila_horas:RULES.lateH,lote_minimo:RULES.minLotBlock?"bloqueia":"só alerta",pallet_incompleto:RULES.fullPalBlock?"bloqueia":"só alerta"},
     veiculos:Object.keys(VEH).map(k=>({id:k,nome:VEH[k].pt,posicoes:VEH[k].pos,peso_max_kg:VEH[k].kg,cubagem_m3:VEH[k].m3,disponivel:vehOn(k)})),
-    clientes:Object.entries(CLIENTS).map(([k,c])=>({id:k,nome:c.name,destino:c.dest,lista:c.list,incoterm:c.inc,pallet_misto:!!c.mixed,aprovacao_automatica:!!c.autoApprove,produtos_bloqueados:c.blocked})),
+    clientes:Object.entries(CLIENTS).map(([k,c])=>({id:k,nome:c.name,destino:c.dest,lista:c.list,incoterm:"FCA na carreta, FOB nos contêineres",pallet_misto:!!c.mixed,aprovacao_automatica:!!c.autoApprove,produtos_bloqueados:c.blocked})),
     pedidos:d.rs.map(({o,r})=>({id:o.id,cliente:CLIENTS[o.client].name,origem:o.origin,etapa:ST[o.status][0],horas_em_analise:o.status==="analise"?Math.round(hrs(o)*10)/10:null,veiculo:r.v.pt,ocupacao_pct:Math.round(r.maxU*100),status_carga:T.pt["st_"+r.status],pallets:Math.round(r.tot.pallets*100)/100,valor_usd:Math.round(r.tot.value*100)/100,carregamento:o.date||null,bloqueios:blockersOf(r),ajustes:o.audit.filter(a=>a.kind==="edit").length})),
     insights:adminInsightsList(d.rs), qualidade_dados:dataIssues(),
+    solicitacoes_de_preco:API.priceRequests("aberta").map(x=>({cliente:CLIENTS[x.client]?CLIENTS[x.client].name:x.client,produto:BY[x.code]?BY[x.code].pt:x.code,codigo:x.code,lista:x.list,data:x.at})),
     catalogo:P.map(p=>({codigo:p.code,nome:p.pt,cx_por_pallet:p.cxPal,lote_min:p.loteMin,ativo:!p.off}))}));
 }
 function aiToolsAdmin(onRun){
   return [
-    {name:"simular_parametros",description:"Simula alterações de parâmetros sem gravar e devolve os pedidos em análise que mudariam de status. Caminhos aceitos: veh.<id>.pos|kg|m3, rules.fullAt (fração, ex. 0.85), rules.leadDays, rules.lateH, rules.minLotBlock, rules.fullPalBlock, prod.<codigo>.lastro|alt|loteMin|gross.",
+    {name:"simular_parametros",description:"Simula alterações de parâmetros sem gravar e devolve os pedidos em análise que mudariam de status. Caminhos aceitos: veh.<id>.pos|kg|m3, rules.fullAt (fração, padrão 1 = 100%), rules.cutDay (dia de corte, 1 a 28), rules.leadMonths (meses de antecedência, 1 a 6), rules.lateH, rules.minLotBlock, rules.fullPalBlock, prod.<codigo>.lastro|alt|loteMin|gross.",
      inputSchema:{type:"object",properties:{alteracoes:{type:"object",description:"Mapa caminho → valor"}},required:["alteracoes"]},
      execute:i=>{onRun();const pd=i&&i.alteracoes&&typeof i.alteracoes==="object"?i.alteracoes:{};const errs=Object.entries(pd).map(([k,v])=>pvalidate(k,v)).filter(Boolean);if(errs.length)throw new Error(errs[0]);const im=paramImpact(pd);return {simulacao:"Nada foi gravado. A mudança é aplicada na tela Parâmetros, que mostra o impacto antes de salvar.",pedidos_que_mudam:im.orders.map(x=>({id:x.id,de:T.pt["st_"+x.from],para:T.pt["st_"+x.to],ocupacao_de_pct:Math.round(x.p0*100),ocupacao_para_pct:Math.round(x.p1*100),passa_a_ter_bloqueio:x.b1&&!x.b0,fica_sem_bloqueio:x.b0&&!x.b1})),mudam_so_ocupacao:im.pct,em_analise:im.open}}},
     {name:"abrir_pedido",description:"Abre o detalhe de um pedido na tela Pedidos do painel. Retorna ok.",
@@ -3246,6 +3320,8 @@ function aiToolsAdmin(onRun){
 const FLOW={analise:["aprovado"],aprovado:["sap"],sap:["sap"]};
 /* Pedido aprovado guarda a capacidade do veículo usada na aprovação: mudar um parâmetro depois não reescreve o passado */
 const vsnapOf=k=>{const v=VEH[k];return v?{pos:v.pos,kg:v.kg,m3:v.m3}:undefined};
+/* Preços aplicados na aprovação: mudar a lista depois não reescreve o pedido aprovado */
+const priceSnapOf=o=>Object.fromEntries(Object.keys(o.qty).filter(c=>BY[c]).map(c=>[c,priceFor(BY[c],o.client)]));
 class ApiError extends Error{constructor(status,msg,details){super(msg);this.status=status;this.details=details||[]}}
 const RLOG=[];
 const actorClient=()=>`${CLIENTS[S.client].contact} (${CLIENTS[S.client].name})`, ACTOR_EXP="Lucas (Exportação)";
@@ -3253,9 +3329,25 @@ const stamp=()=>({at:nowStamp(),ts:new Date().toISOString()});
 function nextId(){const n=S.orders.reduce((a,o)=>Math.max(a,parseInt(String(o.id).split("-").pop(),10)||0),0)+1;return "3CC-2026-"+String(n).padStart(4,"0")}
 function draft(){return {client:S.client,veh:S.veh,mode:S.mode,mixed:!!CLIENTS[S.client].mixed,qty:S.qty}}
 function isoLocal(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
-function minDate(){const d=new Date();d.setDate(d.getDate()+RULES.leadDays);return isoLocal(d)}
+/* Data de hoje. window.__now (ISO) só existe nos testes, para simular o dia do pedido. */
+function today(){const x=window.__now?new Date(window.__now+"T12:00:00"):new Date();return new Date(x.getFullYear(),x.getMonth(),x.getDate())}
+/* Janela de pedido: pedido até o dia de corte (inclusive) carrega a partir do 1º dia de leadMonths meses depois;
+   depois do corte, a partir do 1º dia de leadMonths+1 meses depois. Ex.: 14/10/2026 → 01/12/2026; 15/10/2026 → 01/01/2027. */
+function minDate(d){const x=d||today(), m=RULES.leadMonths+(x.getDate()>RULES.cutDay?1:0);return isoLocal(new Date(x.getFullYear(),x.getMonth()+m,1))}
 function orderIssues(r){const out=[];if(r.status==="excess")out.push({code:"CAPACITY",over:r.over});r.lines.forEach(l=>l.issues.filter(i=>i.lv==="err").forEach(i=>out.push({code:i.k.toUpperCase(),material:l.p.code})));return out}
 const API={
+  /* POST /api/v1/price-requests: cliente avisa que um produto não tem preço na tabela dele (cliente, produto, data).
+     Uma solicitação aberta por cliente e produto: repetir o aviso devolve a mesma. */
+  requestPrice(client,code){
+    const cl=CLIENTS[client], p=BY[code]; if(!cl||!p)throw new ApiError(404,"Cliente ou produto não encontrado");
+    if(hasPrice(p,cl))throw new ApiError(409,"O produto já tem preço na tabela do cliente");
+    const open=S.priceReq.find(x=>x.client===client&&x.code===code&&x.status==="aberta"); if(open)return open;
+    const rq={id:"PR-"+Date.now().toString(36),client,code,list:cl.list,status:"aberta",...stamp(),who:actorClient()};
+    S.priceReq.unshift(rq); RLOG.unshift({...stamp(),who:actorClient(),what:`Pediu cadastro de preço: ${p.pt} (${code}) na lista ${cl.list}`}); save(); return rq;
+  },
+  /* GET /api/v1/price-requests?status=aberta */
+  priceRequests(status){return S.priceReq.filter(x=>!status||x.status===status)},
+  priceRequested(client,code){return S.priceReq.some(x=>x.client===client&&x.code===code&&x.status==="aberta")},
   /* GET /api/v1/orders/:id */
   get(id){const o=S.orders.find(x=>x.id===id);if(!o)throw new ApiError(404,"Pedido não encontrado");return o},
   /* POST /api/v1/orders/quote: mesmo motor do servidor, sem gravar */
@@ -3266,11 +3358,11 @@ const API={
     const r=calc(d.qty,d), issues=orderIssues(r);
     if(!r.lines.length)throw new ApiError(422,"Pedido sem itens");
     if(issues.length)throw new ApiError(422,"Pedido com bloqueios",issues);
-    if(meta.date&&meta.date<minDate())throw new ApiError(422,"Data de carregamento antes do prazo mínimo");
+    if(meta.date&&meta.date<minDate())throw new ApiError(422,"Data de carregamento antes da janela de pedido");
     const qty={};r.lines.forEach(l=>qty[l.p.code]=l.cx);
     const o={id:nextId(),draftId:meta.draftId,v:1,client:d.client,veh:d.veh,mode:d.mode,mixed:!!d.mixed,qty,ref:String(meta.ref||"").replace(/[;\r\n"\t]/g," ").trim().slice(0,30),date:meta.date||"",status:"analise",created:nowStamp(),createdMs:Date.now(),origin:"Portal",audit:[]};
     o.audit.push({...stamp(),who:actorClient(),what:`Pedido criado no portal com ${r.lines.length} itens e validado automaticamente (${T.pt["st_"+r.status].toLowerCase()}, ${fmtPT(r.maxU*100,0)}%)`});
-    if(CLIENTS[d.client].autoApprove&&!r.blocking&&r.maxU>=RULES.fullAt){o.status="aprovado";o.vsnap=vsnapOf(o.veh);o.auto=true;o.approved=nowStamp();o.approvedMs=Date.now();o.v=2;o.audit.push({...stamp(),who:"Regra de aprovação automática",what:`Aprovado automaticamente: sem bloqueios e carga completa (${fmtPT(r.maxU*100,0)}%)`})}
+    if(CLIENTS[d.client].autoApprove&&!r.blocking&&r.status==="full"){o.status="aprovado";o.vsnap=vsnapOf(o.veh);o.incSnap=incOf(o.veh);o.priceSnap=priceSnapOf(o);o.auto=true;o.approved=nowStamp();o.approvedMs=Date.now();o.v=2;o.audit.push({...stamp(),who:"Regra de aprovação automática",what:`Aprovado automaticamente: sem bloqueios e carga completa (${fmtPT(r.maxU*100,0)}%)`})}
     S.orders.unshift(o); save(); return o;
   },
   /* PATCH /api/v1/orders/:id/items/:material */
@@ -3285,7 +3377,7 @@ const API={
   approve(id){
     const o=API.get(id); if(!FLOW[o.status].includes("aprovado"))throw new ApiError(409,"Este pedido não está em análise");
     const rr=calc(o.qty,o); if(!rr.lines.length)throw new ApiError(409,"O pedido está sem itens"); if(rr.blocking)throw new ApiError(409,"O pedido ainda tem bloqueios");
-    const adj=adjCount(o); o.status="aprovado"; o.vsnap=vsnapOf(o.veh); o.approved=nowStamp(); o.approvedMs=Date.now(); o.v=(o.v||1)+1;
+    const adj=adjCount(o); o.status="aprovado"; o.vsnap=vsnapOf(o.veh); o.incSnap=incOf(o.veh); o.priceSnap=priceSnapOf(o); o.approved=nowStamp(); o.approvedMs=Date.now(); o.v=(o.v||1)+1;
     o.audit.push({...stamp(),who:ACTOR_EXP,what:adj?`Pedido aprovado após ${adj} ajuste${adj>1?"s":""}`:"Pedido aprovado sem alterações"}); save(); return o;
   },
   /* POST /api/v1/orders/:id/sap-export */
@@ -3348,10 +3440,12 @@ const API={
 /* ============ PERSISTÊNCIA LOCAL (sem servidor) ============ */
 /* Guarda pedidos, carrinho e regras no navegador para o estado sobreviver a um recarregamento.
    Em produção, isso é o banco de dados. Se os dados-base do catálogo mudarem, o estado salvo é descartado. */
-const STORE_KEY="3cc-v4";
+/* v5: regras da 3corações de out/2026 (carga completa 100%, carreta 26.500 kg, janela de pedido, incoterm por veículo,
+   sem preço manual). Estado salvo com as regras antigas é descartado. */
+const STORE_KEY="3cc-v5";
 const BASE_SIG=P.map(p=>p.code+":"+p.cxPal+":"+p.price+":"+p.gross).join("|");
 let saveTimer=0;
-function save(){clearTimeout(saveTimer);saveTimer=setTimeout(()=>{try{localStorage.setItem(STORE_KEY,JSON.stringify({v:2,base:BASE_SIG,orders:S.orders,qty:S.qty,unit:S.unit,veh:S.veh,mode:S.mode,lang:S.lang,client:S.client,view3d:S.view3d,rules:Object.fromEntries(Object.entries(CLIENTS).map(([k,c])=>[k,{mixed:!!c.mixed,autoApprove:!!c.autoApprove}])),fam:FAM,catalog:P,implog:IMP.log,rlog:RLOG.slice(0,80),drafts:S.drafts,draftId:S.draftId,vehicles:VEH,brules:RULES,blocked:Object.fromEntries(Object.entries(CLIENTS).map(([k,c])=>[k,c.blocked]))}))}catch(_){}},200)}
+function save(){clearTimeout(saveTimer);saveTimer=setTimeout(()=>{try{localStorage.setItem(STORE_KEY,JSON.stringify({v:2,base:BASE_SIG,orders:S.orders,qty:S.qty,unit:S.unit,veh:S.veh,mode:S.mode,lang:S.lang,client:S.client,view3d:S.view3d,rules:Object.fromEntries(Object.entries(CLIENTS).map(([k,c])=>[k,{mixed:!!c.mixed,autoApprove:!!c.autoApprove}])),fam:FAM,catalog:P,implog:IMP.log,rlog:RLOG.slice(0,80),drafts:S.drafts,draftId:S.draftId,priceReq:S.priceReq,vehicles:VEH,brules:RULES,blocked:Object.fromEntries(Object.entries(CLIENTS).map(([k,c])=>[k,c.blocked]))}))}catch(_){}},200)}
 function load(){
   try{
     const raw=localStorage.getItem(STORE_KEY); if(!raw)return false;
@@ -3366,6 +3460,7 @@ function load(){
     if(d.blocked&&typeof d.blocked==="object")Object.entries(d.blocked).forEach(([k,a])=>{if(CLIENTS[k]&&Array.isArray(a))CLIENTS[k].blocked=a.filter(c=>typeof c==="string")});
     if(d.fam)Object.entries(d.fam).forEach(([k,x])=>{if(!FAM[k]&&x&&x.pt)FAM[k]=x});
     if(Array.isArray(d.catalog)&&d.catalog.length&&d.catalog.every(p=>p&&p.code&&p.lastro&&p.alt)){P.length=0;d.catalog.forEach(p=>P.push(p));Object.keys(BY).forEach(k=>delete BY[k]);P.forEach(p=>BY[p.code]=p)}
+    if(Array.isArray(d.priceReq))S.priceReq=d.priceReq.filter(x=>x&&CLIENTS[x.client]&&typeof x.code==="string"&&x.at);
     if(Array.isArray(d.implog))IMP.log=d.implog; if(Array.isArray(d.rlog))RLOG.push(...d.rlog);
     S.sel=S.orders[0]?S.orders[0].id:null; return true;
   }catch(_){return false}
@@ -3385,7 +3480,13 @@ S.drafts=[{id:"r-minoil-1",client:"minoil",name:"Carreta de novembro",qty:{...S.
 S.draftId="r-minoil-1";
 try{if(location.hash==="#reset"){localStorage.removeItem(STORE_KEY);history.replaceState(null,"",location.pathname+location.search)}}catch(_){}
 load();
-S.orders.forEach(o=>{if(o.status!=="analise"&&!o.vsnap&&VEH_DEF[o.veh]){const v=VEH_DEF[o.veh];o.vsnap={pos:v.pos,kg:v.kg,m3:v.m3}}});
+/* Pedidos já aprovados antes destas regras mantêm o que tinham: capacidade de fábrica antiga (carreta 25.000 kg)
+   e o incoterm da conta na época (FCA). Os novos guardam o snapshot no momento da aprovação. */
+const VEH_LEGACY={carreta:{pos:28,kg:25000,m3:72},c40:{pos:20,kg:25000,m3:60.84},c20:{pos:10,kg:25000,m3:29.7}};
+S.orders.forEach(o=>{if(o.status==="analise")return;
+  if(!o.vsnap){const v=VEH_LEGACY[o.veh]||VEH_DEF[o.veh];if(v)o.vsnap={pos:v.pos,kg:v.kg,m3:v.m3}}
+  if(!o.incSnap)o.incSnap=CLIENTS[o.client]&&CLIENTS[o.client].inc||"FCA";
+  if(!o.priceSnap){o.priceSnap={};Object.keys(o.qty).forEach(c=>{if(BY[c]&&CLIENTS[o.client])o.priceSnap[c]=legacyPrice(BY[c],o.client)})}});
 
 /* ============ EVENTOS ============ */
 function setQty(code,v){const n=Math.max(0,Math.round((v||0)*1e6)/1e6);if(n<EPS)delete S.qty[code];else S.qty[code]=n}
@@ -3448,6 +3549,7 @@ document.addEventListener("click",e=>{
   if(b.dataset.osel){S.view="exp";S.sel=b.dataset.osel;S.qs="";S.qf="all";S.csvFor=null;render();window.scrollTo(0,0);return}
   if(b.dataset.lang){S.lang=b.dataset.lang;render();return}
   if(b.dataset.fam){S.fam=b.dataset.fam;render();return}
+  if(b.dataset.reqprice){try{API.requestPrice(S.client,b.dataset.reqprice);render();toast(t("reqPriceOk"));const nb=document.querySelector(`[data-reqprice="${b.dataset.reqprice}"]`);if(nb)nb.focus()}catch(e){toast(e.message,"err")}return}
   if(b.dataset.inc){const p=BY[b.dataset.inc];const q=S.qty[p.code]||0;setQty(p.code,(Math.floor(q/p.cxPal+EPS)+1)*p.cxPal);render();return}
   if(b.dataset.dec){const p=BY[b.dataset.dec];const q=S.qty[p.code]||0;setQty(p.code,(Math.ceil(q/p.cxPal-EPS)-1)*p.cxPal);render();return}
   if(b.dataset.close){const p=BY[b.dataset.close];setQty(p.code,Math.ceil((S.qty[p.code]||0)/p.cxPal)*p.cxPal);render();return}
